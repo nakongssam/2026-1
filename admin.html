@@ -11,18 +11,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
-    --ink:#26231c; --body:#4a463d; --muted:#9b958a; --line2:#e7e3d8;
+    --ink:#26231c; --body:#4a463d; --muted:#9b958a; --line:#efece4; --line2:#e7e3d8;
     --yellow:#ffd84d; --yellow-d:#f5c518; --yellow-soft:#fff7d6; --band:#fff2bf;
     --ok:#2f8f6a; --ok-soft:#e9f6ef; --danger:#dd5a4e;
-    --surface:#fff; --page:#fffdf7; --track:#f0ede4;
-    --shadow:0 2px 4px rgba(60,52,30,.04), 0 8px 22px rgba(80,68,30,.07);
+    --surface:#fff; --page:#fffdf7; --track:#f0ede4; --rowhover:#fcfaf2;
+    --shadow:0 2px 4px rgba(60,52,30,.04), 0 8px 22px rgba(80,68,30,.06);
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --ink:#f3efe6; --body:#d8d3c8; --muted:#9a948a; --line2:#3a372f;
+      --ink:#f3efe6; --body:#d8d3c8; --muted:#9a948a; --line:#322f28; --line2:#3a372f;
       --yellow:#ffd84d; --yellow-d:#ffe06b; --yellow-soft:#3a3320; --band:#2a2718;
       --ok:#5fcfa3; --ok-soft:#1e3a30; --danger:#ff8a7d;
-      --surface:#26241e; --page:#1b1a15; --track:#34312a;
+      --surface:#26241e; --page:#1b1a15; --track:#34312a; --rowhover:#2d2a22;
       --shadow:0 2px 4px rgba(0,0,0,.2), 0 8px 22px rgba(0,0,0,.3);
     }
   }
@@ -30,7 +30,7 @@
   body{ margin:0; font-family:"Pretendard","Apple SD Gothic Neo",system-ui,sans-serif; color:var(--body);
         font-size:16px; line-height:1.6; background:var(--page); -webkit-font-smoothing:antialiased; }
   .display{ font-family:"Gmarket Sans","Pretendard",sans-serif; }
-  .wrap{ max-width:1120px; margin:0 auto; padding:24px 18px 70px; }
+  .wrap{ max-width:1080px; margin:0 auto; padding:24px 18px 70px; }
   h1{ font-size:1.5rem; color:var(--ink); letter-spacing:-.01em; margin:6px 0 4px; cursor:default; user-select:none; }
   .sub{ color:var(--muted); font-size:.9rem; margin-bottom:18px; }
   .login{ max-width:380px; margin:70px auto; background:var(--surface); border:1px solid var(--line2);
@@ -53,35 +53,53 @@
             margin-bottom:16px; font-size:1rem; color:var(--body); box-shadow:var(--shadow); }
   .summary b{ color:var(--ink); font-weight:700; }
   .tabs{ display:inline-flex; gap:4px; margin-bottom:16px; background:var(--track); padding:5px; border-radius:13px; flex-wrap:wrap; }
-  .tab{ padding:9px 18px; border-radius:9px; background:transparent; color:var(--muted); cursor:pointer; font-weight:700; font-size:.9rem; transition:.15s; }
+  .tab{ padding:9px 16px; border-radius:9px; background:transparent; color:var(--muted); cursor:pointer; font-weight:700; font-size:.9rem; transition:.15s; }
   .tab.active{ background:var(--surface); color:var(--ink); box-shadow:var(--shadow); }
   .toolbar{ display:none; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap; }
   .toolbar.show{ display:flex; }
-  .toolbar label{ margin:0; font-size:.85rem; color:var(--body); font-weight:600; }
-  .toolbar select{ width:auto; min-width:180px; padding:9px 12px; }
-  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:16px; }
-  .grid.sum{ grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); }
-  .dcard{ background:var(--surface); border:1px solid var(--line2); border-left:5px solid var(--dc,var(--yellow-d));
-          border-radius:16px; padding:16px 18px; scroll-margin-top:16px; box-shadow:var(--shadow); }
-  .dcard.plain{ border-left:1px solid var(--line2); }
-  .dcard.clk{ cursor:pointer; transition:.15s; }
-  .dcard.clk:hover{ transform:translateY(-2px); box-shadow:0 10px 24px rgba(80,68,30,.12); }
-  .dcard .head{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:6px; }
-  .dcard .nm{ font-weight:700; color:var(--ink); font-size:1.05rem; }
-  .dcard .cnt{ font-size:.92rem; font-weight:700; white-space:nowrap; color:var(--body); }
-  .dcard .cnt.full{ color:var(--danger); }
-  .dcard .dt{ font-size:.82rem; color:var(--muted); margin-bottom:10px; min-height:2.3em; line-height:1.5; }
-  .bartrack{ height:9px; background:var(--track); border-radius:6px; overflow:hidden; }
-  .barfill{ height:100%; background:var(--dc,var(--yellow-d)); border-radius:6px; transition:width .3s; }
-  .hint{ font-size:.78rem; color:var(--muted); text-align:right; margin-top:8px; font-weight:600; }
-  table{ width:100%; border-collapse:collapse; font-size:.92rem; table-layout:fixed; }
-  th,td{ text-align:left; padding:8px 5px; border-bottom:1px solid var(--line2); vertical-align:middle; overflow-wrap:anywhere; word-break:break-word; color:var(--body); }
-  th{ color:var(--muted); font-weight:600; font-size:.8rem; }
+  .toolbar .field{ display:flex; align-items:center; gap:7px; }
+  .toolbar label{ margin:0; font-size:.85rem; color:var(--body); font-weight:600; white-space:nowrap; }
+  .toolbar select{ width:auto; min-width:150px; padding:9px 12px; }
+  .toolbar .spacer{ flex:1; }
+
+  /* 카드 (테이블 감싸기) */
+  .panel{ background:var(--surface); border:1px solid var(--line2); border-radius:16px; box-shadow:var(--shadow); overflow:hidden; margin-bottom:16px; }
+  .panel .ph{ display:flex; justify-content:space-between; align-items:center; gap:10px; padding:14px 18px; border-bottom:1px solid var(--line); }
+  .panel .ph .nm{ font-weight:700; color:var(--ink); font-size:1.04rem; display:flex; align-items:center; gap:8px; }
+  .panel .ph .cnt{ font-size:.9rem; font-weight:700; color:var(--body); white-space:nowrap; }
+  .dot{ width:11px; height:11px; border-radius:50%; flex:none; }
+
+  /* 테이블 */
+  table{ width:100%; border-collapse:collapse; font-size:.93rem; }
+  thead th{ text-align:left; padding:11px 14px; font-size:.8rem; font-weight:600; color:var(--muted);
+            background:var(--track); position:sticky; top:0; }
+  tbody td{ padding:11px 14px; border-top:1px solid var(--line); color:var(--body); vertical-align:middle; }
+  tbody tr:hover{ background:var(--rowhover); }
   td.nm{ font-weight:500; color:var(--ink); }
-  .dpill{ display:inline-block; font-size:.74rem; font-weight:700; color:#fff; padding:2px 9px; border-radius:999px; line-height:1.5; }
-  .npill{ display:inline-block; font-size:.74rem; font-weight:600; color:var(--muted); background:var(--track); padding:2px 9px; border-radius:999px; }
-  .rm{ color:var(--danger); cursor:pointer; font-size:.78rem; background:none; border:none; padding:0; font-weight:700; }
-  .empty{ color:var(--muted); font-size:.85rem; padding:10px 0; }
+  td.right{ text-align:right; }
+  .cap{ color:var(--muted); font-variant-numeric:tabular-nums; }
+  .cap b{ color:var(--ink); font-weight:700; }
+  .mini{ height:7px; width:120px; max-width:34vw; background:var(--track); border-radius:5px; overflow:hidden; display:inline-block; vertical-align:middle; margin-right:8px; }
+  .mini > i{ display:block; height:100%; border-radius:5px; }
+  .tag-full{ color:var(--danger); font-weight:700; font-size:.8rem; }
+  .dpill{ display:inline-block; font-size:.76rem; font-weight:700; color:#fff; padding:2px 10px; border-radius:999px; }
+  .npill{ display:inline-block; font-size:.76rem; font-weight:600; color:var(--muted); background:var(--track); padding:2px 10px; border-radius:999px; }
+  .rowlink{ cursor:pointer; }
+  .rowlink:hover td{ background:var(--rowhover); }
+  .chev{ color:var(--muted); }
+  .rm{ color:var(--danger); cursor:pointer; font-size:.82rem; background:none; border:none; padding:0; font-weight:700; }
+  .empty{ color:var(--muted); font-size:.88rem; padding:18px; text-align:center; }
+  .subhead{ padding:10px 18px; background:var(--yellow-soft); font-size:.85rem; font-weight:700; color:var(--ink);
+            display:flex; align-items:center; gap:8px; border-top:1px solid var(--line); }
+  .subhead .c{ color:var(--muted); font-weight:600; }
+
+  /* 프로그램 소개 탭 */
+  .introlist{ display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px; }
+  .icard{ background:var(--surface); border:1px solid var(--line2); border-left:4px solid var(--dc,var(--yellow-d));
+          border-radius:14px; padding:14px 16px; box-shadow:var(--shadow); }
+  .icard .t{ font-weight:700; color:var(--ink); margin-bottom:5px; }
+  .icard .d{ font-size:.88rem; color:var(--body); }
+
   #status{ font-size:.85rem; color:#b48a00; margin-bottom:10px; min-height:1em; font-weight:600; }
   #status.err{ color:var(--danger); } #status.ok{ color:var(--ok); }
   .modal{ position:fixed; inset:0; background:rgba(20,18,10,.55); display:none; align-items:center; justify-content:center; z-index:50; backdrop-filter:blur(2px); }
@@ -91,7 +109,8 @@
   .modal button.full{ width:100%; padding:13px; margin-top:18px; font-size:1rem; }
   .modal .x{ background:var(--surface); color:var(--muted); border:1.5px solid var(--line2); margin-top:8px; }
   .modal .mmsg{ font-size:.85rem; margin-top:10px; min-height:1em; font-weight:600; }
-  @media (max-width:480px){ .grid,.grid.sum{ grid-template-columns:1fr; } .toolbar select{ min-width:0; flex:1; } }
+  @media (max-width:520px){ .introlist{ grid-template-columns:1fr; } .toolbar select{ min-width:0; flex:1; }
+    thead th:nth-child(2), tbody td:nth-child(2){ display:none; } /* 좁은 화면에선 진행바 숨김 */ }
 </style>
 </head>
 <body>
@@ -108,7 +127,7 @@
   <div id="dash" style="display:none;">
     <div class="bar">
       <div>
-        <h1 class="display" id="title" title="">전공체험 신청 현황판</h1>
+        <h1 class="display" id="title">전공체험 신청 현황판</h1>
         <div class="sub">선문대 전공체험 · 2026. 7. 14.(화) · 실시간 업데이트</div>
       </div>
       <div class="right">
@@ -117,7 +136,6 @@
       </div>
     </div>
 
-    <!-- 숨김 버튼 (제목 5번 클릭 시 표시) -->
     <div class="bar" id="advBtns" style="display:none; justify-content:flex-start;">
       <div class="right">
         <button class="ghost" id="seedBtn">학과 초기 세팅</button>
@@ -134,22 +152,24 @@
       <div class="tab active" id="tabSummary">현황</div>
       <div class="tab" id="tabDept">학과별 명단</div>
       <div class="tab" id="tabClass">반별 명단</div>
+      <div class="tab" id="tabIntro">프로그램 소개</div>
     </div>
 
-    <!-- 반별 탭 학과 필터 -->
-    <div class="toolbar" id="classTools">
-      <label for="classDeptFilter">학과 필터</label>
-      <select id="classDeptFilter"></select>
-      <button class="ghost" id="csvClassBtn">반별 CSV</button>
-    </div>
-    <!-- 학과별 탭 CSV -->
     <div class="toolbar" id="deptTools">
+      <div class="spacer"></div>
       <button class="ghost" id="csvDeptBtn">학과별 CSV</button>
     </div>
+    <div class="toolbar" id="classTools">
+      <div class="field"><label for="classPick">반 선택</label><select id="classPick"></select></div>
+      <div class="field"><label for="classDeptFilter">학과 필터</label><select id="classDeptFilter"></select></div>
+      <div class="spacer"></div>
+      <button class="ghost" id="csvClassBtn">반별 CSV</button>
+    </div>
 
-    <div id="summaryView" class="grid sum"></div>
-    <div id="deptView" class="grid" style="display:none;"></div>
-    <div id="classView" class="grid" style="display:none;"></div>
+    <div id="summaryView"></div>
+    <div id="deptView" style="display:none;"></div>
+    <div id="classView" style="display:none;"></div>
+    <div id="introView" style="display:none;"></div>
   </div>
 </div>
 
@@ -200,7 +220,6 @@ const SEED = [
   { id:"d12", ord:12, name:"영화영상학과",           detail:"360도를 찍어보자 _ 인스타 360을 활용한 촬영 실습" },
   { id:"d13", ord:13, name:"외국어학부(영어)",       detail:"영어 전공 이해와 영어의사소통능력 향상 튜터링 프로그램" },
 ];
-// 학과별 색상 (ord 1~13)
 const DCOLORS = ["#e8643c","#3b7dd8","#2fa37a","#b65fd1","#cf9b00","#d8527c","#1fa3a0",
                  "#6a78e0","#d8453f","#5aa02c","#c2792e","#8a64d6","#4a8db5"];
 const colorOf = (ord)=>DCOLORS[((ord||1)-1) % DCOLORS.length];
@@ -208,10 +227,12 @@ const colorOf = (ord)=>DCOLORS[((ord||1)-1) % DCOLORS.length];
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
-setPersistence(auth, browserLocalPersistence).catch(()=>{});  // 새로고침해도 로그인 유지
+setPersistence(auth, browserLocalPersistence).catch(()=>{});
 const $ = (id)=>document.getElementById(id);
 
-let depts=[], students=[], seats=[], unsub=[], tab="summary", classFilter="all";
+let depts=[], students=[], seats=[], unsub=[], tab="summary";
+let classPick="all", classFilter="all";
+const ordOf={};
 
 async function sha256Hex(str){ const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(str));
   return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
@@ -220,8 +241,6 @@ const vhashOf=(sid,birth)=>sha256Hex(`${String(sid).trim()}|${normBirth(birth)}`
 const parseSid=(sid)=>{ const s=String(sid); return { classNo:+s.slice(1,3), studentNo:+s.slice(3,5) }; };
 const esc=(s)=>String(s).replace(/[&<>]/g,(c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;" }[c]));
 function setStatus(t,cls=""){ const e=$("status"); e.textContent=t; e.className=cls; }
-const ordOf={}; // deptId -> ord
-function rebuildOrd(){ depts.forEach(d=>ordOf[d.id]=d.ord); }
 
 $("loginBtn").addEventListener("click", async ()=>{
   $("loginErr").textContent="";
@@ -236,42 +255,47 @@ onAuthStateChanged(auth,(user)=>{
 });
 
 function startListening(){
-  if(unsub.length) return; // 중복 구독 방지
-  unsub.push(onSnapshot(query(collection(db,"departments"),orderBy("ord")), s=>{ depts=s.docs.map(d=>({id:d.id,...d.data()})); rebuildOrd(); buildFilter(); render(); }));
-  unsub.push(onSnapshot(collection(db,"students"), s=>{ students=s.docs.map(d=>({vhash:d.id,...d.data()})); render(); }, e=>{console.error(e); setStatus("학생 명단을 불러오지 못했습니다.","err");}));
+  if(unsub.length) return;
+  unsub.push(onSnapshot(query(collection(db,"departments"),orderBy("ord")), s=>{ depts=s.docs.map(d=>({id:d.id,...d.data()})); depts.forEach(d=>ordOf[d.id]=d.ord); buildPickers(); render(); }));
+  unsub.push(onSnapshot(collection(db,"students"), s=>{ students=s.docs.map(d=>({vhash:d.id,...d.data()})); buildPickers(); render(); }, e=>{console.error(e); setStatus("학생 명단을 불러오지 못했습니다.","err");}));
   unsub.push(onSnapshot(collection(db,"seats"), s=>{ seats=s.docs.map(d=>({vhash:d.id,...d.data()})); render(); }, e=>console.error(e)));
 }
 
-// 숨김 버튼: 제목 5번 클릭
 let clickCount=0, clickTimer=null;
 $("title").addEventListener("click", ()=>{
   clickCount++; clearTimeout(clickTimer); clickTimer=setTimeout(()=>clickCount=0, 1200);
   if(clickCount>=5){ clickCount=0; const a=$("advBtns"); a.style.display = a.style.display==="none"?"flex":"none"; }
 });
 
-$("tabSummary").addEventListener("click", ()=>switchTab("summary"));
-$("tabDept").addEventListener("click", ()=>switchTab("dept"));
-$("tabClass").addEventListener("click", ()=>switchTab("class"));
+["Summary","Dept","Class","Intro"].forEach(k=>{
+  $("tab"+k).addEventListener("click", ()=>switchTab(k.toLowerCase()));
+});
 function switchTab(t){ tab=t;
-  $("tabSummary").classList.toggle("active",t==="summary");
-  $("tabDept").classList.toggle("active",t==="dept");
-  $("tabClass").classList.toggle("active",t==="class");
-  $("summaryView").style.display = t==="summary"?"grid":"none";
-  $("deptView").style.display = t==="dept"?"grid":"none";
-  $("classView").style.display = t==="class"?"grid":"none";
+  ["summary","dept","class","intro"].forEach(k=>{
+    $("tab"+k[0].toUpperCase()+k.slice(1)).classList.toggle("active", k===t);
+    $(k+"View").style.display = (k===t)?"block":"none";
+  });
   $("deptTools").classList.toggle("show", t==="dept");
   $("classTools").classList.toggle("show", t==="class");
 }
 
-function buildFilter(){
-  const sel=$("classDeptFilter"); const prev=sel.value||"all";
-  sel.innerHTML = `<option value="all">전체 학생</option><option value="none">미신청만</option>`
+function buildPickers(){
+  const cls=[...new Set(students.map(st=>parseSid(st.studentId).classNo))].sort((a,b)=>a-b);
+  const cp=$("classPick"), prevCp=cp.value||"all";
+  cp.innerHTML = `<option value="all">전체 반</option>` + cls.map(c=>`<option value="${c}">${c}반</option>`).join("");
+  cp.value = [...cp.options].some(o=>o.value===prevCp)? prevCp : "all";
+  const df=$("classDeptFilter"), prevDf=df.value||"all";
+  df.innerHTML = `<option value="all">전체 학과</option><option value="none">미신청만</option>`
     + depts.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join("");
-  sel.value = prev;
+  df.value = [...df.options].some(o=>o.value===prevDf)? prevDf : "all";
 }
-$("classDeptFilter").addEventListener("change", (e)=>{ classFilter=e.target.value; render(); });
+$("classPick").addEventListener("change", e=>{ classPick=e.target.value; render(); });
+$("classDeptFilter").addEventListener("change", e=>{ classFilter=e.target.value; render(); });
 
-function deptBadge(name, ord){ return `<span class="dpill" style="background:${colorOf(ord)}">${esc(name)}</span>`; }
+const dot=(ord)=>`<span class="dot" style="background:${colorOf(ord)}"></span>`;
+const miniBar=(filled,cap,ord)=>{ const pct=cap?Math.round(filled/cap*100):0;
+  return `<span class="mini"><i style="width:${pct}%;background:${colorOf(ord)}"></i></span>`; };
+const deptBadge=(name,ord)=>`<span class="dpill" style="background:${colorOf(ord)}">${esc(name)}</span>`;
 
 function render(){
   const seatByVhash={}; seats.forEach(s=>seatByVhash[s.vhash]=s);
@@ -279,72 +303,109 @@ function render(){
     `신청 <b>${seats.length}</b>명 · 등록 학생 <b>${students.length}</b>명 · 학과 <b>${depts.length}</b>개`
     + (students.length?"":` · <span style="color:#dd5a4e">학생 명단이 없습니다. 제목을 5번 누르면 「학생 명단 가져오기」가 나타나요.</span>`);
 
-  // 현황
-  $("summaryView").innerHTML = depts.map(d=>{
-    const pct=d.capacity?Math.round(d.filled/d.capacity*100):0; const full=d.filled>=d.capacity;
-    return `<div class="dcard clk" data-go="${d.id}" style="--dc:${colorOf(d.ord)}">
-      <div class="head"><span class="nm">${esc(d.name)}</span>
-        <span class="cnt ${full?"full":""}">${d.filled} / ${d.capacity}</span></div>
-      <div class="dt">${esc(d.detail||"")}</div>
-      <div class="bartrack"><div class="barfill" style="width:${pct}%"></div></div>
-      <div class="hint">명단 보기 →</div>
-    </div>`;
+  // ===== 현황: 표 =====
+  const sumRows = depts.map(d=>{
+    const full=d.filled>=d.capacity;
+    return `<tr class="rowlink" data-go="${d.id}">
+      <td class="nm">${dot(d.ord)} ${esc(d.name)}</td>
+      <td>${miniBar(d.filled,d.capacity,d.ord)}<span class="cap"><b>${d.filled}</b> / ${d.capacity}</span></td>
+      <td class="right">${full?'<span class="tag-full">마감</span>':`<span class="cap">잔여 ${d.capacity-d.filled}</span>`}</td>
+      <td class="right chev">›</td>
+    </tr>`;
   }).join("");
-  $("summaryView").querySelectorAll(".dcard.clk").forEach(el=>{
+  $("summaryView").innerHTML = `<div class="panel"><table>
+    <thead><tr><th>학과</th><th>신청 현황</th><th class="right">잔여</th><th></th></tr></thead>
+    <tbody>${sumRows}</tbody></table></div>`;
+  $("summaryView").querySelectorAll(".rowlink").forEach(el=>{
     el.addEventListener("click", ()=>{ switchTab("dept");
       const t=document.getElementById("dept-"+el.dataset.go); if(t) t.scrollIntoView({behavior:"smooth", block:"start"}); });
   });
 
-  // 학과별 명단 (반만 표시)
+  // ===== 학과별 명단 (학번 숨김, 반·번호 표시) =====
   const byDept={}; seats.forEach(s=>{(byDept[s.deptId] ||= []).push(s);});
   $("deptView").innerHTML = depts.map(d=>{
     const mem=(byDept[d.id]||[]).slice().sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
     const full=d.filled>=d.capacity;
     const rows = mem.length
-      ? mem.map(m=>`<tr><td style="width:46px">${m.classNo}반</td><td style="width:70px">${m.studentId}</td>
+      ? mem.map(m=>`<tr><td style="width:90px">${m.classNo}반 ${m.studentNo}번</td>
           <td class="nm">${esc(m.name)}</td>
-          <td style="width:40px;text-align:right"><button class="rm" data-cancel="${m.vhash}">취소</button></td></tr>`).join("")
-      : `<tr><td colspan="4" class="empty">아직 신청자가 없습니다.</td></tr>`;
-    return `<div class="dcard" id="dept-${d.id}" style="--dc:${colorOf(d.ord)}">
-      <div class="head"><span class="nm">${esc(d.name)}</span>
-        <span class="cnt ${full?"full":""}">${d.filled} / ${d.capacity}</span></div>
-      <div class="dt">${esc(d.detail||"")}</div>
-      <table><thead><tr><th>반</th><th>학번</th><th>이름</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+          <td class="right" style="width:50px"><button class="rm" data-cancel="${m.vhash}">취소</button></td></tr>`).join("")
+      : `<tr><td colspan="3" class="empty">아직 신청자가 없습니다.</td></tr>`;
+    return `<div class="panel" id="dept-${d.id}">
+      <div class="ph"><span class="nm">${dot(d.ord)} ${esc(d.name)}</span>
+        <span class="cnt">${full?'<span class="tag-full">마감</span> ':''}<b>${d.filled}</b> / ${d.capacity}</span></div>
+      <table><thead><tr><th>반·번호</th><th>이름</th><th></th></tr></thead><tbody>${rows}</tbody></table>
     </div>`;
   }).join("");
   $("deptView").querySelectorAll("[data-cancel]").forEach(b=>b.addEventListener("click", ()=>cancelSeat(b.dataset.cancel)));
 
-  // 반별 명단 (학과 필터 적용)
+  // ===== 반별 명단 =====
+  renderClass(seatByVhash);
+
+  // ===== 프로그램 소개 =====
+  $("introView").innerHTML = `<div class="introlist">` + depts.map(d=>
+    `<div class="icard" style="--dc:${colorOf(d.ord)}"><div class="t">${dot(d.ord)} ${esc(d.name)}</div><div class="d">${esc(d.detail||"")}</div></div>`
+  ).join("") + `</div>`;
+}
+
+function renderClass(seatByVhash){
+  // 학생을 반별로 그룹화
   const classes={};
   students.forEach(st=>{ const p=parseSid(st.studentId);
     (classes[p.classNo] ||= []).push({ ...st, ...p, seat:seatByVhash[st.vhash]||null }); });
   const keys=Object.keys(classes).map(Number).sort((a,b)=>a-b);
-  $("classView").innerHTML = keys.length ? keys.map(c=>{
-    let list=classes[c].sort((a,b)=>a.studentNo-b.studentNo);
-    if(classFilter==="none") list=list.filter(x=>!x.seat);
-    else if(classFilter!=="all") list=list.filter(x=>x.seat && x.seat.deptId===classFilter);
-    const total=classes[c].length, done=classes[c].filter(x=>x.seat).length;
-    const cntLabel = classFilter==="all" ? `${done} / ${total} 신청`
-                   : classFilter==="none" ? `미신청 ${list.length}명`
-                   : `${list.length}명`;
+  if(!keys.length){ $("classView").innerHTML=`<div class="panel"><div class="empty">학생 명단을 먼저 등록하면 반별 명단이 표시됩니다.</div></div>`; return; }
+
+  const showKeys = (classPick==="all") ? keys : keys.filter(c=>c===+classPick);
+
+  $("classView").innerHTML = showKeys.map(c=>{
+    const all=classes[c].slice().sort((a,b)=>a.studentNo-b.studentNo);
+    const done=all.filter(x=>x.seat).length;
+
+    // 학과 필터 적용된 표
+    let list=all;
+    if(classFilter==="none") list=all.filter(x=>!x.seat);
+    else if(classFilter!=="all") list=all.filter(x=>x.seat && x.seat.deptId===classFilter);
+
     const rows = list.length ? list.map(x=>`<tr>
-        <td style="width:32px">${x.studentNo}</td>
-        <td style="width:66px">${x.studentId}</td>
+        <td style="width:54px">${x.studentNo}번</td>
         <td class="nm">${esc(x.name)}</td>
         <td>${x.seat?deptBadge(x.seat.deptName, ordOf[x.seat.deptId]):'<span class="npill">미신청</span>'}</td>
-        <td style="width:46px;text-align:right"><button class="rm" data-del="${x.vhash}">삭제</button></td>
-      </tr>`).join("") : `<tr><td colspan="5" class="empty">해당 학생이 없습니다.</td></tr>`;
-    return `<div class="dcard plain">
-      <div class="head"><span class="nm">${c}반</span><span class="cnt">${cntLabel}</span></div>
-      <table><thead><tr><th>번호</th><th>학번</th><th>이름</th><th>신청 학과</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+        <td class="right" style="width:50px"><button class="rm" data-del="${x.vhash}">삭제</button></td>
+      </tr>`).join("") : `<tr><td colspan="4" class="empty">해당하는 학생이 없습니다.</td></tr>`;
+
+    // 반 상세: 학과별로 우리 반 학생이 어떻게 들어가 있는지 (전체 학과 필터일 때만 표시)
+    let breakdown="";
+    if(classFilter==="all"){
+      const byD={}; all.forEach(x=>{ if(x.seat){ (byD[x.seat.deptId] ||= []).push(x); } });
+      const dlist=depts.filter(d=>byD[d.id]&&byD[d.id].length);
+      if(dlist.length){
+        breakdown = `<div class="subhead">📊 우리 반 학과별 신청 현황 <span class="c">(신청한 학생만)</span></div>`
+          + `<table><tbody>` + dlist.map(d=>{
+              const names=byD[d.id].sort((a,b)=>a.studentNo-b.studentNo)
+                .map(x=>`${x.studentNo} ${esc(x.name)}`).join(", ");
+              return `<tr><td style="width:200px">${deptBadge(d.name,d.ord)} <span class="cap">${byD[d.id].length}명</span></td>
+                <td class="nm" style="font-weight:400;color:var(--body)">${names}</td></tr>`;
+            }).join("") + `</tbody></table>`;
+      }
+    }
+
+    const filterNote = classFilter==="all" ? `${done} / ${all.length} 신청`
+                     : classFilter==="none" ? `미신청 ${list.length}명`
+                     : `${list.length}명`;
+
+    return `<div class="panel">
+      <div class="ph"><span class="nm">🏫 ${c}반</span><span class="cnt">${filterNote}</span></div>
+      <table><thead><tr><th>번호</th><th>이름</th><th>신청 학과</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+      ${breakdown}
     </div>`;
-  }).join("") : `<div class="empty">학생 명단을 먼저 등록하면 반별 명단이 표시됩니다.</div>`;
+  }).join("");
   $("classView").querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click", ()=>deleteStudent(b.dataset.del)));
 }
 
 async function cancelSeat(vhash){
   const s=seats.find(x=>x.vhash===vhash); if(!s) return;
-  if(!confirm(`${s.name}(${s.studentId}) 학생의 '${s.deptName}' 신청을 취소할까요?`)) return;
+  if(!confirm(`${s.name}(${s.classNo}반 ${s.studentNo}번) 학생의 '${s.deptName}' 신청을 취소할까요?`)) return;
   try {
     await runTransaction(db, async (tx)=>{
       const deptRef=doc(db,"departments",s.deptId);
@@ -356,8 +417,8 @@ async function cancelSeat(vhash){
 
 async function deleteStudent(vhash){
   const st=students.find(x=>x.vhash===vhash); if(!st) return;
-  const hasSeat=seats.find(x=>x.vhash===vhash);
-  if(!confirm(`${st.name}(${st.studentId}) 학생을 명단에서 삭제할까요?`+(hasSeat?` 신청('${hasSeat.deptName}')도 함께 취소됩니다.`:""))) return;
+  const p=parseSid(st.studentId); const hasSeat=seats.find(x=>x.vhash===vhash);
+  if(!confirm(`${st.name}(${p.classNo}반 ${p.studentNo}번) 학생을 명단에서 삭제할까요?`+(hasSeat?` 신청('${hasSeat.deptName}')도 함께 취소됩니다.`:""))) return;
   try {
     if(hasSeat){
       await runTransaction(db, async (tx)=>{
@@ -437,17 +498,17 @@ function download(name,csv){ const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
 $("csvDeptBtn").addEventListener("click", ()=>{
   const rows=seats.slice().sort((a,b)=>((ordOf[a.deptId]||0)-(ordOf[b.deptId]||0))||(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
-  let csv="학과,반,번호,학번,이름,신청시각\n";
+  let csv="학과,반,번호,이름,신청시각\n";
   rows.forEach(r=>{ const t=r.createdAt?.toDate?r.createdAt.toDate().toLocaleString("ko-KR"):"";
-    csv+=`"${r.deptName}",${r.classNo},${r.studentNo},"${r.studentId}","${(r.name||"").replace(/"/g,'""')}","${t}"\n`; });
+    csv+=`"${r.deptName}",${r.classNo},${r.studentNo},"${(r.name||"").replace(/"/g,'""')}","${t}"\n`; });
   download(`전공체험_학과별명단_${new Date().toISOString().slice(0,10)}.csv`, csv);
 });
 $("csvClassBtn").addEventListener("click", ()=>{
   const seatByVhash={}; seats.forEach(s=>seatByVhash[s.vhash]=s);
-  const recs=students.map(st=>{ const p=parseSid(st.studentId); return {...p, studentId:st.studentId, name:st.name, seat:seatByVhash[st.vhash]||null}; })
+  const recs=students.map(st=>{ const p=parseSid(st.studentId); return {...p, name:st.name, seat:seatByVhash[st.vhash]||null}; })
     .sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
-  let csv="반,번호,학번,이름,신청학과,상태\n";
-  recs.forEach(r=>{ csv+=`${r.classNo},${r.studentNo},"${r.studentId}","${(r.name||"").replace(/"/g,'""')}","${r.seat?r.seat.deptName:""}","${r.seat?"신청완료":"미신청"}"\n`; });
+  let csv="반,번호,이름,신청학과,상태\n";
+  recs.forEach(r=>{ csv+=`${r.classNo},${r.studentNo},"${(r.name||"").replace(/"/g,'""')}","${r.seat?r.seat.deptName:""}","${r.seat?"신청완료":"미신청"}"\n`; });
   download(`전공체험_반별명단_${new Date().toISOString().slice(0,10)}.csv`, csv);
 });
 </script>
