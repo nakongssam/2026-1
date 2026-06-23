@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>전공체험 신청 현황판 (담임용)</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root { --navy:#2b3a67; --blue:#3d6cb9; --bg:#f4f6fb; --green:#1a9c5b; --red:#d23d3d; --gray:#8a93a6; --line:#e2e6ef; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif; background:var(--bg); color:#1f2533; }
+  .wrap { max-width:1040px; margin:0 auto; padding:18px 16px 60px; }
+  h1 { font-size:1.3rem; color:var(--navy); margin:8px 0 4px; }
+  .sub { color:#5a6478; font-size:.9rem; margin-bottom:16px; }
+  .login { max-width:380px; margin:60px auto; background:#fff; border:1px solid var(--line); border-radius:12px; padding:24px; }
+  .login h2 { margin:0 0 16px; color:var(--navy); font-size:1.1rem; }
+  label { display:block; font-size:.85rem; font-weight:600; margin:10px 0 5px; color:#3a4256; }
+  input { width:100%; padding:11px; border:1px solid #cfd5e2; border-radius:8px; font-size:1rem; }
+  button { border:none; border-radius:8px; background:var(--blue); color:#fff; font-weight:700; cursor:pointer; }
+  .login button { width:100%; margin-top:16px; padding:12px; font-size:1rem; }
+  .bar { display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .bar .right { display:flex; gap:8px; flex-wrap:wrap; }
+  .bar button { padding:9px 13px; font-size:.88rem; }
+  .ghost { background:#fff; color:var(--navy); border:1px solid #cfd5e2; }
+  .summary { background:#fff; border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin-bottom:14px; font-size:.95rem; }
+  .summary b { color:var(--navy); }
+  .tabs { display:flex; gap:8px; margin-bottom:14px; }
+  .tab { padding:9px 16px; border-radius:999px; background:#fff; border:1px solid #cfd5e2; color:var(--navy); cursor:pointer; font-weight:700; font-size:.9rem; }
+  .tab.active { background:var(--navy); color:#fff; border-color:var(--navy); }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+  .dcard { background:#fff; border:1px solid var(--line); border-radius:12px; padding:14px 16px; }
+  .dcard .head { display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:6px; }
+  .dcard .nm { font-weight:700; color:var(--navy); }
+  .dcard .cnt { font-size:.9rem; font-weight:700; }
+  .dcard .cnt.full { color:var(--red); } .dcard .cnt.ok { color:var(--green); }
+  .dcard .dt { font-size:.76rem; color:var(--gray); margin-bottom:8px; }
+  .bartrack { height:7px; background:#eef1f6; border-radius:4px; overflow:hidden; margin-bottom:10px; }
+  .barfill { height:100%; background:var(--blue); }
+  table { width:100%; border-collapse:collapse; font-size:.85rem; }
+  th, td { text-align:left; padding:5px 4px; border-bottom:1px solid #f0f2f6; vertical-align:middle; }
+  th { color:var(--gray); font-weight:600; }
+  td.none { color:#b6bccb; }
+  .pill { font-size:.72rem; padding:2px 7px; border-radius:999px; }
+  .pill.done { background:#e7f6ee; color:var(--green); }
+  .pill.no { background:#f3f4f7; color:var(--gray); }
+  .rm { color:var(--red); cursor:pointer; font-size:.78rem; background:none; border:none; padding:0; }
+  .empty { color:#aab; font-size:.83rem; padding:8px 0; }
+  .err { color:var(--red); font-size:.85rem; margin-top:8px; }
+  .ok { color:var(--green); font-size:.85rem; margin-top:8px; }
+  #status { font-size:.85rem; color:var(--navy); margin-bottom:10px; min-height:1em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <!-- 로그인 -->
+  <div class="login" id="login">
+    <h2>담임 로그인</h2>
+    <label>이메일</label><input id="email" type="email" placeholder="교사 계정 이메일" />
+    <label>비밀번호</label><input id="pw" type="password" />
+    <button id="loginBtn">로그인</button>
+    <div class="err" id="loginErr"></div>
+  </div>
+
+  <!-- 현황판 -->
+  <div id="dash" style="display:none;">
+    <div class="bar">
+      <div>
+        <h1>📋 전공체험 신청 현황판</h1>
+        <div class="sub">선문대 전공체험 · 2026. 7. 14.(화) · 실시간 업데이트</div>
+      </div>
+      <div class="right">
+        <button class="ghost" id="importBtn">학생 명단 가져오기</button>
+        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" />
+        <button class="ghost" id="seedBtn">학과 초기 세팅</button>
+        <button class="ghost" id="recalcBtn">정원 재계산</button>
+        <button class="ghost" id="logoutBtn">로그아웃</button>
+      </div>
+    </div>
+
+    <div id="status"></div>
+    <div class="summary" id="summary">불러오는 중…</div>
+
+    <div class="tabs">
+      <div class="tab active" id="tabDept">학과별</div>
+      <div class="tab" id="tabClass">반별</div>
+    </div>
+    <div class="bar" style="justify-content:flex-end;">
+      <div class="right">
+        <button id="csvDeptBtn">학과별 명단 CSV</button>
+        <button id="csvClassBtn">반별 명단 CSV</button>
+      </div>
+    </div>
+
+    <div id="deptView" class="grid"></div>
+    <div id="classView" class="grid" style="display:none;"></div>
+  </div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import {
+  getFirestore, collection, doc, query, orderBy, onSnapshot,
+  getDocs, setDoc, writeBatch, runTransaction
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+/* ===== Firebase 설정: index.html과 동일한 값을 붙여넣으세요 ===== */
+const firebaseConfig = {
+  apiKey: "AIzaSyBHLhwEiE8PyX4Voy1xsS3PZksSMIZ1nos0",
+  authDomain: "project-8873314123491726167.firebaseapp.com",
+  projectId: "project-8873314123491726167",
+  storageBucket: "project-8873314123491726167.firebasestorage.app",
+  messagingSenderId: "651427691407",
+  appId: "1:651427691407:web:2c7530ff9b8035428469fa",
+  measurementId: "G-FTNE1QRPN7",
+};
+/* ============================================================ */
+
+/* 학과 시드 (정원 36) */
+const SEED = [
+  { id:"d01", ord:1,  name:"사학과",                 detail:"임진왜란과 비밀병기: 거북선 키트 만들기" },
+  { id:"d02", ord:2,  name:"경찰행정법학과",         detail:"경찰공무원(법집행공무원) 되기와 경찰 장구 사용의 다양한 체험" },
+  { id:"d03", ord:3,  name:"사회복지학과",           detail:"우리마을 지도 만들기, 마을 한 바퀴 부루마블" },
+  { id:"d04", ord:4,  name:"미디어커뮤니케이션학부", detail:"미디어커뮤니케이션 전공 탐색: 광고, PR, 영상 콘텐츠와 AI" },
+  { id:"d05", ord:5,  name:"경영학과",               detail:"주식모의투자를 통한 경영학의 이해" },
+  { id:"d06", ord:6,  name:"항공서비스학과",         detail:'오늘은 "나도 Cabin Crew": 객실 승무원 실전 체험' },
+  { id:"d07", ord:7,  name:"제약생명공학과",         detail:"DNA 추출, 크로마토그래피" },
+  { id:"d08", ord:8,  name:"간호학과",               detail:"1일 나이팅게일 체험" },
+  { id:"d09", ord:9,  name:"응급구조학과",           detail:"119 구급대 및 병원 응급실 응급구조사 직무 체험" },
+  { id:"d10", ord:10, name:"지능로봇공학과",         detail:"미래를 움직이는 로봇: AI + 자율 시스템 체험" },
+  { id:"d11", ord:11, name:"스포츠과학과",           detail:"스포츠과학 운동능력 테스트: 체육 계열 실기와 스포츠 과학 실험실 체험" },
+  { id:"d12", ord:12, name:"영화영상학과",           detail:"360도를 찍어보자 _ 인스타 360을 활용한 촬영 실습" },
+  { id:"d13", ord:13, name:"외국어학부(영어)",       detail:"영어 전공 이해와 영어의사소통능력 향상 튜터링 프로그램" },
+];
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+const $ = (id) => document.getElementById(id);
+
+let depts = [], students = [], seats = [], unsub = [];
+
+/* 유틸 */
+async function sha256Hex(str){ const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(str));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
+const normBirth = (s)=>String(s).replace(/\D/g,"").padStart(6,"0").slice(-6);
+const vhashOf = (sid,birth)=>sha256Hex(`${String(sid).trim()}|${normBirth(birth)}`);
+const parseSid = (sid)=>{ const s=String(sid); return { classNo:+s.slice(1,3), studentNo:+s.slice(3,5) }; };
+const esc = (s)=>String(s).replace(/[&<>]/g,(c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;" }[c]));
+function setStatus(t, cls="status"){ const e=$("status"); e.textContent=t; e.className=cls; }
+
+/* 로그인 */
+$("loginBtn").addEventListener("click", async ()=>{
+  $("loginErr").textContent="";
+  try { await signInWithEmailAndPassword(auth, $("email").value.trim(), $("pw").value); }
+  catch(e){ $("loginErr").textContent="로그인 실패: 이메일/비밀번호를 확인해 주세요."; }
+});
+$("logoutBtn").addEventListener("click", ()=>signOut(auth));
+
+onAuthStateChanged(auth, (user)=>{
+  if (user) { $("login").style.display="none"; $("dash").style.display="block"; startListening(); }
+  else { unsub.forEach(fn=>fn()); unsub=[]; $("login").style.display="block"; $("dash").style.display="none"; }
+});
+
+/* 실시간 구독 */
+function startListening(){
+  unsub.push(onSnapshot(query(collection(db,"departments"),orderBy("ord")), s=>{
+    depts=s.docs.map(d=>({id:d.id,...d.data()})); render();
+  }));
+  unsub.push(onSnapshot(collection(db,"students"), s=>{
+    students=s.docs.map(d=>({vhash:d.id,...d.data()})); render();
+  }, e=>console.error(e)));
+  unsub.push(onSnapshot(collection(db,"seats"), s=>{
+    seats=s.docs.map(d=>({vhash:d.id,...d.data()})); render();
+  }, e=>console.error(e)));
+}
+
+/* 탭 */
+let tab="dept";
+$("tabDept").addEventListener("click", ()=>switchTab("dept"));
+$("tabClass").addEventListener("click", ()=>switchTab("class"));
+function switchTab(t){ tab=t;
+  $("tabDept").classList.toggle("active", t==="dept");
+  $("tabClass").classList.toggle("active", t==="class");
+  $("deptView").style.display = t==="dept"?"grid":"none";
+  $("classView").style.display = t==="class"?"grid":"none";
+}
+
+/* 렌더 */
+function render(){
+  const seatByVhash = {}; seats.forEach(s=>seatByVhash[s.vhash]=s);
+  $("summary").innerHTML =
+    `총 신청 <b>${seats.length}명</b> / 등록 학생 <b>${students.length}명</b> / 학과 <b>${depts.length}개</b>`
+    + (students.length ? "" : ` · <span style="color:#d23d3d">학생 명단을 아직 가져오지 않았습니다. 우측 「학생 명단 가져오기」를 눌러주세요.</span>`);
+
+  // 학과별
+  const byDept = {}; seats.forEach(s=>{(byDept[s.deptId] ||= []).push(s);});
+  $("deptView").innerHTML = depts.map(d=>{
+    const mem = (byDept[d.id]||[]).slice().sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
+    const pct = d.capacity ? Math.round(d.filled/d.capacity*100) : 0;
+    const full = d.filled >= d.capacity;
+    const rows = mem.length
+      ? mem.map(m=>`<tr><td>${m.classNo}-${m.studentNo}</td><td>${m.studentId}</td><td>${esc(m.name)}</td>
+          <td><button class="rm" data-v="${m.vhash}">취소</button></td></tr>`).join("")
+      : `<tr><td colspan="4" class="empty">아직 신청자가 없습니다.</td></tr>`;
+    return `<div class="dcard">
+      <div class="head"><span class="nm">${d.name}</span>
+        <span class="cnt ${full?"full":"ok"}">${d.filled} / ${d.capacity}</span></div>
+      <div class="dt">${d.detail||""}</div>
+      <div class="bartrack"><div class="barfill" style="width:${pct}%"></div></div>
+      <table><thead><tr><th>반-번</th><th>학번</th><th>이름</th><th></th></tr></thead><tbody>${rows}</tbody></table>
+    </div>`;
+  }).join("");
+
+  // 반별 (미신청 포함)
+  const classes = {};
+  students.forEach(st=>{
+    const { classNo, studentNo } = parseSid(st.studentId);
+    (classes[classNo] ||= []).push({ ...st, classNo, studentNo, seat: seatByVhash[st.vhash] || null });
+  });
+  const classKeys = Object.keys(classes).map(Number).sort((a,b)=>a-b);
+  $("classView").innerHTML = classKeys.length ? classKeys.map(c=>{
+    const list = classes[c].sort((a,b)=>a.studentNo-b.studentNo);
+    const done = list.filter(x=>x.seat).length;
+    const rows = list.map(x=>`<tr>
+        <td>${x.studentNo}</td><td>${x.studentId}</td><td>${esc(x.name)}</td>
+        <td>${x.seat ? esc(x.seat.deptName) : '<span class="none">미신청</span>'}</td>
+        <td>${x.seat ? '<span class="pill done">완료</span>' : '<span class="pill no">대기</span>'}</td>
+      </tr>`).join("");
+    return `<div class="dcard">
+      <div class="head"><span class="nm">${c}반</span>
+        <span class="cnt ${done===list.length?"ok":""}">${done} / ${list.length} 신청</span></div>
+      <table><thead><tr><th>번호</th><th>학번</th><th>이름</th><th>신청 학과</th><th>상태</th></tr></thead>
+        <tbody>${rows}</tbody></table>
+    </div>`;
+  }).join("") : `<div class="empty">학생 명단을 먼저 가져오면 반별 명단이 표시됩니다.</div>`;
+
+  document.querySelectorAll(".rm").forEach(b=>b.addEventListener("click", ()=>cancel(b.dataset.v)));
+}
+
+/* 담임이 특정 학생 신청 취소 */
+async function cancel(vhash){
+  const s = seats.find(x=>x.vhash===vhash); if(!s) return;
+  if(!confirm(`${s.name}(${s.studentId}) 학생의 '${s.deptName}' 신청을 취소할까요?`)) return;
+  try {
+    await runTransaction(db, async (tx)=>{
+      const deptRef=doc(db,"departments",s.deptId);
+      const ds=await tx.get(deptRef);
+      const cur=ds.exists()?ds.data().filled:0;
+      tx.update(deptRef,{filled:Math.max(0,cur-1)});
+      tx.delete(doc(db,"seats",vhash));
+    });
+  } catch(e){ console.error(e); alert("취소 중 오류가 발생했습니다."); }
+}
+
+/* 학과 초기 세팅 */
+$("seedBtn").addEventListener("click", async ()=>{
+  const ex=await getDocs(collection(db,"departments"));
+  if(!ex.empty && !confirm("이미 학과 데이터가 있습니다. 시드값으로 덮어쓸까요? (신청 수 filled가 0으로 초기화됩니다)")) return;
+  if(ex.empty && !confirm("13개 학과를 정원 36명으로 생성합니다. 진행할까요?")) return;
+  try {
+    for(const s of SEED) await setDoc(doc(db,"departments",s.id),
+      { name:s.name, ord:s.ord, detail:s.detail, capacity:36, filled:0 });
+    setStatus("학과 초기 세팅 완료","ok");
+  } catch(e){ console.error(e); setStatus("세팅 중 오류가 발생했습니다.","err"); }
+});
+
+/* 정원 재계산 (filled = 실제 신청 수) */
+$("recalcBtn").addEventListener("click", async ()=>{
+  if(!confirm("실제 신청 내역을 기준으로 각 학과의 신청 수를 다시 계산합니다. 진행할까요?")) return;
+  try {
+    const cnt={}; seats.forEach(s=>cnt[s.deptId]=(cnt[s.deptId]||0)+1);
+    for(const d of depts) await setDoc(doc(db,"departments",d.id), { filled: cnt[d.id]||0 }, { merge:true });
+    setStatus("정원 재계산 완료","ok");
+  } catch(e){ console.error(e); setStatus("재계산 중 오류가 발생했습니다.","err"); }
+});
+
+/* 학생 명단 가져오기 (엑셀 → students 컬렉션) */
+$("importBtn").addEventListener("click", ()=>$("fileInput").click());
+$("fileInput").addEventListener("change", async (e)=>{
+  const file=e.target.files[0]; if(!file) return;
+  setStatus("엑셀을 읽는 중…");
+  try {
+    const buf=await file.arrayBuffer();
+    const wb=XLSX.read(buf,{type:"array"});
+    const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{defval:""});
+    // 헤더 자동 인식: 학번/이름/생년월일
+    const pick=(row,keys)=>{ for(const k of Object.keys(row)){ if(keys.some(t=>k.includes(t))) return row[k]; } return ""; };
+    const recs=[];
+    for(const r of rows){
+      const sid=String(pick(r,["학번"])).trim();
+      const name=String(pick(r,["이름","성명"])).trim();
+      const birth=normBirth(pick(r,["생년월일","생년","주민","생일"]));
+      if(/^\d{5}$/.test(sid) && name && /^\d{6}$/.test(birth)) recs.push({sid,name,birth});
+    }
+    if(!recs.length){ setStatus("학번/이름/생년월일 형식을 인식하지 못했습니다. (학번 5자리, 생년월일 6자리)","err"); return; }
+    if(!confirm(`${recs.length}명의 학생 명단을 등록합니다. 진행할까요?`)) { setStatus(""); return; }
+
+    setStatus("등록 중… (학번+생년월일을 해시로 변환하여 저장)");
+    let done=0;
+    for(let i=0;i<recs.length;i+=400){
+      const chunk=recs.slice(i,i+400);
+      const batch=writeBatch(db);
+      for(const rec of chunk){
+        const vh=await vhashOf(rec.sid, rec.birth);
+        batch.set(doc(db,"students",vh), { name:rec.name, studentId:rec.sid });
+      }
+      await batch.commit(); done+=chunk.length;
+      setStatus(`등록 중… ${done}/${recs.length}`);
+    }
+    setStatus(`학생 명단 ${recs.length}명 등록 완료`,"ok");
+  } catch(err){ console.error(err); setStatus("명단 가져오기 중 오류가 발생했습니다.","err"); }
+  finally { e.target.value=""; }
+});
+
+/* CSV 다운로드 */
+function download(name, csv){
+  const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download=name; a.click(); URL.revokeObjectURL(a.href);
+}
+$("csvDeptBtn").addEventListener("click", ()=>{
+  const order={}; depts.forEach(d=>order[d.id]=d.ord);
+  const rows=seats.slice().sort((a,b)=>(order[a.deptId]-order[b.deptId])||(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
+  let csv="학과,반,번호,학번,이름,신청시각\n";
+  rows.forEach(r=>{
+    const t=r.createdAt?.toDate ? r.createdAt.toDate().toLocaleString("ko-KR") : "";
+    csv+=`"${r.deptName}",${r.classNo},${r.studentNo},"${r.studentId}","${(r.name||"").replace(/"/g,'""')}","${t}"\n`;
+  });
+  download(`전공체험_학과별명단_${new Date().toISOString().slice(0,10)}.csv`, csv);
+});
+$("csvClassBtn").addEventListener("click", ()=>{
+  const seatByVhash={}; seats.forEach(s=>seatByVhash[s.vhash]=s);
+  const recs=students.map(st=>{ const p=parseSid(st.studentId);
+    return { ...p, studentId:st.studentId, name:st.name, seat:seatByVhash[st.vhash]||null }; })
+    .sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
+  let csv="반,번호,학번,이름,신청학과,상태\n";
+  recs.forEach(r=>{
+    csv+=`${r.classNo},${r.studentNo},"${r.studentId}","${(r.name||"").replace(/"/g,'""')}",`
+       + `"${r.seat?r.seat.deptName:""}","${r.seat?"신청완료":"미신청"}"\n`;
+  });
+  download(`전공체험_반별명단_${new Date().toISOString().slice(0,10)}.csv`, csv);
+});
+</script>
+</body>
+</html>
