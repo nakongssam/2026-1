@@ -10,79 +10,80 @@
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 <style>
   :root{
-    --ink:#26231c; --body:#4a463d; --muted:#9b958a; --line:#efece4; --line2:#e7e3d8;
+    --ink:#26231c; --body:#4a463d; --muted:#9b958a; --line2:#e7e3d8;
     --yellow:#ffd84d; --yellow-d:#f5c518; --yellow-soft:#fff7d6; --band:#fff2bf;
-    --ok:#2f8f6a; --ok-soft:#e9f6ef; --danger:#dd5a4e; --surface:#fff;
+    --ok:#2f8f6a; --ok-soft:#e9f6ef; --danger:#dd5a4e; --surface:#fff; --page:#fffdf7;
     --shadow:0 2px 4px rgba(60,52,30,.04), 0 8px 22px rgba(80,68,30,.07);
     --radius:18px;
   }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ink:#f3efe6; --body:#d8d3c8; --muted:#9a948a; --line2:#3a372f;
+      --yellow:#ffd84d; --yellow-d:#ffe06b; --yellow-soft:#3a3320; --band:#2a2718;
+      --ok:#5fcfa3; --ok-soft:#1e3a30; --danger:#ff8a7d; --surface:#26241e; --page:#1b1a15;
+      --shadow:0 2px 4px rgba(0,0,0,.2), 0 8px 22px rgba(0,0,0,.3);
+    }
+  }
   *{ box-sizing:border-box; }
   body{ margin:0; font-family:"Pretendard","Apple SD Gothic Neo",system-ui,sans-serif; color:var(--body);
-        font-size:16px; line-height:1.62; background:#fffdf7; -webkit-font-smoothing:antialiased; }
+        font-size:16px; line-height:1.62; background:var(--page); -webkit-font-smoothing:antialiased; }
   .display{ font-family:"Gmarket Sans","Pretendard",sans-serif; }
 
-  /* 헤더 옐로 밴드 */
-  .band{ background:linear-gradient(180deg,var(--band) 0%, #fff7d8 100%); border-bottom:1px solid #f3e6a8; }
-  .band .inner{ max-width:660px; margin:0 auto; padding:30px 18px 34px; text-align:center; }
-  .badge{ display:inline-block; background:#fff; color:#b48a00; font-weight:700; font-size:.8rem;
-          padding:6px 14px; border-radius:999px; box-shadow:0 2px 6px rgba(120,90,0,.1); }
+  .band{ background:linear-gradient(180deg,var(--band) 0%, var(--page) 100%); }
+  .band .inner{ max-width:760px; margin:0 auto; padding:28px 20px 26px; text-align:center; }
+  .badge{ display:inline-block; background:var(--surface); color:var(--yellow-d); font-weight:700; font-size:.8rem;
+          padding:6px 14px; border-radius:999px; box-shadow:var(--shadow); }
+  @media (prefers-color-scheme: dark){ .badge{ color:#ffe06b; } }
   .band h1{ font-size:2rem; color:var(--ink); margin:14px 0 6px; letter-spacing:-.01em; }
-  .band .tag{ color:#7a6b3a; font-size:.95rem; font-weight:500; }
-  .band .tag b{ color:#5a4d20; }
+  .band .tag{ color:var(--muted); font-size:.95rem; font-weight:500; }
+  .band .tag b{ color:var(--body); }
 
-  .wrap{ max-width:660px; margin:0 auto; padding:22px 18px 72px; }
+  .wrap{ max-width:760px; margin:0 auto; padding:8px 20px 72px; }
 
-  .intro{ background:#fff; border:1px solid var(--line2); border-radius:var(--radius); padding:18px 20px; margin-bottom:18px; box-shadow:var(--shadow); }
-  .intro .t{ font-weight:700; color:var(--ink); font-size:1rem; margin-bottom:10px; display:flex; align-items:center; gap:7px; }
-  .intro ul{ margin:0; padding-left:4px; list-style:none; }
-  .intro li{ font-size:.93rem; color:var(--body); margin:7px 0; padding-left:24px; position:relative; }
-  .intro li::before{ content:""; position:absolute; left:4px; top:.62em; width:7px; height:7px; border-radius:50%; background:var(--yellow-d); }
+  .intro{ background:var(--surface); border:1px solid var(--line2); border-radius:var(--radius); padding:16px 20px; margin-bottom:18px; box-shadow:var(--shadow); }
+  .intro ul{ margin:0; padding-left:2px; list-style:none; }
+  .intro li{ font-size:.93rem; color:var(--body); margin:6px 0; padding-left:22px; position:relative; }
+  .intro li::before{ content:""; position:absolute; left:2px; top:.62em; width:7px; height:7px; border-radius:50%; background:var(--yellow-d); }
   .intro li b{ color:var(--ink); font-weight:700; }
 
-  .card{ background:var(--surface); border:1px solid var(--line2); border-radius:var(--radius); padding:22px 20px; margin-bottom:16px; box-shadow:var(--shadow); }
+  .card{ background:var(--surface); border:1px solid var(--line2); border-radius:var(--radius); padding:24px 22px; margin-bottom:16px; box-shadow:var(--shadow); }
   .card h2{ margin:0 0 4px; font-size:1.12rem; font-weight:700; color:var(--ink); }
   .card .sub{ color:var(--muted); font-size:.88rem; margin:0 0 16px; }
-  label{ display:block; font-size:.84rem; font-weight:600; margin:14px 0 6px; color:#5a554a; }
+  label{ display:block; font-size:.84rem; font-weight:600; margin:14px 0 6px; color:var(--body); }
   input{ width:100%; padding:13px 15px; border:1.5px solid var(--line2); border-radius:12px; font-size:1rem;
-         color:var(--ink); background:#fffdf7; transition:.15s; }
-  input::placeholder{ color:#bdb8ac; }
-  input:focus{ outline:none; border-color:var(--yellow-d); background:#fff; box-shadow:0 0 0 3px rgba(245,197,24,.22); }
+         color:var(--ink); background:var(--page); transition:.15s; }
+  input::placeholder{ color:var(--muted); }
+  input:focus{ outline:none; border-color:var(--yellow-d); background:var(--surface); box-shadow:0 0 0 3px rgba(245,197,24,.25); }
   button{ width:100%; margin-top:20px; padding:15px; border:none; border-radius:13px; font-size:1.05rem;
           font-weight:700; cursor:pointer; transition:.15s; background:var(--yellow); color:#3a3320;
-          box-shadow:0 4px 14px rgba(245,197,24,.4); }
+          box-shadow:0 4px 14px rgba(245,197,24,.35); }
   button:hover{ background:var(--yellow-d); }
   button:active{ transform:translateY(1px); }
-  button.sub2{ background:#fff; color:var(--ink); border:1.5px solid var(--line2); box-shadow:none; font-weight:600; }
-  button.sub2:hover{ background:#faf9f4; }
-  button.danger{ background:#fff; color:var(--danger); border:1.5px solid #f2c9c4; box-shadow:none; }
-  button.danger:hover{ background:#fdf3f2; }
-  button:disabled{ background:#ece8dd; color:#b3ad9f; box-shadow:none; cursor:not-allowed; }
-  .msg{ margin-top:16px; padding:13px 15px; border-radius:12px; font-size:.93rem; font-weight:500; display:none; }
+  button.sub2{ background:var(--surface); color:var(--body); border:1.5px solid var(--line2); box-shadow:none; font-weight:600; }
+  button.danger{ background:var(--surface); color:var(--danger); border:1.5px solid var(--danger); box-shadow:none; }
+  button:disabled{ background:var(--line2); color:var(--muted); box-shadow:none; cursor:not-allowed; }
+  .msg{ margin-top:16px; padding:13px 15px; border-radius:12px; font-size:.93rem; font-weight:600; display:none; }
   .msg.show{ display:block; }
-  .msg.success{ background:var(--ok-soft); color:#1f6f50; }
-  .msg.error{ background:#fdeeec; color:#c0473c; }
-  .msg.info{ background:var(--yellow-soft); color:#8a6d00; }
+  .msg.success{ background:var(--ok-soft); color:var(--ok); }
+  .msg.error{ background:var(--yellow-soft); color:var(--danger); }
+  .msg.info{ background:var(--yellow-soft); color:var(--ink); }
 
-  .hello{ font-size:1.15rem; font-weight:700; color:var(--ink); }
+  .hello{ font-size:1.15rem; font-weight:700; color:var(--ink); margin-bottom:16px; }
   .hello .small{ font-size:.85rem; font-weight:500; color:var(--muted); margin-left:6px; }
-  .total{ display:flex; gap:10px; margin:14px 0 18px; }
-  .stat{ flex:1; background:var(--yellow-soft); border:1px solid #f6e6a6; border-radius:13px; padding:11px 14px; text-align:center; }
-  .stat .n{ font-size:1.35rem; font-weight:700; color:var(--ink); }
-  .stat .l{ font-size:.78rem; color:#8a7a3a; font-weight:600; }
 
-  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; }
-  .blk{ position:relative; text-align:left; background:#fff; border:1.5px solid var(--line2); border-radius:15px;
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; }
+  .blk{ position:relative; text-align:left; background:var(--surface); border:1.5px solid var(--line2); border-radius:15px;
         padding:15px 16px; cursor:pointer; transition:.14s; }
   .blk:hover{ border-color:var(--yellow-d); transform:translateY(-2px); box-shadow:var(--shadow); }
   .blk .nm{ font-weight:700; color:var(--ink); font-size:1.04rem; }
   .blk .dt{ font-size:.86rem; color:var(--muted); margin-top:4px; min-height:2.5em; line-height:1.48; }
-  .blk .bartrack{ height:6px; background:#f0ede4; border-radius:5px; overflow:hidden; margin-top:11px; }
+  .blk .bartrack{ height:6px; background:var(--line2); border-radius:5px; overflow:hidden; margin-top:11px; }
   .blk .barfill{ height:100%; background:var(--yellow-d); border-radius:5px; transition:width .3s; }
   .blk .seat{ margin-top:8px; font-size:.88rem; font-weight:700; color:var(--ok); }
-  .blk.selected{ border-color:var(--yellow-d); background:var(--yellow-soft); box-shadow:0 0 0 2.5px rgba(245,197,24,.3); }
+  .blk.selected{ border-color:var(--yellow-d); background:var(--yellow-soft); box-shadow:0 0 0 2.5px rgba(245,197,24,.35); }
   .blk.selected .nm::after{ content:"✓"; display:inline-grid; place-items:center; width:18px; height:18px; margin-left:7px;
         background:var(--yellow-d); color:#5a4d20; border-radius:50%; font-size:.7rem; font-weight:800; vertical-align:middle; }
-  .blk.full{ opacity:.5; cursor:not-allowed; background:#faf9f5; }
+  .blk.full{ opacity:.5; cursor:not-allowed; }
   .blk.full:hover{ border-color:var(--line2); transform:none; box-shadow:none; }
   .blk.full .seat{ color:var(--danger); }
   .blk.mine{ border-color:var(--ok); background:var(--ok-soft); }
@@ -90,12 +91,12 @@
         background:var(--ok); padding:2px 8px; border-radius:999px; vertical-align:middle; }
   .blk.locked{ cursor:default; }
   .blk.locked:not(.mine):hover{ border-color:var(--line2); transform:none; box-shadow:none; }
-  .current{ background:var(--ok-soft); border:1.5px solid #bfe6d3; border-radius:15px; padding:16px 18px; margin-bottom:14px; }
-  .current .lab{ font-size:.82rem; color:#3f7a63; font-weight:500; }
-  .current .val{ font-size:1.3rem; font-weight:700; color:#1f6f50; margin-top:2px; }
+  .current{ background:var(--ok-soft); border:1.5px solid var(--ok); border-radius:15px; padding:16px 18px; margin-bottom:14px; }
+  .current .lab{ font-size:.82rem; color:var(--ok); font-weight:600; }
+  .current .val{ font-size:1.3rem; font-weight:700; color:var(--ok); margin-top:2px; }
   .loading{ text-align:center; color:var(--muted); padding:26px 0; }
   .hidden{ display:none; }
-  @media (max-width:480px){ .band h1{ font-size:1.6rem; } .grid{ grid-template-columns:1fr; } }
+  @media (max-width:480px){ .band h1{ font-size:1.6rem; } .grid{ grid-template-columns:1fr; } .wrap{ padding-left:14px; padding-right:14px; } }
 </style>
 </head>
 <body>
@@ -109,9 +110,7 @@
 
 <div class="wrap">
   <div class="intro">
-    <div class="t">🐝 전공체험이란?</div>
     <ul>
-      <li>대학 학과를 직접 체험하며 진로를 탐색하는 프로그램이에요</li>
       <li>희망 학과 <b>1곳</b>을 골라 2시간 동안 전공 활동에 참여해요</li>
       <li>학과당 <b>선착순 36명</b>, 정원이 차면 선택할 수 없어요</li>
       <li>취소 후 재신청 가능 <b>(가려는 학과에 자리가 남아 있을 때만)</b></li>
@@ -122,21 +121,20 @@
     <h2>본인 확인</h2>
     <p class="sub">학번과 생년월일로 본인을 확인합니다.</p>
     <label for="sid">학번 (5자리)</label>
-    <input id="sid" inputmode="numeric" maxlength="5" placeholder="예) 10325" />
+    <input id="sid" inputmode="numeric" maxlength="5" placeholder="예) 10101" />
     <label for="birth">생년월일 6자리</label>
-    <input id="birth" inputmode="numeric" maxlength="6" placeholder="예) 100209" />
+    <input id="birth" inputmode="numeric" maxlength="6" placeholder="예) 100101" />
     <button id="verifyBtn" disabled>확인</button>
     <div class="msg" id="authMsg"></div>
   </div>
 
   <div class="card hidden" id="mainCard">
     <div class="hello" id="hello"></div>
-    <div class="total" id="total"></div>
     <div id="statusArea"></div>
     <div class="grid" id="grid"><div class="loading">학과 현황 불러오는 중…</div></div>
     <button id="applyBtn" class="hidden" disabled>신청하기</button>
     <div class="msg" id="mainMsg"></div>
-    <button class="sub2" id="logoutBtn" style="margin-top:14px;">다른 학생으로 전환</button>
+    <button class="sub2" id="logoutBtn" style="margin-top:14px;">로그아웃</button>
   </div>
 </div>
 
@@ -175,16 +173,8 @@ function clearMsg(el){ el.className="msg"; }
 
 onSnapshot(query(collection(db,"departments"),orderBy("ord")), (snap)=>{
   depts = snap.docs.map(d=>({id:d.id,...d.data()}));
-  if (me) { renderTotal(); renderGrid(); }
+  if (me) renderGrid();
 });
-
-function renderTotal(){
-  const rem = depts.reduce((s,d)=>s+Math.max(0,d.capacity-d.filled),0);
-  const cnt = depts.reduce((s,d)=>s+d.filled,0);
-  $("total").innerHTML =
-    `<div class="stat"><div class="n">${cnt}</div><div class="l">신청 인원</div></div>
-     <div class="stat"><div class="n">${rem}</div><div class="l">남은 자리</div></div>`;
-}
 
 function renderGrid(){
   const locked = !!seat;
@@ -219,16 +209,30 @@ function renderStatus(){
     area.innerHTML = `<div class="current">
         <div class="lab">현재 신청한 학과</div>
         <div class="val">${seat.deptName}</div>
-      </div>
-      <button class="danger" id="cancelBtn">신청 취소하고 다시 선택</button>`;
+      </div>`;
     $("applyBtn").classList.add("hidden");
-    $("cancelBtn").addEventListener("click", doCancel);
   } else {
     area.innerHTML = "";
     $("applyBtn").classList.remove("hidden");
     $("applyBtn").disabled = !selectedId;
   }
   renderGrid();
+  renderActions();
+}
+
+function renderActions(){
+  // 취소 버튼을 화면 아래쪽(로그아웃 위)에 배치
+  let act = $("cancelWrap");
+  if (seat) {
+    if (!act) {
+      act = document.createElement("button");
+      act.id = "cancelWrap"; act.className = "danger";
+      act.style.marginTop = "10px";
+      act.textContent = "신청 취소하고 다시 선택";
+      act.addEventListener("click", doCancel);
+      $("logoutBtn").parentNode.insertBefore(act, $("logoutBtn"));
+    }
+  } else if (act) { act.remove(); }
 }
 
 $("verifyBtn").addEventListener("click", async ()=>{
@@ -245,7 +249,7 @@ $("verifyBtn").addEventListener("click", async ()=>{
     $("hello").innerHTML = `${me.name} 학생, 환영합니다 <span class="small">${me.classNo}반 ${me.studentNo}번</span>`;
     $("authCard").classList.add("hidden");
     $("mainCard").classList.remove("hidden");
-    renderTotal(); renderStatus();
+    renderStatus();
     subscribeSeat();
   } catch(e){ console.error(e); showMsg($("authMsg"),"확인 중 오류가 발생했습니다. 새로고침 후 다시 시도해 주세요.","error"); }
   finally { $("verifyBtn").disabled=false; $("verifyBtn").textContent="확인"; }
@@ -309,6 +313,7 @@ $("logoutBtn").addEventListener("click", ()=>{
   me=null; seat=null; selectedId=null;
   $("sid").value=""; $("birth").value="";
   clearMsg($("authMsg")); clearMsg($("mainMsg"));
+  const cw=$("cancelWrap"); if(cw) cw.remove();
   $("mainCard").classList.add("hidden");
   $("authCard").classList.remove("hidden");
 });
