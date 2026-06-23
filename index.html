@@ -30,7 +30,7 @@
   .display{ font-family:"Gmarket Sans","Pretendard",sans-serif; }
 
   .band{ background:linear-gradient(180deg,var(--band) 0%, var(--page) 100%); }
-  .band .inner{ max-width:760px; margin:0 auto; padding:28px 20px 26px; text-align:center; }
+  .band .inner{ max-width:920px; margin:0 auto; padding:28px 20px 26px; text-align:center; }
   .badge{ display:inline-block; background:var(--surface); color:var(--yellow-d); font-weight:700; font-size:.8rem;
           padding:6px 14px; border-radius:999px; box-shadow:var(--shadow); }
   @media (prefers-color-scheme: dark){ .badge{ color:#ffe06b; } }
@@ -38,7 +38,7 @@
   .band .tag{ color:var(--muted); font-size:.95rem; font-weight:500; }
   .band .tag b{ color:var(--body); }
 
-  .wrap{ max-width:760px; margin:0 auto; padding:8px 20px 72px; }
+  .wrap{ max-width:920px; margin:0 auto; padding:8px 20px 72px; }
 
   .intro{ background:var(--surface); border:1px solid var(--line2); border-radius:var(--radius); padding:16px 20px; margin-bottom:18px; box-shadow:var(--shadow); }
   .intro ul{ margin:0; padding-left:2px; list-style:none; }
@@ -134,6 +134,7 @@
     <div class="grid" id="grid"><div class="loading">학과 현황 불러오는 중…</div></div>
     <button id="applyBtn" class="hidden" disabled>신청하기</button>
     <div class="msg" id="mainMsg"></div>
+    <button id="cancelBtn" class="danger hidden" style="margin-top:10px;">신청 취소하고 다시 선택</button>
     <button class="sub2" id="logoutBtn" style="margin-top:14px;">로그아웃</button>
   </div>
 </div>
@@ -211,29 +212,16 @@ function renderStatus(){
         <div class="val">${seat.deptName}</div>
       </div>`;
     $("applyBtn").classList.add("hidden");
+    $("cancelBtn").classList.remove("hidden");
   } else {
     area.innerHTML = "";
     $("applyBtn").classList.remove("hidden");
     $("applyBtn").disabled = !selectedId;
+    $("cancelBtn").classList.add("hidden");
   }
   renderGrid();
-  renderActions();
 }
-
-function renderActions(){
-  // 취소 버튼을 화면 아래쪽(로그아웃 위)에 배치
-  let act = $("cancelWrap");
-  if (seat) {
-    if (!act) {
-      act = document.createElement("button");
-      act.id = "cancelWrap"; act.className = "danger";
-      act.style.marginTop = "10px";
-      act.textContent = "신청 취소하고 다시 선택";
-      act.addEventListener("click", doCancel);
-      $("logoutBtn").parentNode.insertBefore(act, $("logoutBtn"));
-    }
-  } else if (act) { act.remove(); }
-}
+$("cancelBtn").addEventListener("click", doCancel);
 
 $("verifyBtn").addEventListener("click", async ()=>{
   clearMsg($("authMsg"));
@@ -313,7 +301,7 @@ $("logoutBtn").addEventListener("click", ()=>{
   me=null; seat=null; selectedId=null;
   $("sid").value=""; $("birth").value="";
   clearMsg($("authMsg")); clearMsg($("mainMsg"));
-  const cw=$("cancelWrap"); if(cw) cw.remove();
+  const cw=$("cancelBtn"); if(cw) cw.classList.add("hidden");
   $("mainCard").classList.add("hidden");
   $("authCard").classList.remove("hidden");
 });
