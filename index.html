@@ -3,94 +3,140 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>1학년 전공체험 학과 신청</title>
+<title>전공체험 학과 신청</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Gmarket+Sans:wght@500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
 <style>
-  :root { --navy:#2b3a67; --blue:#3d6cb9; --bg:#f4f6fb; --green:#1a9c5b; --red:#d23d3d; --line:#e2e6ef; }
-  * { box-sizing: border-box; }
-  body { margin:0; font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
-         background:var(--bg); color:#1f2533; line-height:1.55; }
-  .wrap { max-width:640px; margin:0 auto; padding:18px 16px 60px; }
-  header { text-align:center; padding:18px 0 10px; }
-  header h1 { font-size:1.35rem; margin:0 0 6px; color:var(--navy); }
-  header .sub { color:#5a6478; font-size:.9rem; }
-  .notice { background:#fff; border:1px solid var(--line); border-left:4px solid var(--blue);
-            border-radius:10px; padding:14px 16px; margin:14px 0; font-size:.92rem; }
-  .notice b { color:var(--navy); }
-  .card { background:#fff; border:1px solid var(--line); border-radius:12px; padding:18px 16px; margin-bottom:16px; }
-  .card h2 { margin:0 0 14px; font-size:1.05rem; color:var(--navy); }
-  label { display:block; font-size:.85rem; font-weight:600; margin:12px 0 5px; color:#3a4256; }
-  input, select { width:100%; padding:12px; border:1px solid #cfd5e2; border-radius:9px; font-size:1rem; background:#fff; color:#1f2533; }
-  input:focus, select:focus { outline:none; border-color:var(--blue); }
-  button { width:100%; margin-top:18px; padding:14px; border:none; border-radius:10px;
-           background:var(--blue); color:#fff; font-size:1.05rem; font-weight:700; cursor:pointer; }
-  button.sub2 { background:#fff; color:var(--navy); border:1px solid #cfd5e2; }
-  button.danger { background:#fff; color:var(--red); border:1px solid #f1c4c4; }
-  button:disabled { background:#aab4c8; cursor:not-allowed; color:#fff; }
-  .msg { margin-top:14px; padding:13px 14px; border-radius:9px; font-size:.95rem; display:none; }
-  .msg.show { display:block; }
-  .msg.success { background:#e7f6ee; color:var(--green); border:1px solid #b8e6cd; }
-  .msg.error { background:#fbe9e9; color:var(--red); border:1px solid #f1c4c4; }
-  .msg.info { background:#eef3fb; color:var(--navy); border:1px solid #cfdcf2; }
-  .hello { font-size:1.05rem; color:var(--navy); }
-  .hello b { font-size:1.2rem; }
-  .total { text-align:center; font-size:.9rem; color:#5a6478; margin:4px 0 12px; }
-  .total b { color:var(--navy); }
-  .list { display:flex; flex-direction:column; gap:8px; margin-bottom:6px; }
-  .dept { display:flex; align-items:center; justify-content:space-between; gap:10px;
-          background:#fff; border:1px solid var(--line); border-radius:10px; padding:11px 14px; }
-  .dept.full { opacity:.55; background:#f7f8fa; }
-  .dept .nm { font-weight:700; color:var(--navy); }
-  .dept .dt { font-size:.82rem; color:#6b7280; margin-top:2px; }
-  .badge { flex:none; font-size:.82rem; font-weight:700; padding:5px 10px; border-radius:999px; white-space:nowrap; }
-  .badge.ok { background:#e7f6ee; color:var(--green); }
-  .badge.full { background:#fbe9e9; color:var(--red); }
-  .current { background:#eef3fb; border:1px solid #cfdcf2; border-radius:10px; padding:14px 16px; }
-  .current .lab { font-size:.85rem; color:#5a6478; }
-  .current .val { font-size:1.15rem; font-weight:800; color:var(--navy); margin-top:2px; }
-  .loading { text-align:center; color:#8a93a6; padding:24px 0; }
-  .hidden { display:none; }
+  :root{
+    --ink:#26231c; --body:#4a463d; --muted:#9b958a; --line:#efece4; --line2:#e7e3d8;
+    --yellow:#ffd84d; --yellow-d:#f5c518; --yellow-soft:#fff7d6; --band:#fff2bf;
+    --ok:#2f8f6a; --ok-soft:#e9f6ef; --danger:#dd5a4e; --surface:#fff;
+    --shadow:0 2px 4px rgba(60,52,30,.04), 0 8px 22px rgba(80,68,30,.07);
+    --radius:18px;
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; font-family:"Pretendard","Apple SD Gothic Neo",system-ui,sans-serif; color:var(--body);
+        font-size:16px; line-height:1.62; background:#fffdf7; -webkit-font-smoothing:antialiased; }
+  .display{ font-family:"Gmarket Sans","Pretendard",sans-serif; }
+
+  /* 헤더 옐로 밴드 */
+  .band{ background:linear-gradient(180deg,var(--band) 0%, #fff7d8 100%); border-bottom:1px solid #f3e6a8; }
+  .band .inner{ max-width:660px; margin:0 auto; padding:30px 18px 34px; text-align:center; }
+  .badge{ display:inline-block; background:#fff; color:#b48a00; font-weight:700; font-size:.8rem;
+          padding:6px 14px; border-radius:999px; box-shadow:0 2px 6px rgba(120,90,0,.1); }
+  .band h1{ font-size:2rem; color:var(--ink); margin:14px 0 6px; letter-spacing:-.01em; }
+  .band .tag{ color:#7a6b3a; font-size:.95rem; font-weight:500; }
+  .band .tag b{ color:#5a4d20; }
+
+  .wrap{ max-width:660px; margin:0 auto; padding:22px 18px 72px; }
+
+  .intro{ background:#fff; border:1px solid var(--line2); border-radius:var(--radius); padding:18px 20px; margin-bottom:18px; box-shadow:var(--shadow); }
+  .intro .t{ font-weight:700; color:var(--ink); font-size:1rem; margin-bottom:10px; display:flex; align-items:center; gap:7px; }
+  .intro ul{ margin:0; padding-left:4px; list-style:none; }
+  .intro li{ font-size:.93rem; color:var(--body); margin:7px 0; padding-left:24px; position:relative; }
+  .intro li::before{ content:""; position:absolute; left:4px; top:.62em; width:7px; height:7px; border-radius:50%; background:var(--yellow-d); }
+  .intro li b{ color:var(--ink); font-weight:700; }
+
+  .card{ background:var(--surface); border:1px solid var(--line2); border-radius:var(--radius); padding:22px 20px; margin-bottom:16px; box-shadow:var(--shadow); }
+  .card h2{ margin:0 0 4px; font-size:1.12rem; font-weight:700; color:var(--ink); }
+  .card .sub{ color:var(--muted); font-size:.88rem; margin:0 0 16px; }
+  label{ display:block; font-size:.84rem; font-weight:600; margin:14px 0 6px; color:#5a554a; }
+  input{ width:100%; padding:13px 15px; border:1.5px solid var(--line2); border-radius:12px; font-size:1rem;
+         color:var(--ink); background:#fffdf7; transition:.15s; }
+  input::placeholder{ color:#bdb8ac; }
+  input:focus{ outline:none; border-color:var(--yellow-d); background:#fff; box-shadow:0 0 0 3px rgba(245,197,24,.22); }
+  button{ width:100%; margin-top:20px; padding:15px; border:none; border-radius:13px; font-size:1.05rem;
+          font-weight:700; cursor:pointer; transition:.15s; background:var(--yellow); color:#3a3320;
+          box-shadow:0 4px 14px rgba(245,197,24,.4); }
+  button:hover{ background:var(--yellow-d); }
+  button:active{ transform:translateY(1px); }
+  button.sub2{ background:#fff; color:var(--ink); border:1.5px solid var(--line2); box-shadow:none; font-weight:600; }
+  button.sub2:hover{ background:#faf9f4; }
+  button.danger{ background:#fff; color:var(--danger); border:1.5px solid #f2c9c4; box-shadow:none; }
+  button.danger:hover{ background:#fdf3f2; }
+  button:disabled{ background:#ece8dd; color:#b3ad9f; box-shadow:none; cursor:not-allowed; }
+  .msg{ margin-top:16px; padding:13px 15px; border-radius:12px; font-size:.93rem; font-weight:500; display:none; }
+  .msg.show{ display:block; }
+  .msg.success{ background:var(--ok-soft); color:#1f6f50; }
+  .msg.error{ background:#fdeeec; color:#c0473c; }
+  .msg.info{ background:var(--yellow-soft); color:#8a6d00; }
+
+  .hello{ font-size:1.15rem; font-weight:700; color:var(--ink); }
+  .hello .small{ font-size:.85rem; font-weight:500; color:var(--muted); margin-left:6px; }
+  .total{ display:flex; gap:10px; margin:14px 0 18px; }
+  .stat{ flex:1; background:var(--yellow-soft); border:1px solid #f6e6a6; border-radius:13px; padding:11px 14px; text-align:center; }
+  .stat .n{ font-size:1.35rem; font-weight:700; color:var(--ink); }
+  .stat .l{ font-size:.78rem; color:#8a7a3a; font-weight:600; }
+
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(200px,1fr)); gap:12px; }
+  .blk{ position:relative; text-align:left; background:#fff; border:1.5px solid var(--line2); border-radius:15px;
+        padding:15px 16px; cursor:pointer; transition:.14s; }
+  .blk:hover{ border-color:var(--yellow-d); transform:translateY(-2px); box-shadow:var(--shadow); }
+  .blk .nm{ font-weight:700; color:var(--ink); font-size:1.04rem; }
+  .blk .dt{ font-size:.86rem; color:var(--muted); margin-top:4px; min-height:2.5em; line-height:1.48; }
+  .blk .bartrack{ height:6px; background:#f0ede4; border-radius:5px; overflow:hidden; margin-top:11px; }
+  .blk .barfill{ height:100%; background:var(--yellow-d); border-radius:5px; transition:width .3s; }
+  .blk .seat{ margin-top:8px; font-size:.88rem; font-weight:700; color:var(--ok); }
+  .blk.selected{ border-color:var(--yellow-d); background:var(--yellow-soft); box-shadow:0 0 0 2.5px rgba(245,197,24,.3); }
+  .blk.selected .nm::after{ content:"✓"; display:inline-grid; place-items:center; width:18px; height:18px; margin-left:7px;
+        background:var(--yellow-d); color:#5a4d20; border-radius:50%; font-size:.7rem; font-weight:800; vertical-align:middle; }
+  .blk.full{ opacity:.5; cursor:not-allowed; background:#faf9f5; }
+  .blk.full:hover{ border-color:var(--line2); transform:none; box-shadow:none; }
+  .blk.full .seat{ color:var(--danger); }
+  .blk.mine{ border-color:var(--ok); background:var(--ok-soft); }
+  .blk.mine .nm::after{ content:"신청함"; margin-left:7px; font-size:.72rem; font-weight:700; color:#fff;
+        background:var(--ok); padding:2px 8px; border-radius:999px; vertical-align:middle; }
+  .blk.locked{ cursor:default; }
+  .blk.locked:not(.mine):hover{ border-color:var(--line2); transform:none; box-shadow:none; }
+  .current{ background:var(--ok-soft); border:1.5px solid #bfe6d3; border-radius:15px; padding:16px 18px; margin-bottom:14px; }
+  .current .lab{ font-size:.82rem; color:#3f7a63; font-weight:500; }
+  .current .val{ font-size:1.3rem; font-weight:700; color:#1f6f50; margin-top:2px; }
+  .loading{ text-align:center; color:var(--muted); padding:26px 0; }
+  .hidden{ display:none; }
+  @media (max-width:480px){ .band h1{ font-size:1.6rem; } .grid{ grid-template-columns:1fr; } }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <header>
-    <h1>🎓 2026 1학년 대학연계 전공체험 학과 신청</h1>
-    <div class="sub">선문대 전공체험 · 2026. 7. 14.(화) 4~5교시 · 1학년 교실</div>
-  </header>
+<div class="band">
+  <div class="inner">
+    <span class="badge">🎓 선문대 전공체험</span>
+    <h1 class="display">전공체험 학과 신청</h1>
+    <div class="tag"><b>7/14(화) 4~5교시</b> · 1학년 교실</div>
+  </div>
+</div>
 
-  <div class="notice">
-    고사 이후 <b>희망 학과 1곳</b>을 선택해 2시간 동안 전공을 체험하는 프로그램입니다.<br />
-    · 한 학과당 <b>선착순 36명</b>으로 마감되며, 정원이 차면 선택할 수 없습니다.<br />
-    · 신청 후 마음이 바뀌면 <b>취소하고 다시 신청</b>할 수 있어요. (단, 다른 학과에 자리가 있을 때)
+<div class="wrap">
+  <div class="intro">
+    <div class="t">🐝 전공체험이란?</div>
+    <ul>
+      <li>대학 학과를 직접 체험하며 진로를 탐색하는 프로그램이에요</li>
+      <li>희망 학과 <b>1곳</b>을 골라 2시간 동안 전공 활동에 참여해요</li>
+      <li>학과당 <b>선착순 36명</b>, 정원이 차면 선택할 수 없어요</li>
+      <li>취소 후 재신청 가능 <b>(가려는 학과에 자리가 남아 있을 때만)</b></li>
+    </ul>
   </div>
 
-  <!-- 1단계: 본인 확인 -->
   <div class="card" id="authCard">
     <h2>본인 확인</h2>
+    <p class="sub">학번과 생년월일로 본인을 확인합니다.</p>
     <label for="sid">학번 (5자리)</label>
     <input id="sid" inputmode="numeric" maxlength="5" placeholder="예) 10325" />
-    <label for="birth">생년월일 6자리 (예: 100209)</label>
-    <input id="birth" inputmode="numeric" maxlength="6" placeholder="주민등록번호 앞 6자리" />
+    <label for="birth">생년월일 6자리</label>
+    <input id="birth" inputmode="numeric" maxlength="6" placeholder="예) 100209" />
     <button id="verifyBtn" disabled>확인</button>
     <div class="msg" id="authMsg"></div>
   </div>
 
-  <!-- 2단계: 신청 -->
   <div class="card hidden" id="mainCard">
     <div class="hello" id="hello"></div>
     <div class="total" id="total"></div>
-
     <div id="statusArea"></div>
-
-    <div id="pickArea">
-      <div class="list" id="list"><div class="loading">학과 현황 불러오는 중…</div></div>
-      <label for="dept">희망 학과 선택</label>
-      <select id="dept"><option>불러오는 중…</option></select>
-      <button id="applyBtn">신청하기</button>
-    </div>
-
+    <div class="grid" id="grid"><div class="loading">학과 현황 불러오는 중…</div></div>
+    <button id="applyBtn" class="hidden" disabled>신청하기</button>
     <div class="msg" id="mainMsg"></div>
-    <button class="sub2" id="logoutBtn" style="margin-top:22px;">다른 학생으로 전환</button>
+    <button class="sub2" id="logoutBtn" style="margin-top:14px;">다른 학생으로 전환</button>
   </div>
 </div>
 
@@ -102,7 +148,6 @@ import {
   onSnapshot, runTransaction, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-/* ===== Firebase 설정: 콘솔의 웹앱 구성값을 붙여넣으세요 (admin.html과 동일하게) ===== */
 const firebaseConfig = {
   apiKey: "AIzaSyBHlhwEiE8PyX4Voy1xsS3PZkSMIZ1nos0",
   authDomain: "project-8873314123491726167.firebaseapp.com",
@@ -112,185 +157,165 @@ const firebaseConfig = {
   appId: "1:651427691407:web:2c7530ff9b8035428469fa",
   measurementId: "G-FTNE1QRPN7",
 };
-/* ================================================================================= */
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const $ = (id) => document.getElementById(id);
 
-let authReady = false, depts = [], me = null, seat = null, unsubSeat = null;
+let depts = [], me = null, seat = null, selectedId = null, unsubSeat = null;
 
-/* --- 공통 유틸 --- */
-async function sha256Hex(str) {
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(str));
-  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
-}
-const normBirth = (s) => String(s).replace(/\D/g, "").padStart(6, "0").slice(-6);
-const vhashOf = (sid, birth) => sha256Hex(`${String(sid).trim()}|${normBirth(birth)}`);
-function parseSid(sid) {
-  const s = String(sid);
-  return { classNo: +s.slice(1, 3), studentNo: +s.slice(3, 5) };
-}
-function showMsg(el, text, type) { el.textContent = text; el.className = "msg show " + type; }
-function clearMsg(el) { el.className = "msg"; }
+async function sha256Hex(str){ const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(str));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
+const normBirth = (s)=>String(s).replace(/\D/g,"").padStart(6,"0").slice(-6);
+const vhashOf = (sid,birth)=>sha256Hex(`${String(sid).trim()}|${normBirth(birth)}`);
+const parseSid = (sid)=>{ const s=String(sid); return { classNo:+s.slice(1,3), studentNo:+s.slice(3,5) }; };
+function showMsg(el,t,type){ el.textContent=t; el.className="msg show "+type; }
+function clearMsg(el){ el.className="msg"; }
 
-/* --- 실시간 학과 현황 --- */
-onSnapshot(query(collection(db, "departments"), orderBy("ord")), (snap) => {
-  depts = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-  renderDepts();
+onSnapshot(query(collection(db,"departments"),orderBy("ord")), (snap)=>{
+  depts = snap.docs.map(d=>({id:d.id,...d.data()}));
+  if (me) { renderTotal(); renderGrid(); }
 });
 
-function renderDepts() {
-  if (!me) return;
-  const totalRem = depts.reduce((s, d) => s + Math.max(0, d.capacity - d.filled), 0);
-  const totalCnt = depts.reduce((s, d) => s + d.filled, 0);
-  $("total").innerHTML = `현재 신청 <b>${totalCnt}명</b> · 전체 잔여 <b>${totalRem}석</b>`;
+function renderTotal(){
+  const rem = depts.reduce((s,d)=>s+Math.max(0,d.capacity-d.filled),0);
+  const cnt = depts.reduce((s,d)=>s+d.filled,0);
+  $("total").innerHTML =
+    `<div class="stat"><div class="n">${cnt}</div><div class="l">신청 인원</div></div>
+     <div class="stat"><div class="n">${rem}</div><div class="l">남은 자리</div></div>`;
+}
 
-  $("list").innerHTML = depts.map((d) => {
-    const rem = d.capacity - d.filled, full = rem <= 0;
-    return `<div class="dept ${full ? "full" : ""}">
-      <div><div class="nm">${d.name}</div><div class="dt">${d.detail || ""}</div></div>
-      <div class="badge ${full ? "full" : "ok"}">${full ? "마감" : "잔여 " + rem + "석"}</div></div>`;
+function renderGrid(){
+  const locked = !!seat;
+  $("grid").innerHTML = depts.map(d=>{
+    const rem = d.capacity - d.filled, full = rem<=0;
+    const pct = d.capacity ? Math.round(d.filled/d.capacity*100) : 0;
+    const isMine = seat && seat.deptId===d.id;
+    const isSel = !locked && selectedId===d.id;
+    let cls = "blk";
+    if (isMine) cls += " mine locked";
+    else if (locked) cls += " locked";
+    else if (full) cls += " full";
+    else if (isSel) cls += " selected";
+    const seatTxt = full && !isMine ? "마감" : `잔여 ${rem}석`;
+    return `<div class="${cls}" data-id="${d.id}" ${(!locked&&!full)?'role="button"':''}>
+      <div class="nm">${d.name}</div>
+      <div class="dt">${d.detail||""}</div>
+      <div class="bartrack"><div class="barfill" style="width:${pct}%"></div></div>
+      <div class="seat">${seatTxt}</div>
+    </div>`;
   }).join("");
-
-  const sel = $("dept"), prev = sel.value;
-  const avail = depts.filter((d) => d.capacity - d.filled > 0);
-  sel.innerHTML = avail.length
-    ? avail.map((d) => `<option value="${d.id}">${d.name} (잔여 ${d.capacity - d.filled}석)</option>`).join("")
-    : '<option value="">모든 학과가 마감되었습니다</option>';
-  if (avail.some((d) => d.id === prev)) sel.value = prev;
-  $("applyBtn").disabled = !avail.length;
-}
-
-/* --- 본인 확인 --- */
-$("verifyBtn").addEventListener("click", async () => {
-  clearMsg($("authMsg"));
-  const sid = $("sid").value.trim(), birth = $("birth").value.trim();
-  if (!/^\d{5}$/.test(sid)) return showMsg($("authMsg"), "학번은 5자리 숫자로 입력해 주세요.", "error");
-  if (!/^\d{6}$/.test(birth)) return showMsg($("authMsg"), "생년월일은 6자리 숫자로 입력해 주세요.", "error");
-
-  $("verifyBtn").disabled = true; $("verifyBtn").textContent = "확인 중…";
-  try {
-    const vh = await vhashOf(sid, birth);
-    const snap = await getDoc(doc(db, "students", vh));
-    if (!snap.exists()) {
-      showMsg($("authMsg"), "학번 또는 생년월일이 일치하지 않습니다. 다시 확인해 주세요.", "error");
-      return;
-    }
-    me = { studentId: sid, vhash: vh, name: snap.data().name, ...parseSid(sid) };
-    $("hello").innerHTML = `<b>${me.name}</b> 학생, 환영합니다! (${me.classNo}반 ${me.studentNo}번)`;
-    $("authCard").classList.add("hidden");
-    $("mainCard").classList.remove("hidden");
-    renderDepts();
-    subscribeSeat();
-  } catch (e) {
-    console.error(e);
-    showMsg($("authMsg"), "확인 중 오류가 발생했습니다. 새로고침 후 다시 시도해 주세요.", "error");
-  } finally {
-    $("verifyBtn").disabled = false; $("verifyBtn").textContent = "확인";
+  if (!locked) {
+    $("grid").querySelectorAll(".blk:not(.full)").forEach(el=>{
+      el.addEventListener("click", ()=>{ selectedId=el.dataset.id; renderGrid(); $("applyBtn").disabled=false; });
+    });
   }
-});
-
-/* --- 내 신청 상태 실시간 --- */
-function subscribeSeat() {
-  if (unsubSeat) unsubSeat();
-  unsubSeat = onSnapshot(doc(db, "seats", me.vhash), (s) => {
-    seat = s.exists() ? s.data() : null;
-    renderStatus();
-  });
 }
 
-function renderStatus() {
-  const area = $("statusArea"), pick = $("pickArea");
+function renderStatus(){
+  const area = $("statusArea");
   if (seat) {
     area.innerHTML = `<div class="current">
         <div class="lab">현재 신청한 학과</div>
         <div class="val">${seat.deptName}</div>
       </div>
-      <button class="danger" id="cancelBtn">신청 취소하고 다시 선택하기</button>`;
-    pick.classList.add("hidden");
+      <button class="danger" id="cancelBtn">신청 취소하고 다시 선택</button>`;
+    $("applyBtn").classList.add("hidden");
     $("cancelBtn").addEventListener("click", doCancel);
   } else {
     area.innerHTML = "";
-    pick.classList.remove("hidden");
+    $("applyBtn").classList.remove("hidden");
+    $("applyBtn").disabled = !selectedId;
   }
+  renderGrid();
 }
 
-/* --- 신청 --- */
-$("applyBtn").addEventListener("click", async () => {
-  clearMsg($("mainMsg"));
-  const deptId = $("dept").value;
-  if (!deptId) return showMsg($("mainMsg"), "선택 가능한 학과가 없습니다.", "error");
-
-  $("applyBtn").disabled = true; $("applyBtn").textContent = "신청 중…";
+$("verifyBtn").addEventListener("click", async ()=>{
+  clearMsg($("authMsg"));
+  const sid=$("sid").value.trim(), birth=$("birth").value.trim();
+  if(!/^\d{5}$/.test(sid)) return showMsg($("authMsg"),"학번은 5자리 숫자로 입력해 주세요.","error");
+  if(!/^\d{6}$/.test(birth)) return showMsg($("authMsg"),"생년월일은 6자리 숫자로 입력해 주세요.","error");
+  $("verifyBtn").disabled=true; $("verifyBtn").textContent="확인 중…";
   try {
-    const result = await runTransaction(db, async (tx) => {
-      const seatRef = doc(db, "seats", me.vhash);
-      const deptRef = doc(db, "departments", deptId);
-      const seatSnap = await tx.get(seatRef);
-      if (seatSnap.exists()) return { status: "HAS", deptName: seatSnap.data().deptName };
-      const deptSnap = await tx.get(deptRef);
-      if (!deptSnap.exists()) return { status: "ERROR" };
-      const d = deptSnap.data();
-      if (d.filled >= d.capacity) return { status: "FULL", deptName: d.name };
-      tx.set(seatRef, {
-        studentId: me.studentId, name: me.name, classNo: me.classNo, studentNo: me.studentNo,
-        deptId, deptName: d.name, createdAt: serverTimestamp(),
-      });
-      tx.update(deptRef, { filled: d.filled + 1 });
-      return { status: "OK", deptName: d.name };
-    });
-
-    if (result.status === "OK") showMsg($("mainMsg"), `🎉 '${result.deptName}' 신청이 완료되었습니다!`, "success");
-    else if (result.status === "FULL") showMsg($("mainMsg"), `방금 '${result.deptName}'가 마감되었습니다. 다른 학과를 선택해 주세요.`, "error");
-    else if (result.status === "HAS") showMsg($("mainMsg"), `이미 '${result.deptName}'에 신청되어 있습니다. 변경하려면 먼저 취소해 주세요.`, "info");
-    else showMsg($("mainMsg"), "학과 정보를 찾을 수 없습니다. 새로고침 후 다시 시도해 주세요.", "error");
-  } catch (e) {
-    console.error(e);
-    showMsg($("mainMsg"), "신청 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.", "error");
-  } finally {
-    $("applyBtn").textContent = "신청하기"; renderDepts();
-  }
+    const vh = await vhashOf(sid,birth);
+    const snap = await getDoc(doc(db,"students",vh));
+    if(!snap.exists()){ showMsg($("authMsg"),"학번 또는 생년월일이 일치하지 않습니다. 다시 확인해 주세요.","error"); return; }
+    me = { studentId:sid, vhash:vh, name:snap.data().name, ...parseSid(sid) };
+    $("hello").innerHTML = `${me.name} 학생, 환영합니다 <span class="small">${me.classNo}반 ${me.studentNo}번</span>`;
+    $("authCard").classList.add("hidden");
+    $("mainCard").classList.remove("hidden");
+    renderTotal(); renderStatus();
+    subscribeSeat();
+  } catch(e){ console.error(e); showMsg($("authMsg"),"확인 중 오류가 발생했습니다. 새로고침 후 다시 시도해 주세요.","error"); }
+  finally { $("verifyBtn").disabled=false; $("verifyBtn").textContent="확인"; }
 });
 
-/* --- 취소 --- */
-async function doCancel() {
-  if (!confirm("신청을 취소할까요? 취소 후 다른 학과를 다시 선택할 수 있습니다.")) return;
-  clearMsg($("mainMsg"));
-  try {
-    await runTransaction(db, async (tx) => {
-      const seatRef = doc(db, "seats", me.vhash);
-      const seatSnap = await tx.get(seatRef);
-      if (!seatSnap.exists()) return;
-      const deptId = seatSnap.data().deptId;
-      const deptRef = doc(db, "departments", deptId);
-      const deptSnap = await tx.get(deptRef);
-      const cur = deptSnap.exists() ? deptSnap.data().filled : 0;
-      tx.update(deptRef, { filled: Math.max(0, cur - 1) });
-      tx.delete(seatRef);
-    });
-    showMsg($("mainMsg"), "신청이 취소되었습니다. 원하는 학과를 다시 선택해 주세요.", "info");
-  } catch (e) {
-    console.error(e);
-    showMsg($("mainMsg"), "취소 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.", "error");
-  }
+function subscribeSeat(){
+  if(unsubSeat) unsubSeat();
+  unsubSeat = onSnapshot(doc(db,"seats",me.vhash), (s)=>{
+    seat = s.exists()? s.data() : null;
+    if (seat) selectedId = null;
+    renderStatus();
+  });
 }
 
-/* --- 다른 학생으로 전환 --- */
-$("logoutBtn").addEventListener("click", () => {
-  if (unsubSeat) { unsubSeat(); unsubSeat = null; }
-  me = null; seat = null;
-  $("sid").value = ""; $("birth").value = "";
+$("applyBtn").addEventListener("click", async ()=>{
+  clearMsg($("mainMsg"));
+  if(!selectedId) return showMsg($("mainMsg"),"신청할 학과를 선택해 주세요.","error");
+  $("applyBtn").disabled=true; $("applyBtn").textContent="신청 중…";
+  try {
+    const result = await runTransaction(db, async (tx)=>{
+      const seatRef=doc(db,"seats",me.vhash), deptRef=doc(db,"departments",selectedId);
+      const seatSnap=await tx.get(seatRef);
+      if(seatSnap.exists()) return {status:"HAS", deptName:seatSnap.data().deptName};
+      const deptSnap=await tx.get(deptRef);
+      if(!deptSnap.exists()) return {status:"ERROR"};
+      const d=deptSnap.data();
+      if(d.filled>=d.capacity) return {status:"FULL", deptName:d.name};
+      tx.set(seatRef,{ studentId:me.studentId, name:me.name, classNo:me.classNo, studentNo:me.studentNo,
+        deptId:selectedId, deptName:d.name, createdAt:serverTimestamp() });
+      tx.update(deptRef,{ filled:d.filled+1 });
+      return {status:"OK", deptName:d.name};
+    });
+    if(result.status==="OK") showMsg($("mainMsg"),`🎉 '${result.deptName}' 신청이 완료되었습니다!`,"success");
+    else if(result.status==="FULL") showMsg($("mainMsg"),`방금 '${result.deptName}'가 마감되었습니다. 다른 학과를 선택해 주세요.`,"error");
+    else if(result.status==="HAS") showMsg($("mainMsg"),`이미 '${result.deptName}'에 신청되어 있습니다.`,"info");
+    else showMsg($("mainMsg"),"학과 정보를 찾을 수 없습니다. 새로고침 후 다시 시도해 주세요.","error");
+  } catch(e){ console.error(e); showMsg($("mainMsg"),"신청 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.","error"); }
+  finally { $("applyBtn").textContent="신청하기"; }
+});
+
+async function doCancel(){
+  if(!confirm("신청을 취소할까요? 취소 후 다른 학과를 다시 선택할 수 있습니다.")) return;
+  clearMsg($("mainMsg"));
+  try {
+    await runTransaction(db, async (tx)=>{
+      const seatRef=doc(db,"seats",me.vhash);
+      const seatSnap=await tx.get(seatRef);
+      if(!seatSnap.exists()) return;
+      const deptId=seatSnap.data().deptId, deptRef=doc(db,"departments",deptId);
+      const deptSnap=await tx.get(deptRef);
+      const cur=deptSnap.exists()?deptSnap.data().filled:0;
+      tx.update(deptRef,{ filled:Math.max(0,cur-1) });
+      tx.delete(seatRef);
+    });
+    showMsg($("mainMsg"),"신청이 취소되었습니다. 원하는 학과를 다시 선택해 주세요.","info");
+  } catch(e){ console.error(e); showMsg($("mainMsg"),"취소 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.","error"); }
+}
+
+$("logoutBtn").addEventListener("click", ()=>{
+  if(unsubSeat){ unsubSeat(); unsubSeat=null; }
+  me=null; seat=null; selectedId=null;
+  $("sid").value=""; $("birth").value="";
   clearMsg($("authMsg")); clearMsg($("mainMsg"));
   $("mainCard").classList.add("hidden");
   $("authCard").classList.remove("hidden");
 });
 
-/* --- 익명 로그인 --- */
 signInAnonymously(auth)
-  .then(() => { authReady = true; $("verifyBtn").disabled = false; })
-  .catch((e) => { console.error(e); showMsg($("authMsg"), "연결에 실패했습니다. 새로고침 해 주세요.", "error"); });
+  .then(()=>{ $("verifyBtn").disabled=false; })
+  .catch((e)=>{ console.error(e); showMsg($("authMsg"),"연결에 실패했습니다. 새로고침 해 주세요.","error"); });
 </script>
 </body>
 </html>
