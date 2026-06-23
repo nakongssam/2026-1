@@ -11,76 +11,87 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
-    --ink:#26231c; --body:#4a463d; --muted:#9b958a; --line:#efece4; --line2:#e7e3d8;
+    --ink:#26231c; --body:#4a463d; --muted:#9b958a; --line2:#e7e3d8;
     --yellow:#ffd84d; --yellow-d:#f5c518; --yellow-soft:#fff7d6; --band:#fff2bf;
     --ok:#2f8f6a; --ok-soft:#e9f6ef; --danger:#dd5a4e;
-    --surface:#fff; --shadow:0 2px 4px rgba(60,52,30,.04), 0 8px 22px rgba(80,68,30,.07);
+    --surface:#fff; --page:#fffdf7; --track:#f0ede4;
+    --shadow:0 2px 4px rgba(60,52,30,.04), 0 8px 22px rgba(80,68,30,.07);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --ink:#f3efe6; --body:#d8d3c8; --muted:#9a948a; --line2:#3a372f;
+      --yellow:#ffd84d; --yellow-d:#ffe06b; --yellow-soft:#3a3320; --band:#2a2718;
+      --ok:#5fcfa3; --ok-soft:#1e3a30; --danger:#ff8a7d;
+      --surface:#26241e; --page:#1b1a15; --track:#34312a;
+      --shadow:0 2px 4px rgba(0,0,0,.2), 0 8px 22px rgba(0,0,0,.3);
+    }
   }
   *{ box-sizing:border-box; }
   body{ margin:0; font-family:"Pretendard","Apple SD Gothic Neo",system-ui,sans-serif; color:var(--body);
-        font-size:16px; line-height:1.6; background:#fffdf7; -webkit-font-smoothing:antialiased; }
+        font-size:16px; line-height:1.6; background:var(--page); -webkit-font-smoothing:antialiased; }
   .display{ font-family:"Gmarket Sans","Pretendard",sans-serif; }
-  .wrap{ max-width:1120px; margin:0 auto; padding:28px 18px 70px; }
-  h1{ font-size:1.5rem; font-weight:800; letter-spacing:-.03em; margin:6px 0 4px; }
+  .wrap{ max-width:1120px; margin:0 auto; padding:24px 18px 70px; }
+  h1{ font-size:1.5rem; color:var(--ink); letter-spacing:-.01em; margin:6px 0 4px; cursor:default; user-select:none; }
   .sub{ color:var(--muted); font-size:.9rem; margin-bottom:18px; }
-  /* 로그인 */
-  .login{ max-width:380px; margin:70px auto; background:var(--surface); border:1px solid var(--line);
+  .login{ max-width:380px; margin:70px auto; background:var(--surface); border:1px solid var(--line2);
           border-radius:18px; padding:28px 24px; box-shadow:var(--shadow); }
-  .login h2{ margin:0 0 4px; font-size:1.2rem; font-weight:800; letter-spacing:-.02em; }
+  .login h2{ margin:0 0 4px; font-size:1.2rem; color:var(--ink); }
   .login .hint{ color:var(--muted); font-size:.86rem; margin:0 0 14px; }
-  label{ display:block; font-size:.82rem; font-weight:700; margin:12px 0 6px; color:#5a554a; }
-  input{ width:100%; padding:12px 13px; border:1.5px solid #e2e5eb; border-radius:11px; font-size:1rem; background:#fff; transition:.15s; }
-  input:focus{ outline:none; border-color:var(--yellow); background:#fff; box-shadow:0 0 0 4px rgba(245,197,24,.22); }
-  button{ border:none; border-radius:11px; background:var(--yellow); color:#3a3320; font-weight:800; cursor:pointer; transition:.15s; letter-spacing:-.01em; }
-  button:hover{ background:#f5c518; }
-  button:active{ transform:translateY(1px); }
-  .login button{ width:100%; margin-top:18px; padding:13px; font-size:1rem; box-shadow:0 4px 14px rgba(245,197,24,.4); }
+  label{ display:block; font-size:.82rem; font-weight:600; margin:12px 0 6px; color:var(--body); }
+  input,select{ width:100%; padding:12px 13px; border:1.5px solid var(--line2); border-radius:11px; font-size:1rem;
+                background:var(--page); color:var(--ink); transition:.15s; }
+  input:focus,select:focus{ outline:none; border-color:var(--yellow-d); background:var(--surface); box-shadow:0 0 0 3px rgba(245,197,24,.25); }
+  button{ border:none; border-radius:11px; background:var(--yellow); color:#3a3320; font-weight:700; cursor:pointer; transition:.15s; }
+  button:hover{ background:var(--yellow-d); } button:active{ transform:translateY(1px); }
+  .login button{ width:100%; margin-top:18px; padding:13px; font-size:1rem; box-shadow:0 4px 14px rgba(245,197,24,.35); }
   .bar{ display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; margin-bottom:16px; }
   .bar .right{ display:flex; gap:8px; flex-wrap:wrap; }
-  .bar button{ padding:9px 14px; font-size:.86rem; box-shadow:0 4px 12px rgba(245,197,24,.3); }
-  .ghost{ background:#fff; color:var(--ink); border:1.5px solid #e2e5eb; box-shadow:none !important; font-weight:700; }
-  .ghost:hover{ background:#faf9f4; }
-  .summary{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:15px 18px;
-            margin-bottom:16px; font-size:1rem; box-shadow:var(--shadow); }
-  .summary b{ color:var(--ink); font-weight:800; }
-  .tabs{ display:inline-flex; gap:4px; margin-bottom:16px; background:#f3efe4; padding:5px; border-radius:13px; flex-wrap:wrap; }
+  .bar button{ padding:9px 14px; font-size:.86rem; }
+  .ghost{ background:var(--surface); color:var(--body); border:1.5px solid var(--line2); font-weight:600; }
+  .ghost:hover{ background:var(--track); }
+  .summary{ background:var(--surface); border:1px solid var(--line2); border-radius:14px; padding:15px 18px;
+            margin-bottom:16px; font-size:1rem; color:var(--body); box-shadow:var(--shadow); }
+  .summary b{ color:var(--ink); font-weight:700; }
+  .tabs{ display:inline-flex; gap:4px; margin-bottom:16px; background:var(--track); padding:5px; border-radius:13px; flex-wrap:wrap; }
   .tab{ padding:9px 18px; border-radius:9px; background:transparent; color:var(--muted); cursor:pointer; font-weight:700; font-size:.9rem; transition:.15s; }
-  .tab.active{ background:#fff; color:var(--ink); box-shadow:0 2px 8px rgba(80,68,30,.1); }
+  .tab.active{ background:var(--surface); color:var(--ink); box-shadow:var(--shadow); }
+  .toolbar{ display:none; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap; }
+  .toolbar.show{ display:flex; }
+  .toolbar label{ margin:0; font-size:.85rem; color:var(--body); font-weight:600; }
+  .toolbar select{ width:auto; min-width:180px; padding:9px 12px; }
   .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(330px,1fr)); gap:16px; }
-  .grid.sum{ grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); }
-  .dcard{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px 18px;
-          scroll-margin-top:16px; box-shadow:var(--shadow); }
+  .grid.sum{ grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); }
+  .dcard{ background:var(--surface); border:1px solid var(--line2); border-left:5px solid var(--dc,var(--yellow-d));
+          border-radius:16px; padding:16px 18px; scroll-margin-top:16px; box-shadow:var(--shadow); }
+  .dcard.plain{ border-left:1px solid var(--line2); }
   .dcard.clk{ cursor:pointer; transition:.15s; }
-  .dcard.clk:hover{ border-color:#e7e3d8; transform:translateY(-2px); box-shadow:0 10px 24px rgba(80,68,30,.12); }
+  .dcard.clk:hover{ transform:translateY(-2px); box-shadow:0 10px 24px rgba(80,68,30,.12); }
   .dcard .head{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:6px; }
-  .dcard .nm{ font-weight:800; letter-spacing:-.02em; font-size:1.05rem; }
-  .dcard .cnt{ font-size:.92rem; font-weight:800; white-space:nowrap; }
-  .dcard .cnt.full{ color:var(--danger); } .dcard .cnt.ok{ color:var(--ok); }
-  .dcard .dt{ font-size:.84rem; color:#6b6557; margin-bottom:10px; min-height:2.4em; line-height:1.5; }
-  .bartrack{ height:9px; background:#f0ede4; border-radius:6px; overflow:hidden; }
-  .barfill{ height:100%; background:linear-gradient(90deg,#f5c518,#f5c518); border-radius:6px; transition:width .3s; }
-  .hint{ font-size:.78rem; color:#b48a00; text-align:right; margin-top:8px; font-weight:700; }
+  .dcard .nm{ font-weight:700; color:var(--ink); font-size:1.05rem; }
+  .dcard .cnt{ font-size:.92rem; font-weight:700; white-space:nowrap; color:var(--body); }
+  .dcard .cnt.full{ color:var(--danger); }
+  .dcard .dt{ font-size:.82rem; color:var(--muted); margin-bottom:10px; min-height:2.3em; line-height:1.5; }
+  .bartrack{ height:9px; background:var(--track); border-radius:6px; overflow:hidden; }
+  .barfill{ height:100%; background:var(--dc,var(--yellow-d)); border-radius:6px; transition:width .3s; }
+  .hint{ font-size:.78rem; color:var(--muted); text-align:right; margin-top:8px; font-weight:600; }
   table{ width:100%; border-collapse:collapse; font-size:.92rem; table-layout:fixed; }
-  th,td{ text-align:left; padding:8px 5px; border-bottom:1px solid #f0ede4; vertical-align:middle; overflow-wrap:anywhere; word-break:break-word; }
-  th{ color:var(--muted); font-weight:700; font-size:.82rem; }
-  td.nm{ font-weight:700; }
-  td.none{ color:#9b958a; }
-  .pill{ font-size:.72rem; padding:3px 9px; border-radius:999px; white-space:nowrap; font-weight:700; }
-  .pill.done{ background:var(--ok-soft); color:#0c7a5a; }
-  .pill.no{ background:#f3efe4; color:var(--muted); }
+  th,td{ text-align:left; padding:8px 5px; border-bottom:1px solid var(--line2); vertical-align:middle; overflow-wrap:anywhere; word-break:break-word; color:var(--body); }
+  th{ color:var(--muted); font-weight:600; font-size:.8rem; }
+  td.nm{ font-weight:500; color:var(--ink); }
+  .dpill{ display:inline-block; font-size:.74rem; font-weight:700; color:#fff; padding:2px 9px; border-radius:999px; line-height:1.5; }
+  .npill{ display:inline-block; font-size:.74rem; font-weight:600; color:var(--muted); background:var(--track); padding:2px 9px; border-radius:999px; }
   .rm{ color:var(--danger); cursor:pointer; font-size:.78rem; background:none; border:none; padding:0; font-weight:700; }
-  .empty{ color:#aab; font-size:.83rem; padding:10px 0; }
+  .empty{ color:var(--muted); font-size:.85rem; padding:10px 0; }
   #status{ font-size:.85rem; color:#b48a00; margin-bottom:10px; min-height:1em; font-weight:600; }
-  #status.err{ color:var(--danger); } #status.ok{ color:#0c7a5a; }
-  .modal{ position:fixed; inset:0; background:rgba(20,26,44,.5); display:none; align-items:center; justify-content:center; z-index:50; backdrop-filter:blur(2px); }
+  #status.err{ color:var(--danger); } #status.ok{ color:var(--ok); }
+  .modal{ position:fixed; inset:0; background:rgba(20,18,10,.55); display:none; align-items:center; justify-content:center; z-index:50; backdrop-filter:blur(2px); }
   .modal.show{ display:flex; }
-  .modal .box{ background:#fff; border-radius:18px; padding:24px; width:350px; max-width:92vw; box-shadow:0 20px 50px rgba(0,0,0,.25); }
-  .modal h3{ margin:0 0 14px; font-size:1.15rem; font-weight:800; letter-spacing:-.02em; }
+  .modal .box{ background:var(--surface); border-radius:18px; padding:24px; width:350px; max-width:92vw; box-shadow:0 20px 50px rgba(0,0,0,.3); }
+  .modal h3{ margin:0 0 14px; font-size:1.15rem; color:var(--ink); }
   .modal button.full{ width:100%; padding:13px; margin-top:18px; font-size:1rem; }
-  .modal .x{ background:#fff; color:var(--muted); border:1.5px solid #e2e5eb; margin-top:8px; }
-  .modal .x:hover{ background:#faf9f4; }
+  .modal .x{ background:var(--surface); color:var(--muted); border:1.5px solid var(--line2); margin-top:8px; }
   .modal .mmsg{ font-size:.85rem; margin-top:10px; min-height:1em; font-weight:600; }
-  @media (max-width:480px){ .grid,.grid.sum{ grid-template-columns:1fr; } }
+  @media (max-width:480px){ .grid,.grid.sum{ grid-template-columns:1fr; } .toolbar select{ min-width:0; flex:1; } }
 </style>
 </head>
 <body>
@@ -91,21 +102,27 @@
     <label>이메일</label><input id="email" type="email" placeholder="교사 계정 이메일" />
     <label>비밀번호</label><input id="pw" type="password" />
     <button id="loginBtn">로그인</button>
-    <div id="loginErr" style="color:#c8473f;font-size:.85rem;margin-top:8px;font-weight:600;"></div>
+    <div id="loginErr" style="color:#dd5a4e;font-size:.85rem;margin-top:8px;font-weight:600;"></div>
   </div>
 
   <div id="dash" style="display:none;">
     <div class="bar">
       <div>
-        <h1 class="display">전공체험 신청 현황판</h1>
+        <h1 class="display" id="title" title="">전공체험 신청 현황판</h1>
         <div class="sub">선문대 전공체험 · 2026. 7. 14.(화) · 실시간 업데이트</div>
       </div>
       <div class="right">
         <button id="addStuBtn">＋ 학생 추가</button>
-        <button class="ghost" id="importBtn">학생 명단 가져오기</button>
-        <button class="ghost" id="seedBtn">학과 초기 세팅</button>
-        <button class="ghost" id="recalcBtn">정원 재계산</button>
         <button class="ghost" id="logoutBtn">로그아웃</button>
+      </div>
+    </div>
+
+    <!-- 숨김 버튼 (제목 5번 클릭 시 표시) -->
+    <div class="bar" id="advBtns" style="display:none; justify-content:flex-start;">
+      <div class="right">
+        <button class="ghost" id="seedBtn">학과 초기 세팅</button>
+        <button class="ghost" id="importBtn">학생 명단 가져오기</button>
+        <button class="ghost" id="recalcBtn">정원 재계산</button>
         <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" />
       </div>
     </div>
@@ -118,11 +135,16 @@
       <div class="tab" id="tabDept">학과별 명단</div>
       <div class="tab" id="tabClass">반별 명단</div>
     </div>
-    <div class="bar" id="csvBar" style="justify-content:flex-end; display:none;">
-      <div class="right">
-        <button class="ghost" id="csvDeptBtn">학과별 CSV</button>
-        <button class="ghost" id="csvClassBtn">반별 CSV</button>
-      </div>
+
+    <!-- 반별 탭 학과 필터 -->
+    <div class="toolbar" id="classTools">
+      <label for="classDeptFilter">학과 필터</label>
+      <select id="classDeptFilter"></select>
+      <button class="ghost" id="csvClassBtn">반별 CSV</button>
+    </div>
+    <!-- 학과별 탭 CSV -->
+    <div class="toolbar" id="deptTools">
+      <button class="ghost" id="csvDeptBtn">학과별 CSV</button>
     </div>
 
     <div id="summaryView" class="grid sum"></div>
@@ -134,9 +156,9 @@
 <div class="modal" id="addModal">
   <div class="box">
     <h3>학생 추가 (전입생)</h3>
-    <label>학번 (5자리)</label><input id="addSid" inputmode="numeric" maxlength="5" placeholder="예) 10325" />
-    <label>이름</label><input id="addName" placeholder="예) 김한나" />
-    <label>생년월일 6자리</label><input id="addBirth" inputmode="numeric" maxlength="6" placeholder="예) 100209" />
+    <label>학번 (5자리)</label><input id="addSid" inputmode="numeric" maxlength="5" placeholder="예) 10101" />
+    <label>이름</label><input id="addName" placeholder="예) 홍길동" />
+    <label>생년월일 6자리</label><input id="addBirth" inputmode="numeric" maxlength="6" placeholder="예) 100101" />
     <div class="mmsg" id="addMsg"></div>
     <button class="full" id="addConfirm">추가하기</button>
     <button class="full x" id="addCancel">닫기</button>
@@ -145,7 +167,8 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut }
+import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut,
+         setPersistence, browserLocalPersistence }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
   getFirestore, collection, doc, query, orderBy, onSnapshot,
@@ -177,13 +200,18 @@ const SEED = [
   { id:"d12", ord:12, name:"영화영상학과",           detail:"360도를 찍어보자 _ 인스타 360을 활용한 촬영 실습" },
   { id:"d13", ord:13, name:"외국어학부(영어)",       detail:"영어 전공 이해와 영어의사소통능력 향상 튜터링 프로그램" },
 ];
+// 학과별 색상 (ord 1~13)
+const DCOLORS = ["#e8643c","#3b7dd8","#2fa37a","#b65fd1","#cf9b00","#d8527c","#1fa3a0",
+                 "#6a78e0","#d8453f","#5aa02c","#c2792e","#8a64d6","#4a8db5"];
+const colorOf = (ord)=>DCOLORS[((ord||1)-1) % DCOLORS.length];
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
+setPersistence(auth, browserLocalPersistence).catch(()=>{});  // 새로고침해도 로그인 유지
 const $ = (id)=>document.getElementById(id);
 
-let depts=[], students=[], seats=[], unsub=[], tab="summary";
+let depts=[], students=[], seats=[], unsub=[], tab="summary", classFilter="all";
 
 async function sha256Hex(str){ const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(str));
   return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
@@ -192,6 +220,8 @@ const vhashOf=(sid,birth)=>sha256Hex(`${String(sid).trim()}|${normBirth(birth)}`
 const parseSid=(sid)=>{ const s=String(sid); return { classNo:+s.slice(1,3), studentNo:+s.slice(3,5) }; };
 const esc=(s)=>String(s).replace(/[&<>]/g,(c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;" }[c]));
 function setStatus(t,cls=""){ const e=$("status"); e.textContent=t; e.className=cls; }
+const ordOf={}; // deptId -> ord
+function rebuildOrd(){ depts.forEach(d=>ordOf[d.id]=d.ord); }
 
 $("loginBtn").addEventListener("click", async ()=>{
   $("loginErr").textContent="";
@@ -206,10 +236,18 @@ onAuthStateChanged(auth,(user)=>{
 });
 
 function startListening(){
-  unsub.push(onSnapshot(query(collection(db,"departments"),orderBy("ord")), s=>{ depts=s.docs.map(d=>({id:d.id,...d.data()})); render(); }));
-  unsub.push(onSnapshot(collection(db,"students"), s=>{ students=s.docs.map(d=>({vhash:d.id,...d.data()})); render(); }, e=>console.error(e)));
+  if(unsub.length) return; // 중복 구독 방지
+  unsub.push(onSnapshot(query(collection(db,"departments"),orderBy("ord")), s=>{ depts=s.docs.map(d=>({id:d.id,...d.data()})); rebuildOrd(); buildFilter(); render(); }));
+  unsub.push(onSnapshot(collection(db,"students"), s=>{ students=s.docs.map(d=>({vhash:d.id,...d.data()})); render(); }, e=>{console.error(e); setStatus("학생 명단을 불러오지 못했습니다.","err");}));
   unsub.push(onSnapshot(collection(db,"seats"), s=>{ seats=s.docs.map(d=>({vhash:d.id,...d.data()})); render(); }, e=>console.error(e)));
 }
+
+// 숨김 버튼: 제목 5번 클릭
+let clickCount=0, clickTimer=null;
+$("title").addEventListener("click", ()=>{
+  clickCount++; clearTimeout(clickTimer); clickTimer=setTimeout(()=>clickCount=0, 1200);
+  if(clickCount>=5){ clickCount=0; const a=$("advBtns"); a.style.display = a.style.display==="none"?"flex":"none"; }
+});
 
 $("tabSummary").addEventListener("click", ()=>switchTab("summary"));
 $("tabDept").addEventListener("click", ()=>switchTab("dept"));
@@ -221,22 +259,33 @@ function switchTab(t){ tab=t;
   $("summaryView").style.display = t==="summary"?"grid":"none";
   $("deptView").style.display = t==="dept"?"grid":"none";
   $("classView").style.display = t==="class"?"grid":"none";
-  $("csvBar").style.display = (t==="summary")?"none":"flex";
+  $("deptTools").classList.toggle("show", t==="dept");
+  $("classTools").classList.toggle("show", t==="class");
 }
+
+function buildFilter(){
+  const sel=$("classDeptFilter"); const prev=sel.value||"all";
+  sel.innerHTML = `<option value="all">전체 학생</option><option value="none">미신청만</option>`
+    + depts.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join("");
+  sel.value = prev;
+}
+$("classDeptFilter").addEventListener("change", (e)=>{ classFilter=e.target.value; render(); });
+
+function deptBadge(name, ord){ return `<span class="dpill" style="background:${colorOf(ord)}">${esc(name)}</span>`; }
 
 function render(){
   const seatByVhash={}; seats.forEach(s=>seatByVhash[s.vhash]=s);
   $("summary").innerHTML =
     `신청 <b>${seats.length}</b>명 · 등록 학생 <b>${students.length}</b>명 · 학과 <b>${depts.length}</b>개`
-    + (students.length?"":` · <span style="color:#c8473f">학생 명단이 없습니다. 「학생 명단 가져오기」 또는 「＋ 학생 추가」를 이용하세요.</span>`);
+    + (students.length?"":` · <span style="color:#dd5a4e">학생 명단이 없습니다. 제목을 5번 누르면 「학생 명단 가져오기」가 나타나요.</span>`);
 
-  // 현황(요약)
+  // 현황
   $("summaryView").innerHTML = depts.map(d=>{
     const pct=d.capacity?Math.round(d.filled/d.capacity*100):0; const full=d.filled>=d.capacity;
-    return `<div class="dcard clk" data-go="${d.id}">
-      <div class="head"><span class="nm">${d.name}</span>
-        <span class="cnt ${full?"full":"ok"}">${d.filled} / ${d.capacity}</span></div>
-      <div class="dt">${d.detail||""}</div>
+    return `<div class="dcard clk" data-go="${d.id}" style="--dc:${colorOf(d.ord)}">
+      <div class="head"><span class="nm">${esc(d.name)}</span>
+        <span class="cnt ${full?"full":""}">${d.filled} / ${d.capacity}</span></div>
+      <div class="dt">${esc(d.detail||"")}</div>
       <div class="bartrack"><div class="barfill" style="width:${pct}%"></div></div>
       <div class="hint">명단 보기 →</div>
     </div>`;
@@ -246,7 +295,7 @@ function render(){
       const t=document.getElementById("dept-"+el.dataset.go); if(t) t.scrollIntoView({behavior:"smooth", block:"start"}); });
   });
 
-  // 학과별 명단 (반만)
+  // 학과별 명단 (반만 표시)
   const byDept={}; seats.forEach(s=>{(byDept[s.deptId] ||= []).push(s);});
   $("deptView").innerHTML = depts.map(d=>{
     const mem=(byDept[d.id]||[]).slice().sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
@@ -256,33 +305,37 @@ function render(){
           <td class="nm">${esc(m.name)}</td>
           <td style="width:40px;text-align:right"><button class="rm" data-cancel="${m.vhash}">취소</button></td></tr>`).join("")
       : `<tr><td colspan="4" class="empty">아직 신청자가 없습니다.</td></tr>`;
-    return `<div class="dcard" id="dept-${d.id}">
-      <div class="head"><span class="nm">${d.name}</span>
-        <span class="cnt ${full?"full":"ok"}">${d.filled} / ${d.capacity}</span></div>
-      <div class="dt">${d.detail||""}</div>
+    return `<div class="dcard" id="dept-${d.id}" style="--dc:${colorOf(d.ord)}">
+      <div class="head"><span class="nm">${esc(d.name)}</span>
+        <span class="cnt ${full?"full":""}">${d.filled} / ${d.capacity}</span></div>
+      <div class="dt">${esc(d.detail||"")}</div>
       <table><thead><tr><th>반</th><th>학번</th><th>이름</th><th></th></tr></thead><tbody>${rows}</tbody></table>
     </div>`;
   }).join("");
   $("deptView").querySelectorAll("[data-cancel]").forEach(b=>b.addEventListener("click", ()=>cancelSeat(b.dataset.cancel)));
 
-  // 반별 명단
+  // 반별 명단 (학과 필터 적용)
   const classes={};
   students.forEach(st=>{ const p=parseSid(st.studentId);
     (classes[p.classNo] ||= []).push({ ...st, ...p, seat:seatByVhash[st.vhash]||null }); });
   const keys=Object.keys(classes).map(Number).sort((a,b)=>a-b);
   $("classView").innerHTML = keys.length ? keys.map(c=>{
-    const list=classes[c].sort((a,b)=>a.studentNo-b.studentNo);
-    const done=list.filter(x=>x.seat).length;
-    const rows=list.map(x=>`<tr>
+    let list=classes[c].sort((a,b)=>a.studentNo-b.studentNo);
+    if(classFilter==="none") list=list.filter(x=>!x.seat);
+    else if(classFilter!=="all") list=list.filter(x=>x.seat && x.seat.deptId===classFilter);
+    const total=classes[c].length, done=classes[c].filter(x=>x.seat).length;
+    const cntLabel = classFilter==="all" ? `${done} / ${total} 신청`
+                   : classFilter==="none" ? `미신청 ${list.length}명`
+                   : `${list.length}명`;
+    const rows = list.length ? list.map(x=>`<tr>
         <td style="width:32px">${x.studentNo}</td>
         <td style="width:66px">${x.studentId}</td>
         <td class="nm">${esc(x.name)}</td>
-        <td>${x.seat?esc(x.seat.deptName):'<span class="none">미신청</span>'}</td>
+        <td>${x.seat?deptBadge(x.seat.deptName, ordOf[x.seat.deptId]):'<span class="npill">미신청</span>'}</td>
         <td style="width:46px;text-align:right"><button class="rm" data-del="${x.vhash}">삭제</button></td>
-      </tr>`).join("");
-    return `<div class="dcard">
-      <div class="head"><span class="nm">${c}반</span>
-        <span class="cnt ${done===list.length?"ok":""}">${done} / ${list.length} 신청</span></div>
+      </tr>`).join("") : `<tr><td colspan="5" class="empty">해당 학생이 없습니다.</td></tr>`;
+    return `<div class="dcard plain">
+      <div class="head"><span class="nm">${c}반</span><span class="cnt">${cntLabel}</span></div>
       <table><thead><tr><th>번호</th><th>학번</th><th>이름</th><th>신청 학과</th><th></th></tr></thead><tbody>${rows}</tbody></table>
     </div>`;
   }).join("") : `<div class="empty">학생 명단을 먼저 등록하면 반별 명단이 표시됩니다.</div>`;
@@ -322,7 +375,7 @@ $("addStuBtn").addEventListener("click", ()=>{ $("addMsg").textContent=""; $("ad
 $("addCancel").addEventListener("click", ()=>$("addModal").classList.remove("show"));
 $("addConfirm").addEventListener("click", async ()=>{
   const sid=$("addSid").value.trim(), name=$("addName").value.trim(), birth=$("addBirth").value.trim();
-  $("addMsg").style.color="#c8473f";
+  $("addMsg").style.color="#dd5a4e";
   if(!/^\d{5}$/.test(sid)) return $("addMsg").textContent="학번은 5자리 숫자로 입력해 주세요.";
   if(!name) return $("addMsg").textContent="이름을 입력해 주세요.";
   if(!/^\d{6}$/.test(birth)) return $("addMsg").textContent="생년월일은 6자리 숫자로 입력해 주세요.";
@@ -331,7 +384,7 @@ $("addConfirm").addEventListener("click", async ()=>{
     const exist=await getDoc(doc(db,"students",vh));
     if(exist.exists()){ $("addMsg").textContent="이미 등록된 학생입니다."; return; }
     await setDoc(doc(db,"students",vh), { name, studentId:sid });
-    $("addMsg").style.color="#0c7a5a"; $("addMsg").textContent=`${name} 학생을 추가했습니다.`;
+    $("addMsg").style.color="#2f8f6a"; $("addMsg").textContent=`${name} 학생을 추가했습니다.`;
     $("addSid").value=""; $("addName").value=""; $("addBirth").value="";
   } catch(e){ console.error(e); $("addMsg").textContent="추가 중 오류가 발생했습니다."; }
 });
@@ -345,7 +398,7 @@ $("seedBtn").addEventListener("click", async ()=>{
 });
 
 $("recalcBtn").addEventListener("click", async ()=>{
-  if(!confirm("실제 신청 내역을 기준으로 각 학과의 신청 수를 다시 계산합니다. 진행할까요?")) return;
+  if(!confirm("실제 신청 내역을 기준으로 각 학과의 신청 수를 다시 계산합니다. (신청 숫자가 어긋났을 때 복구용) 진행할까요?")) return;
   try { const cnt={}; seats.forEach(s=>cnt[s.deptId]=(cnt[s.deptId]||0)+1);
     for(const d of depts) await setDoc(doc(db,"departments",d.id),{ filled:cnt[d.id]||0 },{ merge:true });
     setStatus("정원 재계산 완료","ok"); } catch(e){ console.error(e); setStatus("재계산 중 오류가 발생했습니다.","err"); }
@@ -369,8 +422,7 @@ $("fileInput").addEventListener("change", async (e)=>{
     }
     if(!recs.length){ setStatus("학번/이름/생년월일 형식을 인식하지 못했습니다.","err"); return; }
     if(!confirm(`${recs.length}명의 학생 명단을 등록합니다. 진행할까요?`)){ setStatus(""); return; }
-    setStatus("등록 중…");
-    let done=0;
+    setStatus("등록 중…"); let done=0;
     for(let i=0;i<recs.length;i+=400){
       const chunk=recs.slice(i,i+400); const batch=writeBatch(db);
       for(const rec of chunk){ const vh=await vhashOf(rec.sid,rec.birth); batch.set(doc(db,"students",vh),{ name:rec.name, studentId:rec.sid }); }
@@ -384,8 +436,7 @@ $("fileInput").addEventListener("change", async (e)=>{
 function download(name,csv){ const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
 $("csvDeptBtn").addEventListener("click", ()=>{
-  const order={}; depts.forEach(d=>order[d.id]=d.ord);
-  const rows=seats.slice().sort((a,b)=>(order[a.deptId]-order[b.deptId])||(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
+  const rows=seats.slice().sort((a,b)=>((ordOf[a.deptId]||0)-(ordOf[b.deptId]||0))||(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
   let csv="학과,반,번호,학번,이름,신청시각\n";
   rows.forEach(r=>{ const t=r.createdAt?.toDate?r.createdAt.toDate().toLocaleString("ko-KR"):"";
     csv+=`"${r.deptName}",${r.classNo},${r.studentNo},"${r.studentId}","${(r.name||"").replace(/"/g,'""')}","${t}"\n`; });
