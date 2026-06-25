@@ -68,7 +68,10 @@
   .panel.on{ display:block; }
 
   /* 신청 패널 */
-  .hello{ font-size:1.12rem; font-weight:700; color:var(--ink); margin:6px 0 4px; }
+  .hello{ font-size:1.12rem; font-weight:700; color:var(--ink); margin:0; }
+  .hellorow{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:6px 0 4px; min-height:34px; }
+  .curbadge{ display:inline-flex; align-items:center; gap:7px; background:var(--ok-soft); color:var(--ok); border:1px solid var(--ok); border-radius:999px; padding:6px 14px; font-weight:700; font-size:.9rem; white-space:nowrap; }
+  .curbadge .lb{ font-size:.78rem; opacity:.85; }
   .hello .small{ font-size:.85rem; font-weight:500; color:var(--muted); margin-left:6px; }
   .lead{ color:var(--muted); font-size:.92rem; margin:0 0 16px; }
   .grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:9px; }
@@ -301,9 +304,11 @@
   <div class="wrap">
     <!-- 신청 -->
     <div class="panel" id="panelApply">
-      <div class="hello" id="hello"></div>
+      <div class="hellorow">
+        <div class="hello" id="hello"></div>
+        <div id="statusBadge"></div>
+      </div>
       <p class="lead">희망 학과 1곳을 골라 신청하세요. 학과당 선착순 최대 36명, 자리가 남아 있으면 취소 후 다시 신청할 수 있어요.</p>
-      <div id="statusArea"></div>
       <div class="grid" id="grid"><div class="empty">학과 현황 불러오는 중…</div></div>
       <button id="applyBtn" class="bigbtn" disabled style="display:none;">신청하기</button>
       <div class="msg" id="mainMsg"></div>
@@ -561,10 +566,10 @@ function renderApply(){
   }).join("");
   if(!locked) $("grid").querySelectorAll(".blk:not(.full)").forEach(el=>el.addEventListener("click", ()=>{ selectedId=el.dataset.id; renderApply(); }));
   if(seat){
-    $("statusArea").innerHTML=`<div class="current"><span class="lab">현재 신청</span><span class="val">${esc(seat.deptName)}</span></div>`;
+    $("statusBadge").innerHTML=`<span class="curbadge"><span class="lb">✓ 현재 신청</span>${esc(seat.deptName)}</span>`;
     $("applyBtn").style.display="none"; $("cancelBtn").style.display="block";
   }else{
-    $("statusArea").innerHTML="";
+    $("statusBadge").innerHTML="";
     $("applyBtn").style.display="block"; $("applyBtn").disabled=!selectedId; $("cancelBtn").style.display="none";
   }
 }
