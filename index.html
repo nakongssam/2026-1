@@ -55,9 +55,10 @@
   /* 앱 헤더 + 탭 */
   .apphead{ position:sticky; top:0; z-index:20; background:var(--page); border-bottom:1px solid var(--line2); }
   .apphead .in{ max-width:1080px; margin:0 auto; padding:9px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:52px; }
-  .apphead .ttl{ font-size:1.12rem; color:var(--ink); display:flex; align-items:center; gap:8px; }
+  .apphead .ttl{ font-size:1.12rem; color:var(--ink); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   .ttlwrap{ display:flex; flex-direction:column; gap:1px; min-width:0; }
-  .appsub{ font-size:.76rem; color:var(--muted); padding-left:30px; }
+  .appsub{ font-size:.76rem; color:var(--muted); font-weight:400; }
+  .ttl .appsub::before{ content:"·"; margin:0 6px; color:var(--muted); }
   .apphead .who{ font-size:.78rem; color:var(--muted); font-weight:600; }
   .outbtn{ border:1.5px solid var(--line2); background:var(--surface); color:var(--body); border-radius:10px; padding:7px 12px; font-size:.82rem; font-weight:700; cursor:pointer; }
   .headright{ display:flex; align-items:center; gap:8px; }
@@ -189,6 +190,13 @@
   .qitem .qtime{ font-size:.76rem; color:var(--muted); white-space:nowrap; flex:none; }
   .qitem .qdel{ border:none; background:none; color:var(--danger); font-size:.8rem; cursor:pointer; opacity:.7; padding:0; }
   .qitem .qdel:hover{ opacity:1; }
+  .qitem .qedit{ border:none; background:none; color:var(--yellow-d); font-size:.8rem; cursor:pointer; opacity:.85; padding:0; font-weight:700; }
+  .qitem .qedit:hover{ opacity:1; }
+  .qitem.editing{ border-color:var(--yellow-d); box-shadow:0 0 0 2px var(--yellow-soft); }
+  .qitem .qedited{ color:var(--muted); font-size:.72rem; }
+  .qcount{ flex:none; margin-left:6px; min-width:18px; height:18px; padding:0 5px; border-radius:999px; background:var(--dc,var(--yellow-d)); color:#fff; font-size:.72rem; font-weight:800; display:inline-flex; align-items:center; justify-content:center; }
+  .chip.active .qcount{ background:rgba(255,255,255,.35); }
+  .qnamsg .lnk{ color:var(--danger); cursor:pointer; text-decoration:underline; font-weight:600; }
   .qempty{ color:var(--muted); font-size:.9rem; padding:18px 4px; text-align:center; }
   .chipgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; margin-bottom:14px; }
   .chipgrid.cls{ grid-template-columns:repeat(14,1fr); }
@@ -318,10 +326,7 @@
 <div id="app" style="display:none;">
   <div class="apphead">
     <div class="in">
-      <div class="ttlwrap">
-        <div class="ttl display">🎓 전공체험 <span class="who" id="who"></span></div>
-        <div class="appsub">7/14(화) 4~5교시 · 1학년 교실</div>
-      </div>
+      <div class="ttl display">🎓 전공체험 <span class="who" id="who"></span><span class="appsub">7/14(화) 4~5교시 · 1학년 교실</span></div>
       <div class="headright">
         <span class="dashctrl" id="dashCtrl">
           <span class="live"><span class="dotpulse"></span> 실시간</span>
@@ -371,7 +376,7 @@
 
     <!-- 학과 Q&A -->
     <div class="panel" id="panelQna">
-      <div id="qnaChips" class="chipgrid" style="margin-top:2px;"></div>
+      <div id="qnaChips" class="chipgrid"></div>
       <div class="qnacard">
         <div class="qnahead"><span class="t" id="qnaTitle">💬 학과 Q&amp;A</span><span class="meta" id="qnaMeta"></span></div>
         <div class="qnaform">
@@ -478,7 +483,7 @@ setPersistence(auth, browserLocalPersistence).catch(()=>{});
 const $=(id)=>document.getElementById(id);
 
 let role=null, me=null, seat=null, selectedId=null;
-let depts=[], seats=[], students=[], roster=null, live=null, lastRosterKey="", lastLiveKey="", questions=[], qnaPick=null;
+let depts=[], seats=[], students=[], roster=null, live=null, lastRosterKey="", lastLiveKey="", questions=[], qnaPick=null, editId=null;
 let unsub=[], unsubSeat=null, pollTimer=null, curTab=null;
 let deptPick=null, allFilter="all", classPick="all", mgTab="dept";
 const ordOf={};
@@ -977,46 +982,72 @@ function renderQna(){ try{ _renderQna(); }catch(e){ console.error("qna:",e); } }
 function _renderQna(){
   if(!role) return;
   if(!qnaPick && depts.length) qnaPick=depts[0].id;
-  $("qnaChips").innerHTML = depts.map(d=>`<button class="chip ${d.id===qnaPick?"active":""}" data-qna="${d.id}" style="--dc:${colorOf(d.ord)}">
-      <span class="cdot"></span><span class="cnm" title="${esc(d.name)}">${esc(shortDept(d.name))}</span></button>`).join("");
-  $("qnaChips").querySelectorAll("[data-qna]").forEach(b=>b.addEventListener("click", ()=>{ qnaPick=b.dataset.qna; renderQna(); }));
+  const cntOf={}; questions.forEach(q=>cntOf[q.deptId]=(cntOf[q.deptId]||0)+1);
+  $("qnaChips").innerHTML = depts.map(d=>{
+    const c=cntOf[d.id]||0;
+    return `<button class="chip ${d.id===qnaPick?"active":""}" data-qna="${d.id}" style="--dc:${colorOf(d.ord)}">
+      <span class="cdot"></span><span class="cnm" title="${esc(d.name)}">${esc(shortDept(d.name))}</span>${c?`<span class="qcount">${c}</span>`:""}</button>`;
+  }).join("");
+  $("qnaChips").querySelectorAll("[data-qna]").forEach(b=>b.addEventListener("click", ()=>{ if(b.dataset.qna!==qnaPick) cancelEdit(); qnaPick=b.dataset.qna; renderQna(); }));
   const d=depts.find(x=>x.id===qnaPick);
   $("qnaTitle").innerHTML = d?`💬 ${esc(d.name)} Q&amp;A`:"💬 학과 Q&amp;A";
   const list=questions.filter(q=>q.deptId===qnaPick);
   $("qnaMeta").textContent = list.length?`질문 ${list.length}개`:"";
   $("qnaList").innerHTML = list.length ? list.map(q=>{
-    const canDel = role==="teacher" || (me && q.vhash===me.vhash);
-    return `<div class="qitem">
+    const own = me && q.vhash===me.vhash;
+    const acts=[];
+    if(own) acts.push(`<button class="qedit" data-edit="${q.id}">수정</button>`);
+    if(role==="teacher" || own) acts.push(`<button class="qdel" data-del="${q.id}">삭제</button>`);
+    const edited = q.editedAt ? ` <span class="qedited">(수정됨)</span>` : "";
+    return `<div class="qitem${editId===q.id?" editing":""}">
       <div class="qtop">
         <div class="qline"><span class="qsid">${esc(q.studentId||"")}</span><span class="qname">${esc(q.name||"익명")}</span><span class="qq">${esc(q.text||"")}</span></div>
-        <span class="qtime">${qnaTimeStr(q.createdAt)}${canDel?` · <button class="qdel" data-del="${q.id}">삭제</button>`:""}</span>
+        <span class="qtime">${qnaTimeStr(q.createdAt)}${edited}${acts.length?" · "+acts.join(" · "):""}</span>
       </div></div>`;
   }).join("") : `<div class="qempty">아직 질문이 없어요. 첫 질문을 남겨보세요!</div>`;
   $("qnaList").querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click", ()=>deleteQuestion(b.dataset.del)));
+  $("qnaList").querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click", ()=>startEdit(b.dataset.edit)));
+}
+function startEdit(id){
+  const q=questions.find(x=>x.id===id); if(!q) return;
+  editId=id; $("qnaText").value=q.text||""; $("qnaText").focus();
+  $("qnaPost").textContent="수정 완료";
+  const msg=$("qnaMsg"); msg.className="qnamsg"; msg.innerHTML=`수정 중… <span class="lnk" id="qnaCancelLnk">취소</span>`;
+  $("qnaCancelLnk")?.addEventListener("click", cancelEdit);
+  renderQna();
+}
+function cancelEdit(){
+  editId=null; $("qnaText").value=""; $("qnaPost").textContent="질문 남기기";
+  const msg=$("qnaMsg"); msg.className="qnamsg"; msg.textContent="";
 }
 $("qnaPost").addEventListener("click", async ()=>{
   const t=$("qnaText").value.trim(); const msg=$("qnaMsg");
   msg.className="qnamsg"; msg.textContent="";
-  if(!qnaPick){ msg.classList.add("err"); msg.textContent="학과를 먼저 선택해 주세요."; return; }
+  if(role!=="student"){ msg.classList.add("err"); msg.textContent="질문 작성·수정은 학생만 가능해요. (교사는 보기·삭제만)"; return; }
   if(t.length<2){ msg.classList.add("err"); msg.textContent="질문을 입력해 주세요."; return; }
-  if(role!=="student"){ msg.classList.add("err"); msg.textContent="질문 작성은 학생만 가능해요. (교사는 보기·삭제만)"; return; }
   $("qnaPost").disabled=true;
   try{
-    const d=depts.find(x=>x.id===qnaPick);
-    await setDoc(doc(collection(db,"questions")), {
-      deptId:qnaPick, deptName:d?d.name:"", text:t,
-      name:me.name, vhash:me.vhash, studentId:me.studentId, classNo:me.classNo,
-      createdAt:serverTimestamp()
-    });
-    $("qnaText").value=""; msg.classList.add("ok"); msg.textContent="질문이 등록되었어요!";
-    setTimeout(()=>{ msg.textContent=""; msg.className="qnamsg"; }, 2500);
-  }catch(e){ console.error(e); msg.classList.add("err"); msg.textContent="등록 중 오류가 발생했습니다."; }
+    if(editId){
+      await setDoc(doc(db,"questions",editId), { text:t, editedAt:serverTimestamp() }, { merge:true });
+      cancelEdit(); msg.classList.add("ok"); msg.textContent="질문이 수정되었어요!";
+    }else{
+      if(!qnaPick){ msg.classList.add("err"); msg.textContent="학과를 먼저 선택해 주세요."; return; }
+      const d=depts.find(x=>x.id===qnaPick);
+      await setDoc(doc(collection(db,"questions")), {
+        deptId:qnaPick, deptName:d?d.name:"", text:t,
+        name:me.name, vhash:me.vhash, studentId:me.studentId, classNo:me.classNo,
+        createdAt:serverTimestamp()
+      });
+      $("qnaText").value=""; msg.classList.add("ok"); msg.textContent="질문이 등록되었어요!";
+    }
+    setTimeout(()=>{ if(!editId){ msg.textContent=""; msg.className="qnamsg"; } }, 2500);
+  }catch(e){ console.error(e); msg.classList.add("err"); msg.textContent="처리 중 오류가 발생했습니다."; }
   finally{ $("qnaPost").disabled=false; }
 });
 async function deleteQuestion(id){
   const q=questions.find(x=>x.id===id); if(!q) return;
   if(!confirm(`${q.name||""} 학생의 질문을 삭제할까요?`)) return;
-  try{ await deleteDoc(doc(db,"questions",id)); }
+  try{ if(editId===id) cancelEdit(); await deleteDoc(doc(db,"questions",id)); }
   catch(e){ console.error(e); alert("삭제 중 오류가 발생했습니다."); }
 }
 
