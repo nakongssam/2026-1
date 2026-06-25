@@ -55,6 +55,8 @@
   .apphead{ position:sticky; top:0; z-index:20; background:var(--page); border-bottom:1px solid var(--line2); }
   .apphead .in{ max-width:1080px; margin:0 auto; padding:9px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
   .apphead .ttl{ font-size:1.12rem; color:var(--ink); display:flex; align-items:center; gap:8px; }
+  .ttlwrap{ display:flex; flex-direction:column; gap:1px; min-width:0; }
+  .appsub{ font-size:.76rem; color:var(--muted); padding-left:30px; }
   .apphead .who{ font-size:.78rem; color:var(--muted); font-weight:600; }
   .outbtn{ border:1.5px solid var(--line2); background:var(--surface); color:var(--body); border-radius:10px; padding:7px 12px; font-size:.82rem; font-weight:700; cursor:pointer; }
   .headright{ display:flex; align-items:center; gap:8px; }
@@ -315,7 +317,10 @@
 <div id="app" style="display:none;">
   <div class="apphead">
     <div class="in">
-      <div class="ttl display">🎓 전공체험 <span class="who" id="who"></span></div>
+      <div class="ttlwrap">
+        <div class="ttl display">🎓 전공체험 <span class="who" id="who"></span></div>
+        <div class="appsub">7/14(화) 4~5교시 · 1학년 교실</div>
+      </div>
       <div class="headright">
         <span class="dashctrl" id="dashCtrl">
           <span class="live"><span class="dotpulse"></span> 실시간</span>
