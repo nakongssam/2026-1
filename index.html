@@ -8,6 +8,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gmarket+Sans:wght@500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
     --ink:#26231c; --body:#4a463d; --muted:#9b958a; --line:#efece4; --line2:#e7e3d8;
@@ -32,7 +33,7 @@
   .display{ font-family:"Gmarket Sans","Pretendard",sans-serif; }
   .wrap{ max-width:1080px; margin:0 auto; padding:0 16px 40px; }
 
-  /* ===== 게이트 ===== */
+  /* 게이트 */
   .gatewrap{ min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px 16px; }
   .gbadge{ display:inline-block; background:var(--yellow-soft); color:var(--yellow-d); font-weight:700; font-size:.8rem; padding:6px 14px; border-radius:999px; }
   .gtitle{ font-size:1.9rem; color:var(--ink); margin:14px 0 4px; text-align:center; letter-spacing:-.01em; }
@@ -50,7 +51,7 @@
   .go:hover{ background:var(--yellow-d); } .go:disabled{ background:var(--line2); color:var(--muted); box-shadow:none; cursor:not-allowed; }
   .err{ color:var(--danger); font-size:.86rem; margin-top:10px; font-weight:600; min-height:1em; }
 
-  /* ===== 앱 헤더 + 탭 ===== */
+  /* 앱 헤더 + 탭 */
   .apphead{ position:sticky; top:0; z-index:20; background:var(--page); border-bottom:1px solid var(--line2); }
   .apphead .in{ max-width:1080px; margin:0 auto; padding:12px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
   .apphead .ttl{ font-size:1.12rem; color:var(--ink); display:flex; align-items:center; gap:8px; }
@@ -64,7 +65,7 @@
   .panel{ display:none; padding-top:18px; }
   .panel.on{ display:block; }
 
-  /* ===== 신청 패널 ===== */
+  /* 신청 패널 */
   .hello{ font-size:1.12rem; font-weight:700; color:var(--ink); margin:6px 0 4px; }
   .hello .small{ font-size:.85rem; font-weight:500; color:var(--muted); margin-left:6px; }
   .lead{ color:var(--muted); font-size:.92rem; margin:0 0 16px; }
@@ -90,60 +91,125 @@
   .msg{ margin-top:14px; padding:12px 14px; border-radius:12px; font-size:.92rem; font-weight:600; display:none; }
   .msg.show{ display:block; } .msg.success{ background:var(--ok-soft); color:var(--ok); } .msg.error{ background:var(--yellow-soft); color:var(--danger); } .msg.info{ background:var(--yellow-soft); color:var(--ink); }
 
-  /* ===== 대시보드 패널 ===== */
-  .kpis{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:16px; }
-  .kpis.s3{ grid-template-columns:repeat(3,1fr); }
-  .kpi{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:13px 15px; box-shadow:var(--shadow); }
-  .kpi .ic{ width:30px; height:30px; border-radius:9px; display:grid; place-items:center; font-size:.98rem; margin-bottom:8px; background:var(--yellow-soft); }
-  .kpi .v{ font-size:1.6rem; font-weight:800; color:var(--ink); line-height:1.1; letter-spacing:-.02em; }
-  .kpi .l{ font-size:.78rem; color:var(--muted); margin-top:2px; font-weight:600; }
-  .board{ display:grid; grid-template-columns:1.5fr 1fr; gap:14px; align-items:start; }
-  .col{ display:flex; flex-direction:column; gap:14px; }
-  .card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow); overflow:hidden; }
-  .card .ch{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:14px 16px 10px; }
-  .card .ch .t{ font-weight:700; color:var(--ink); font-size:1.02rem; }
-  .card .ch .meta{ font-size:.8rem; color:var(--muted); font-weight:600; }
-  .card .cb{ padding:2px 16px 14px; }
-  .drow{ display:grid; grid-template-columns:1fr auto; gap:5px 10px; align-items:center; padding:8px 0; border-top:1px solid var(--line); }
-  .drow:first-child{ border-top:none; }
-  .drow .nm{ font-weight:600; color:var(--ink); font-size:.9rem; display:flex; align-items:center; gap:7px; }
-  .ddot{ width:10px; height:10px; border-radius:50%; flex:none; }
-  .drow .num{ font-size:.84rem; font-weight:700; color:var(--body); font-variant-numeric:tabular-nums; white-space:nowrap; }
-  .drow .num.full{ color:var(--danger); }
-  .drow .track{ grid-column:1/-1; height:6px; background:var(--track); border-radius:5px; overflow:hidden; }
-  .drow .track > i{ display:block; height:100%; border-radius:5px; transition:width .4s; }
-  .crow{ display:flex; align-items:center; gap:10px; padding:7px 0; border-top:1px solid var(--line); }
-  .crow:first-child{ border-top:none; }
-  .crow .cn{ width:40px; font-weight:700; color:var(--ink); font-size:.88rem; flex:none; }
-  .crow .track{ flex:1; height:8px; background:var(--track); border-radius:5px; overflow:hidden; }
-  .crow .track > i{ display:block; height:100%; background:var(--yellow-d); border-radius:5px; transition:width .4s; }
-  .crow .pc{ width:64px; text-align:right; font-size:.8rem; font-weight:700; color:var(--body); font-variant-numeric:tabular-nums; flex:none; }
-  .trow{ display:flex; align-items:center; gap:11px; padding:8px 0; border-top:1px solid var(--line); }
-  .trow:first-child{ border-top:none; }
-  .rank{ width:23px; height:23px; border-radius:8px; display:grid; place-items:center; font-weight:800; font-size:.8rem; color:#fff; flex:none; background:var(--muted); }
-  .rank.r1{ background:#f5b500; } .rank.r2{ background:#aab2c4; } .rank.r3{ background:#d08a5a; }
-  .trow .tn{ flex:1; font-weight:600; color:var(--ink); font-size:.9rem; } .trow .tv{ font-weight:800; color:var(--yellow-d); font-variant-numeric:tabular-nums; }
+  /* 대시보드 */
   .dashtools{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }
   .live{ display:inline-flex; align-items:center; gap:6px; padding:7px 13px; border-radius:999px; background:var(--ok-soft); color:var(--ok); font-weight:700; font-size:.82rem; }
   .dotpulse{ width:8px; height:8px; border-radius:50%; background:var(--ok); animation:pulse 1.6s infinite; }
   @keyframes pulse{ 0%{box-shadow:0 0 0 0 rgba(47,143,106,.5);} 70%{box-shadow:0 0 0 7px rgba(47,143,106,0);} 100%{box-shadow:0 0 0 0 rgba(47,143,106,0);} }
   @media (prefers-reduced-motion: reduce){ .dotpulse{ animation:none; } }
   .refresh{ border:1.5px solid var(--line2); background:var(--surface); color:var(--body); border-radius:999px; padding:7px 13px; font-size:.82rem; font-weight:700; cursor:pointer; }
+  .kpis{ display:grid; grid-template-columns:repeat(5,1fr); gap:10px; margin-bottom:16px; }
+  .kpis.s3{ grid-template-columns:repeat(3,1fr); }
+  .kpi{ background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:13px 15px; box-shadow:var(--shadow); }
+  .kpi .ic{ width:30px; height:30px; border-radius:9px; display:grid; place-items:center; font-size:.98rem; margin-bottom:8px; background:var(--yellow-soft); }
+  .kpi .v{ font-size:1.6rem; font-weight:800; color:var(--ink); line-height:1.1; letter-spacing:-.02em; }
+  .kpi .l{ font-size:.78rem; color:var(--muted); margin-top:2px; font-weight:600; }
+  .board{ display:grid; grid-template-columns:1.4fr 1fr; gap:14px; align-items:start; }
+  .col{ display:flex; flex-direction:column; gap:14px; }
+  .card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow); overflow:hidden; }
+  .card .ch{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:14px 16px 10px; }
+  .card .ch .t{ font-weight:700; color:var(--ink); font-size:1.02rem; }
+  .card .ch .meta{ font-size:.8rem; color:var(--muted); font-weight:600; }
+  .card .cb{ padding:2px 16px 14px; }
+  /* 학과별 2단 + 짧은 막대 */
+  .dgrid{ display:grid; grid-template-columns:1fr 1fr; gap:0 22px; }
+  .ditem{ padding:8px 0; border-bottom:1px solid var(--line); }
+  .ditem .dtop{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .ditem .nm{ font-weight:600; color:var(--ink); font-size:.9rem; display:flex; align-items:center; gap:7px; min-width:0; }
+  .ditem .nm .t{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .ddot{ width:9px; height:9px; border-radius:50%; flex:none; }
+  .ditem .num{ font-size:.82rem; font-weight:700; color:var(--body); white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .ditem .num.full{ color:var(--danger); }
+  .ditem .track{ height:5px; background:var(--track); border-radius:5px; overflow:hidden; margin-top:5px; }
+  .ditem .track > i{ display:block; height:100%; border-radius:5px; transition:width .4s; }
+  /* 반별: 막대 없이 숫자만, 2단 */
+  .cgrid{ display:grid; grid-template-columns:1fr 1fr; gap:0 22px; }
+  .citem{ display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-bottom:1px solid var(--line); font-size:.9rem; }
+  .citem .cn{ font-weight:700; color:var(--ink); }
+  .citem .pc{ font-weight:700; color:var(--body); font-variant-numeric:tabular-nums; }
+  .citem .pc .p{ color:var(--yellow-d); }
+  .trow{ display:flex; align-items:center; gap:11px; padding:8px 0; border-top:1px solid var(--line); }
+  .trow:first-child{ border-top:none; }
+  .rank{ width:23px; height:23px; border-radius:8px; display:grid; place-items:center; font-weight:800; font-size:.8rem; color:#fff; flex:none; background:var(--muted); }
+  .rank.r1{ background:#f5b500; } .rank.r2{ background:#aab2c4; } .rank.r3{ background:#d08a5a; }
+  .trow .tn{ flex:1; font-weight:600; color:var(--ink); font-size:.9rem; } .trow .tv{ font-weight:800; color:var(--yellow-d); font-variant-numeric:tabular-nums; }
   .empty{ color:var(--muted); font-size:.86rem; padding:12px 0; text-align:center; }
 
-  /* ===== 명단관리(iframe) ===== */
-  #manageFrame{ width:100%; height:calc(100dvh - 150px); min-height:560px; border:1px solid var(--line2); border-radius:14px; background:var(--surface); }
+  /* ===== 명단 관리(탭 내장) ===== */
+  .mgbar{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:14px; flex-wrap:wrap; }
+  .mgtitle{ font-size:1.12rem; font-weight:700; color:var(--ink); cursor:default; user-select:none; }
+  .mgbar button{ border:none; border-radius:11px; background:var(--yellow); color:#3a3320; font-weight:700; cursor:pointer; padding:9px 14px; font-size:.86rem; }
+  .bar{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:14px; }
+  .ghost{ background:var(--surface); color:var(--body); border:1.5px solid var(--line2); font-weight:600; border-radius:11px; padding:9px 14px; font-size:.86rem; cursor:pointer; }
+  .ghost:hover{ background:var(--track); }
+  .summary{ background:var(--surface); border:1px solid var(--line2); border-radius:14px; padding:13px 16px; margin-bottom:14px; font-size:.96rem; color:var(--body); box-shadow:var(--shadow); }
+  .summary b{ color:var(--ink); font-weight:700; }
+  .tabs{ display:inline-flex; gap:4px; margin-bottom:14px; background:var(--track); padding:5px; border-radius:13px; flex-wrap:wrap; }
+  .tab{ padding:9px 16px; border-radius:9px; background:transparent; color:var(--muted); cursor:pointer; font-weight:700; font-size:.9rem; }
+  .tab.active{ background:var(--surface); color:var(--ink); box-shadow:var(--shadow); }
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .chip{ display:inline-flex; align-items:center; gap:7px; padding:8px 14px; border-radius:999px; background:var(--surface); border:1.5px solid var(--line2); color:var(--body); cursor:pointer; font-size:.88rem; font-weight:600; }
+  .chip:hover{ border-color:var(--dc); }
+  .chip.active{ background:var(--dc); border-color:var(--dc); color:#fff; }
+  .chip .cdot{ width:10px; height:10px; border-radius:50%; background:var(--dc); }
+  .chip.active .cdot{ background:rgba(255,255,255,.85); }
+  .chip .cn{ font-weight:700; opacity:.85; }
+  .toolbar{ display:none; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap; }
+  .toolbar.show{ display:flex; }
+  .toolbar .field{ display:flex; align-items:center; gap:7px; }
+  .toolbar .field label{ margin:0; font-size:.85rem; color:var(--body); font-weight:600; white-space:nowrap; }
+  .toolbar select{ width:auto; min-width:150px; padding:9px 12px; border:1.5px solid var(--line2); border-radius:11px; background:var(--page); color:var(--ink); }
+  .toolbar .spacer{ flex:1; }
+  .mgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:14px; }
+  .mgrid.wide{ grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); }
+  .dcard{ background:var(--surface); border:1px solid var(--line2); border-left:5px solid var(--dc,var(--yellow-d)); border-radius:16px; padding:15px 17px; scroll-margin-top:16px; box-shadow:var(--shadow); }
+  .dcard.plain{ border-left:1px solid var(--line2); }
+  .dcard.clk{ cursor:pointer; transition:.15s; }
+  .dcard.clk:hover{ transform:translateY(-2px); box-shadow:0 10px 24px rgba(80,68,30,.12); }
+  .dcard .head{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:6px; }
+  .dcard .head .nm{ font-weight:700; color:var(--ink); font-size:1.04rem; }
+  .dcard .cnt{ font-size:.92rem; font-weight:700; white-space:nowrap; color:var(--body); }
+  .dcard .cnt.full{ color:var(--danger); }
+  .dcard .dt{ font-size:.83rem; color:var(--muted); margin:2px 0 10px; line-height:1.5; }
+  .bartrack{ height:9px; background:var(--track); border-radius:6px; overflow:hidden; }
+  .barfill{ height:100%; background:var(--dc,var(--yellow-d)); border-radius:6px; transition:width .3s; }
+  .hint{ font-size:.78rem; color:var(--muted); text-align:right; margin-top:8px; font-weight:600; }
+  table{ width:100%; border-collapse:collapse; font-size:.92rem; table-layout:fixed; }
+  th,td{ text-align:left; padding:8px 5px; border-bottom:1px solid var(--line); vertical-align:middle; overflow-wrap:anywhere; word-break:break-word; color:var(--body); }
+  th{ color:var(--muted); font-weight:600; font-size:.8rem; }
+  td.nm{ font-weight:500; color:var(--ink); }
+  td.right{ text-align:right; }
+  .dpill{ display:inline-block; font-size:.75rem; font-weight:700; color:#fff; padding:2px 9px; border-radius:999px; }
+  .npill{ display:inline-block; font-size:.75rem; font-weight:600; color:var(--muted); background:var(--track); padding:2px 9px; border-radius:999px; }
+  .rm{ color:var(--danger); cursor:pointer; font-size:.8rem; background:none; border:none; padding:0; font-weight:700; }
+  .mempty{ color:var(--muted); font-size:.88rem; padding:14px 4px; }
+  .subhead{ margin-top:10px; padding:9px 12px; background:var(--yellow-soft); border-radius:10px; font-size:.84rem; font-weight:700; color:var(--ink); }
+  .brow{ display:flex; gap:8px; align-items:flex-start; font-size:.86rem; padding:5px 0; border-bottom:1px solid var(--line); }
+  .brow:last-child{ border-bottom:none; }
+  .brow .names{ color:var(--body); }
+  #status{ font-size:.85rem; color:#b48a00; margin-bottom:10px; min-height:1em; font-weight:600; }
+  #status.err{ color:var(--danger); } #status.ok{ color:var(--ok); }
+  .modal{ position:fixed; inset:0; background:rgba(20,18,10,.55); display:none; align-items:center; justify-content:center; z-index:50; backdrop-filter:blur(2px); }
+  .modal.show{ display:flex; }
+  .modal .box{ background:var(--surface); border-radius:18px; padding:24px; width:350px; max-width:92vw; box-shadow:0 20px 50px rgba(0,0,0,.3); }
+  .modal h3{ margin:0 0 14px; font-size:1.15rem; color:var(--ink); }
+  .modal .box label{ margin-top:10px; }
+  .modal button.full{ width:100%; padding:13px; margin-top:16px; font-size:1rem; border:none; border-radius:11px; background:var(--yellow); color:#3a3320; font-weight:700; cursor:pointer; }
+  .modal .x{ background:var(--surface); color:var(--muted); border:1.5px solid var(--line2); margin-top:8px; }
+  .modal .mmsg{ font-size:.85rem; margin-top:10px; min-height:1em; font-weight:600; }
 
   @media (max-width:760px){
     .board{ grid-template-columns:1fr; }
-    .kpis{ grid-template-columns:repeat(3,1fr); }
-    .kpis.s5{ grid-template-columns:repeat(3,1fr); }
+    .kpis, .kpis.s5{ grid-template-columns:repeat(3,1fr); }
   }
-  @media (max-width:480px){ .grid{ grid-template-columns:repeat(2,1fr); gap:8px; } .kpi .v{ font-size:1.4rem; } }
+  @media (max-width:520px){
+    .grid{ grid-template-columns:repeat(2,1fr); gap:8px; } .kpi .v{ font-size:1.4rem; }
+    .dgrid, .cgrid{ grid-template-columns:1fr; } .mgrid, .mgrid.wide{ grid-template-columns:1fr; } .toolbar select{ min-width:0; flex:1; }
+  }
 </style>
 </head>
 <body>
-<!-- ===== 게이트 ===== -->
+<!-- 게이트 -->
 <div class="gatewrap" id="gate">
   <span class="gbadge">🎓 선문대 전공체험</span>
   <h1 class="gtitle display">전공체험 학과 신청</h1>
@@ -171,7 +237,7 @@
   </div>
 </div>
 
-<!-- ===== 앱 ===== -->
+<!-- 앱 -->
 <div id="app" style="display:none;">
   <div class="apphead">
     <div class="in">
@@ -182,7 +248,7 @@
   </div>
 
   <div class="wrap">
-    <!-- 신청 패널 -->
+    <!-- 신청 -->
     <div class="panel" id="panelApply">
       <div class="hello" id="hello"></div>
       <p class="lead">희망 학과 1곳을 골라 신청하세요. 학과당 선착순 36명, 자리가 남아 있으면 취소 후 다시 신청할 수 있어요.</p>
@@ -193,7 +259,7 @@
       <button id="cancelBtn" class="bigbtn danger" style="display:none; margin-top:10px;">신청 취소하고 다시 선택</button>
     </div>
 
-    <!-- 대시보드 패널 -->
+    <!-- 현황판 -->
     <div class="panel" id="panelDash">
       <div class="dashtools">
         <span class="live"><span class="dotpulse"></span> 실시간</span>
@@ -204,7 +270,7 @@
         <div class="col">
           <div class="card">
             <div class="ch"><span class="t">📋 학과별 신청 현황</span><span class="meta" id="deptMeta"></span></div>
-            <div class="cb" id="deptList"></div>
+            <div class="cb"><div class="dgrid" id="deptList"></div></div>
           </div>
         </div>
         <div class="col">
@@ -214,16 +280,59 @@
           </div>
           <div class="card" id="classCard" style="display:none;">
             <div class="ch"><span class="t">🏫 반별 신청률</span><span class="meta" id="classMeta"></span></div>
-            <div class="cb" id="classList"></div>
+            <div class="cb"><div class="cgrid" id="classList"></div></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- 명단관리 패널 (교사) -->
+    <!-- 명단 관리 (교사) -->
     <div class="panel" id="panelManage">
-      <iframe id="manageFrame" title="명단 관리" loading="lazy"></iframe>
+      <div class="mgbar">
+        <div class="mgtitle display" id="mgTitle">명단 관리</div>
+        <div><button id="addStuBtn">＋ 학생 추가</button></div>
+      </div>
+      <div class="bar" id="advBtns" style="display:none;">
+        <button class="ghost" id="seedBtn">학과 초기 세팅</button>
+        <button class="ghost" id="importBtn">학생 명단 가져오기</button>
+        <button class="ghost" id="recalcBtn">정원 재계산</button>
+        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" />
+      </div>
+      <div id="status"></div>
+      <div class="summary" id="summary">불러오는 중…</div>
+      <div class="tabs">
+        <div class="tab active" id="tabSummary">현황</div>
+        <div class="tab" id="tabDept">학과별 명단</div>
+        <div class="tab" id="tabAll">전교생 명단</div>
+        <div class="tab" id="tabClass">반별 명단</div>
+      </div>
+      <div id="deptChips" class="chips" style="display:none;"></div>
+      <div class="toolbar" id="deptTools"><div class="spacer"></div><button class="ghost" id="csvDeptBtn">학과별 CSV</button></div>
+      <div class="toolbar" id="allTools">
+        <div class="field"><label for="allDeptFilter">학과 필터</label><select id="allDeptFilter"></select></div>
+        <div class="spacer"></div><button class="ghost" id="csvAllBtn">전교생 CSV</button>
+      </div>
+      <div class="toolbar" id="classTools">
+        <div class="field"><label for="classPick">반 선택</label><select id="classPick"></select></div>
+        <div class="spacer"></div><button class="ghost" id="csvClassBtn">반별 CSV</button>
+      </div>
+      <div id="summaryView" class="mgrid"></div>
+      <div id="deptView" style="display:none;"></div>
+      <div id="allView" class="mgrid wide" style="display:none;"></div>
+      <div id="classView" style="display:none;"></div>
     </div>
+  </div>
+</div>
+
+<div class="modal" id="addModal">
+  <div class="box">
+    <h3>학생 추가 (전입생)</h3>
+    <label>학번 (5자리)</label><input id="addSid" inputmode="numeric" maxlength="5" placeholder="예) 10101" />
+    <label>이름</label><input id="addName" placeholder="예) 홍길동" />
+    <label>생년월일 6자리</label><input id="addBirth" inputmode="numeric" maxlength="6" placeholder="예) 100101" />
+    <div class="mmsg" id="addMsg"></div>
+    <button class="full" id="addConfirm">추가하기</button>
+    <button class="full x" id="addCancel">닫기</button>
   </div>
 </div>
 
@@ -231,7 +340,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInAnonymously, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, initializeFirestore, collection, doc, getDoc, query, orderBy, onSnapshot, getDocs, runTransaction, serverTimestamp }
+import { getFirestore, initializeFirestore, collection, doc, getDoc, getDocs, setDoc, deleteDoc, writeBatch, query, orderBy, onSnapshot, runTransaction, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -246,6 +355,21 @@ const firebaseConfig = {
 const TEACHER_EMAIL = "hn9193@gmail.com";
 const DCOLORS = ["#e8643c","#3b7dd8","#2fa37a","#b65fd1","#cf9b00","#d8527c","#1fa3a0","#6a78e0","#d8453f","#5aa02c","#c2792e","#8a64d6","#4a8db5"];
 const colorOf=(ord)=>DCOLORS[((ord||1)-1)%DCOLORS.length];
+const SEED = [
+  { id:"d01", ord:1,  name:"사학과",                 detail:"임진왜란과 비밀병기: 거북선 키트 만들기" },
+  { id:"d02", ord:2,  name:"경찰행정법학과",         detail:"경찰공무원(법집행공무원) 되기와 경찰 장구 사용의 다양한 체험" },
+  { id:"d03", ord:3,  name:"사회복지학과",           detail:"우리마을 지도 만들기, 마을 한 바퀴 부루마블" },
+  { id:"d04", ord:4,  name:"미디어커뮤니케이션학부", detail:"미디어커뮤니케이션 전공 탐색: 광고, PR, 영상 콘텐츠와 AI" },
+  { id:"d05", ord:5,  name:"경영학과",               detail:"주식모의투자를 통한 경영학의 이해" },
+  { id:"d06", ord:6,  name:"항공서비스학과",         detail:'오늘은 "나도 Cabin Crew": 객실 승무원 실전 체험' },
+  { id:"d07", ord:7,  name:"제약생명공학과",         detail:"DNA 추출, 크로마토그래피" },
+  { id:"d08", ord:8,  name:"간호학과",               detail:"1일 나이팅게일 체험" },
+  { id:"d09", ord:9,  name:"응급구조학과",           detail:"119 구급대 및 병원 응급실 응급구조사 직무 체험" },
+  { id:"d10", ord:10, name:"지능로봇공학과",         detail:"미래를 움직이는 로봇: AI + 자율 시스템 체험" },
+  { id:"d11", ord:11, name:"스포츠과학과",           detail:"스포츠과학 운동능력 테스트: 체육 계열 실기와 스포츠 과학 실험실 체험" },
+  { id:"d12", ord:12, name:"영화영상학과",           detail:"360도를 찍어보자 _ 인스타 360을 활용한 촬영 실습" },
+  { id:"d13", ord:13, name:"외국어학부(영어)",       detail:"영어 전공 이해와 영어의사소통능력 향상 튜터링 프로그램" },
+];
 
 const app = initializeApp(firebaseConfig);
 let db; try{ db=initializeFirestore(app,{experimentalAutoDetectLongPolling:true}); }catch(e){ db=getFirestore(app); }
@@ -255,14 +379,19 @@ const $=(id)=>document.getElementById(id);
 
 let role=null, me=null, seat=null, selectedId=null;
 let depts=[], seats=[], students=[];
-let unsub=[], unsubSeat=null, pollTimer=null, manageLoaded=false, curTab=null;
+let unsub=[], unsubSeat=null, pollTimer=null, curTab=null;
+let deptPick=null, allFilter="all", classPick="all", mgTab="summary";
+const ordOf={};
 const esc=(s)=>String(s).replace(/[&<>]/g,(c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;" }[c]));
 const parseSid=(sid)=>{ const s=String(sid); return { classNo:+s.slice(1,3), studentNo:+s.slice(3,5) }; };
 async function sha256Hex(str){ const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(str)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
 const normBirth=(s)=>String(s).replace(/\D/g,"").padStart(6,"0").slice(-6);
 const vhashOf=(sid,birth)=>sha256Hex(`${String(sid).trim()}|${normBirth(birth)}`);
+const dot=(ord)=>`<span class="ddot" style="background:${colorOf(ord)};display:inline-block;vertical-align:-1px;margin-right:6px"></span>`;
+const deptBadge=(name,ord)=>`<span class="dpill" style="background:${colorOf(ord)}">${esc(name)}</span>`;
 function showMsg(el,t,type){ el.textContent=t; el.className="msg show "+type; }
 function clearMsg(el){ el.className="msg"; }
+function setStatus(t,cls=""){ const e=$("status"); if(e){ e.textContent=t; e.className=cls; } }
 
 /* ===== 게이트 ===== */
 $("segStu").addEventListener("click", ()=>{ $("segStu").classList.add("on"); $("segTea").classList.remove("on"); $("stuForm").style.display="block"; $("teaForm").style.display="none"; $("gateErr").textContent=""; });
@@ -302,7 +431,6 @@ $("outBtn").addEventListener("click", ()=>{
   $("sid").value=""; $("birth").value=""; $("email").value=""; $("pw").value="";
   $("app").style.display="none"; $("gate").style.display="flex";
 });
-
 function teardown(){ unsub.forEach(fn=>fn()); unsub=[]; if(unsubSeat){unsubSeat();unsubSeat=null;} if(pollTimer){clearInterval(pollTimer);pollTimer=null;} }
 
 /* ===== 입장 ===== */
@@ -332,18 +460,22 @@ function showTab(id){
   $("panelApply").classList.toggle("on", id==="apply");
   $("panelDash").classList.toggle("on", id==="dash");
   $("panelManage").classList.toggle("on", id==="manage");
-  if(id==="manage" && !manageLoaded){ $("manageFrame").src="admin.html"; manageLoaded=true; }
+  if(id==="manage") renderManage();
 }
 
 /* ===== 구독 ===== */
 function subscribe(){
-  unsub.push(onSnapshot(query(collection(db,"departments"),orderBy("ord")), s=>{ depts=s.docs.map(d=>({id:d.id,...d.data()})); renderApply(); renderDash(); }, e=>console.error(e)));
+  unsub.push(onSnapshot(query(collection(db,"departments"),orderBy("ord")), s=>{
+    depts=s.docs.map(d=>({id:d.id,...d.data()})); depts.forEach(d=>ordOf[d.id]=d.ord);
+    if(!deptPick && depts.length) deptPick=depts[0].id;
+    renderApply(); renderDash(); if(role==="teacher"){ buildPickers(); renderManage(); }
+  }, e=>console.error(e)));
   if(role==="student"){
     unsubSeat=onSnapshot(doc(db,"seats",me.vhash), s=>{ seat=s.exists()?s.data():null; if(seat) selectedId=null; renderApply(); });
   }
   if(role==="teacher"){
-    unsub.push(onSnapshot(collection(db,"seats"), s=>{ seats=s.docs.map(d=>({vhash:d.id,...d.data()})); renderDash(); }, e=>console.error(e)));
-    unsub.push(onSnapshot(collection(db,"students"), s=>{ students=s.docs.map(d=>({vhash:d.id,...d.data()})); renderDash(); }, e=>console.error(e)));
+    unsub.push(onSnapshot(collection(db,"seats"), s=>{ seats=s.docs.map(d=>({vhash:d.id,...d.data()})); renderDash(); renderManage(); }, e=>console.error(e)));
+    unsub.push(onSnapshot(collection(db,"students"), s=>{ students=s.docs.map(d=>({vhash:d.id,...d.data()})); buildPickers(); renderDash(); renderManage(); }, e=>console.error(e)));
   }
   pollTimer=setInterval(pollOnce, 6000);
 }
@@ -352,9 +484,9 @@ async function pollOnce(){
     const tasks=[ getDocs(query(collection(db,"departments"),orderBy("ord"))) ];
     if(role==="teacher"){ tasks.push(getDocs(collection(db,"seats"))); tasks.push(getDocs(collection(db,"students"))); }
     const res=await Promise.all(tasks);
-    depts=res[0].docs.map(d=>({id:d.id,...d.data()}));
+    depts=res[0].docs.map(d=>({id:d.id,...d.data()})); depts.forEach(d=>ordOf[d.id]=d.ord);
     if(role==="teacher"){ seats=res[1].docs.map(d=>({vhash:d.id,...d.data()})); students=res[2].docs.map(d=>({vhash:d.id,...d.data()})); }
-    renderApply(); renderDash();
+    renderApply(); renderDash(); if(role==="teacher") renderManage();
   }catch(e){}
 }
 $("refreshBtn").addEventListener("click", pollOnce);
@@ -373,7 +505,6 @@ function renderApply(){
       <div class="seat">${full&&!isMine?"마감":`잔여 ${rem}석`}</div></div>`;
   }).join("");
   if(!locked) $("grid").querySelectorAll(".blk:not(.full)").forEach(el=>el.addEventListener("click", ()=>{ selectedId=el.dataset.id; renderApply(); }));
-  // 상태/버튼
   if(seat){
     $("statusArea").innerHTML=`<div class="current"><div class="lab">현재 신청한 학과</div><div class="val">${esc(seat.deptName)}</div></div>`;
     $("applyBtn").style.display="none"; $("cancelBtn").style.display="block";
@@ -414,7 +545,7 @@ $("cancelBtn").addEventListener("click", async ()=>{
   }catch(e){ console.error(e); showMsg($("mainMsg"),"취소 중 오류가 발생했습니다.","error"); }
 });
 
-/* ===== 대시보드 패널 ===== */
+/* ===== 현황판 패널 ===== */
 function renderDash(){ try{ _renderDash(); }catch(e){ console.error(e); } }
 function _renderDash(){
   if(!role) return;
@@ -443,9 +574,13 @@ function _renderDash(){
   $("deptMeta").textContent=`총 ${filled} / ${totalCap}석`;
   $("deptList").innerHTML = depts.length ? depts.map(d=>{
     const pct=d.capacity?Math.round(d.filled/d.capacity*100):0, full=d.filled>=d.capacity;
-    return `<div class="drow"><div class="nm"><span class="ddot" style="background:${colorOf(d.ord)}"></span>${esc(d.name)}</div>
-      <div class="num ${full?"full":""}">${full?"마감 · ":""}${d.filled}/${d.capacity}</div>
-      <div class="track"><i style="width:${pct}%;background:${colorOf(d.ord)}"></i></div></div>`;
+    return `<div class="ditem">
+      <div class="dtop">
+        <span class="nm"><span class="ddot" style="background:${colorOf(d.ord)}"></span><span class="t">${esc(d.name)}</span></span>
+        <span class="num ${full?"full":""}">${full?"마감":`${d.filled}/${d.capacity}`}</span>
+      </div>
+      <div class="track"><i style="width:${pct}%;background:${colorOf(d.ord)}"></i></div>
+    </div>`;
   }).join("") : `<div class="empty">학과 데이터를 불러오는 중…</div>`;
 
   const top=[...depts].sort((a,b)=>b.filled-a.filled).slice(0,5);
@@ -460,10 +595,230 @@ function _renderDash(){
     $("classMeta").textContent = keys.length?`${keys.length}개 반`:"";
     $("classList").innerHTML = keys.length ? keys.map(c=>{
       const t=cls[c], dn=done[c]||0, pct=t?Math.round(dn/t*100):0;
-      return `<div class="crow"><span class="cn">${c}반</span><span class="track"><i style="width:${pct}%"></i></span><span class="pc">${dn}/${t} · ${pct}%</span></div>`;
+      return `<div class="citem"><span class="cn">${c}반</span><span class="pc">${dn}/${t} · <span class="p">${pct}%</span></span></div>`;
     }).join("") : `<div class="empty">학생 명단이 없습니다.</div>`;
   }
 }
+
+/* ===== 명단 관리 패널 ===== */
+let clickCount=0, clickTimer=null;
+$("mgTitle").addEventListener("click", ()=>{
+  clickCount++; clearTimeout(clickTimer); clickTimer=setTimeout(()=>clickCount=0,1200);
+  if(clickCount>=5){ clickCount=0; const a=$("advBtns"); a.style.display = a.style.display==="none"?"flex":"none"; }
+});
+["Summary","Dept","All","Class"].forEach(k=>$("tab"+k).addEventListener("click", ()=>mgSwitch(k.toLowerCase())));
+function mgSwitch(t){ mgTab=t;
+  ["summary","dept","all","class"].forEach(k=>{
+    $("tab"+k[0].toUpperCase()+k.slice(1)).classList.toggle("active", k===t);
+    const v=$(k+"View"); v.style.display = (k===t) ? (v.classList.contains("mgrid")?"grid":"block") : "none";
+  });
+  $("deptChips").style.display = t==="dept"?"flex":"none";
+  $("deptTools").classList.toggle("show", t==="dept");
+  $("allTools").classList.toggle("show", t==="all");
+  $("classTools").classList.toggle("show", t==="class");
+}
+function buildPickers(){
+  const cls=[...new Set(students.map(st=>parseSid(st.studentId).classNo))].sort((a,b)=>a-b);
+  const cp=$("classPick"), pc=cp.value||"all";
+  cp.innerHTML = `<option value="all">전체 반</option>` + cls.map(c=>`<option value="${c}">${c}반</option>`).join("");
+  cp.value=[...cp.options].some(o=>o.value===pc)?pc:"all";
+  const af=$("allDeptFilter"), pf=af.value||"all";
+  af.innerHTML = `<option value="all">전체 학과</option><option value="none">미신청만</option>` + depts.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join("");
+  af.value=[...af.options].some(o=>o.value===pf)?pf:"all";
+}
+$("classPick").addEventListener("change", e=>{ classPick=e.target.value; renderManage(); });
+$("allDeptFilter").addEventListener("change", e=>{ allFilter=e.target.value; renderManage(); });
+
+function renderManage(){ if(role!=="teacher") return; try{ _renderManage(); }catch(e){ console.error("manage error:",e); } }
+function _renderManage(){
+  const seatByVhash={}; seats.forEach(s=>seatByVhash[s.vhash]=s);
+  $("summary").innerHTML =
+    `신청 <b>${seats.length}</b>명 · 등록 학생 <b>${students.length}</b>명 · 학과 <b>${depts.length}</b>개`
+    + (students.length?"":` · <span style="color:#dd5a4e">학생 명단이 없습니다. 「명단 관리」 제목을 5번 누르면 「학생 명단 가져오기」가 나타나요.</span>`);
+
+  $("summaryView").innerHTML = depts.map(d=>{
+    const pct=d.capacity?Math.round(d.filled/d.capacity*100):0; const full=d.filled>=d.capacity;
+    return `<div class="dcard clk" data-go="${d.id}" style="--dc:${colorOf(d.ord)}">
+      <div class="head"><span class="nm">${esc(d.name)}</span><span class="cnt ${full?"full":""}">${full?"마감 ":""}${d.filled} / ${d.capacity}</span></div>
+      <div class="dt">${esc(d.detail||"")}</div>
+      <div class="bartrack"><div class="barfill" style="width:${pct}%"></div></div>
+      <div class="hint">명단 보기 →</div></div>`;
+  }).join("");
+  $("summaryView").querySelectorAll(".dcard.clk").forEach(el=>el.addEventListener("click", ()=>{ deptPick=el.dataset.go; mgSwitch("dept"); renderManage(); }));
+
+  $("deptChips").innerHTML = depts.map(d=>{
+    const full=d.filled>=d.capacity;
+    return `<button class="chip ${d.id===deptPick?"active":""}" data-pick="${d.id}" style="--dc:${colorOf(d.ord)}">
+      <span class="cdot"></span>${esc(d.name)} <span class="cn">${d.filled}/${d.capacity}${full?" 마감":""}</span></button>`;
+  }).join("");
+  $("deptChips").querySelectorAll("[data-pick]").forEach(b=>b.addEventListener("click", ()=>{ deptPick=b.dataset.pick; renderManage(); }));
+
+  const d=depts.find(x=>x.id===deptPick);
+  if(d){
+    const mem=seats.filter(s=>s.deptId===d.id).sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
+    const full=d.filled>=d.capacity;
+    const rows = mem.length
+      ? mem.map(m=>`<tr><td style="width:96px">${m.classNo}반 ${m.studentNo}번</td><td class="nm">${esc(m.name)}</td>
+          <td class="right" style="width:50px"><button class="rm" data-cancel="${m.vhash}">취소</button></td></tr>`).join("")
+      : `<tr><td colspan="3" class="mempty">아직 신청자가 없습니다.</td></tr>`;
+    $("deptView").innerHTML = `<div class="dcard" style="--dc:${colorOf(d.ord)}">
+      <div class="head"><span class="nm">${dot(d.ord)}${esc(d.name)}</span><span class="cnt ${full?"full":""}">${full?"마감 ":""}${d.filled} / ${d.capacity}</span></div>
+      <div class="dt">${esc(d.detail||"")}</div>
+      <table><thead><tr><th>반·번호</th><th>이름</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    $("deptView").querySelectorAll("[data-cancel]").forEach(b=>b.addEventListener("click", ()=>cancelSeat(b.dataset.cancel)));
+  } else $("deptView").innerHTML = `<div class="mempty">학과가 없습니다.</div>`;
+
+  renderAll(seatByVhash);
+  renderClass(seatByVhash);
+}
+function classGroups(seatByVhash){
+  const classes={};
+  students.forEach(st=>{ const p=parseSid(st.studentId); (classes[p.classNo] ||= []).push({ ...st, ...p, seat:seatByVhash[st.vhash]||null }); });
+  return classes;
+}
+function renderAll(seatByVhash){
+  const classes=classGroups(seatByVhash);
+  const keys=Object.keys(classes).map(Number).sort((a,b)=>a-b);
+  if(!keys.length){ $("allView").innerHTML=`<div class="mempty">학생 명단을 먼저 등록하면 표시됩니다.</div>`; return; }
+  $("allView").innerHTML = keys.map(c=>{
+    const all=classes[c].slice().sort((a,b)=>a.studentNo-b.studentNo);
+    const done=all.filter(x=>x.seat).length;
+    let list=all;
+    if(allFilter==="none") list=all.filter(x=>!x.seat);
+    else if(allFilter!=="all") list=all.filter(x=>x.seat && x.seat.deptId===allFilter);
+    const note = allFilter==="all" ? `${done}/${all.length} 신청` : allFilter==="none" ? `미신청 ${list.length}명` : `${list.length}명`;
+    const rows = list.length ? list.map(x=>`<tr><td style="width:42px">${x.studentNo}</td><td class="nm">${esc(x.name)}</td>
+        <td>${x.seat?deptBadge(x.seat.deptName, ordOf[x.seat.deptId]):'<span class="npill">미신청</span>'}</td></tr>`).join("")
+      : `<tr><td colspan="3" class="mempty">해당 학생 없음</td></tr>`;
+    return `<div class="dcard plain"><div class="head"><span class="nm">${c}반</span><span class="cnt">${note}</span></div>
+      <table><thead><tr><th>번호</th><th>이름</th><th>신청 학과</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }).join("");
+}
+function renderClass(seatByVhash){
+  const classes=classGroups(seatByVhash);
+  const keys=Object.keys(classes).map(Number).sort((a,b)=>a-b);
+  if(!keys.length){ $("classView").innerHTML=`<div class="mempty">학생 명단을 먼저 등록하면 반별 명단이 표시됩니다.</div>`; return; }
+  const showKeys = (classPick==="all") ? keys : keys.filter(c=>c===+classPick);
+  $("classView").innerHTML = showKeys.map(c=>{
+    const all=classes[c].slice().sort((a,b)=>a.studentNo-b.studentNo);
+    const done=all.filter(x=>x.seat).length;
+    const rows=all.map(x=>`<tr><td style="width:48px">${x.studentNo}번</td><td class="nm">${esc(x.name)}</td>
+        <td>${x.seat?deptBadge(x.seat.deptName, ordOf[x.seat.deptId]):'<span class="npill">미신청</span>'}</td>
+        <td class="right" style="width:50px"><button class="rm" data-del="${x.vhash}">삭제</button></td></tr>`).join("");
+    const byD={}; all.forEach(x=>{ if(x.seat) (byD[x.seat.deptId] ||= []).push(x); });
+    const noneCnt=all.length-done;
+    const dlist=depts.filter(dd=>byD[dd.id]&&byD[dd.id].length);
+    const brk = `<div class="subhead">📊 ${c}반 학과별 분포</div>`
+      + dlist.map(dd=>{ const names=byD[dd.id].sort((a,b)=>a.studentNo-b.studentNo).map(x=>`${x.studentNo} ${esc(x.name)}`).join(", ");
+          return `<div class="brow"><div style="min-width:150px">${deptBadge(dd.name,dd.ord)} <span style="color:var(--muted)">${byD[dd.id].length}명</span></div><div class="names">${names}</div></div>`; }).join("")
+      + (noneCnt? `<div class="brow"><div style="min-width:150px"><span class="npill">미신청</span> <span style="color:var(--muted)">${noneCnt}명</span></div><div class="names">${all.filter(x=>!x.seat).map(x=>`${x.studentNo} ${esc(x.name)}`).join(", ")}</div></div>` : "");
+    return `<div class="mgrid wide" style="margin-bottom:14px">
+      <div class="dcard plain"><div class="head"><span class="nm">🏫 ${c}반 전체</span><span class="cnt">${done}/${all.length} 신청</span></div>
+        <table><thead><tr><th>번호</th><th>이름</th><th>신청 학과</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="dcard plain">${brk}</div></div>`;
+  }).join("");
+  $("classView").querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click", ()=>deleteStudent(b.dataset.del)));
+}
+
+async function cancelSeat(vhash){
+  const s=seats.find(x=>x.vhash===vhash); if(!s) return;
+  if(!confirm(`${s.name}(${s.classNo}반 ${s.studentNo}번) 학생의 '${s.deptName}' 신청을 취소할까요?`)) return;
+  try{ await runTransaction(db, async (tx)=>{
+      const deptRef=doc(db,"departments",s.deptId); const ds=await tx.get(deptRef); const cur=ds.exists()?ds.data().filled:0;
+      tx.update(deptRef,{filled:Math.max(0,cur-1)}); tx.delete(doc(db,"seats",vhash));
+    }); }catch(e){ console.error(e); alert("취소 중 오류가 발생했습니다."); }
+}
+async function deleteStudent(vhash){
+  const st=students.find(x=>x.vhash===vhash); if(!st) return;
+  const p=parseSid(st.studentId); const hasSeat=seats.find(x=>x.vhash===vhash);
+  if(!confirm(`${st.name}(${p.classNo}반 ${p.studentNo}번) 학생을 명단에서 삭제할까요?`+(hasSeat?` 신청('${hasSeat.deptName}')도 함께 취소됩니다.`:""))) return;
+  try{
+    if(hasSeat){ await runTransaction(db, async (tx)=>{
+        const deptRef=doc(db,"departments",hasSeat.deptId); const ds=await tx.get(deptRef); const cur=ds.exists()?ds.data().filled:0;
+        tx.update(deptRef,{filled:Math.max(0,cur-1)}); tx.delete(doc(db,"seats",vhash));
+      }); }
+    await deleteDoc(doc(db,"students",vhash));
+    setStatus(`${st.name} 학생을 삭제했습니다.`,"ok");
+  }catch(e){ console.error(e); alert("삭제 중 오류가 발생했습니다."); }
+}
+
+$("addStuBtn").addEventListener("click", ()=>{ $("addMsg").textContent=""; $("addModal").classList.add("show"); });
+$("addCancel").addEventListener("click", ()=>$("addModal").classList.remove("show"));
+$("addConfirm").addEventListener("click", async ()=>{
+  const sid=$("addSid").value.trim(), name=$("addName").value.trim(), birth=$("addBirth").value.trim();
+  $("addMsg").style.color="#dd5a4e";
+  if(!/^\d{5}$/.test(sid)) return $("addMsg").textContent="학번은 5자리 숫자로 입력해 주세요.";
+  if(!name) return $("addMsg").textContent="이름을 입력해 주세요.";
+  if(!/^\d{6}$/.test(birth)) return $("addMsg").textContent="생년월일은 6자리 숫자로 입력해 주세요.";
+  try{
+    const vh=await vhashOf(sid,birth);
+    const exist=await getDoc(doc(db,"students",vh));
+    if(exist.exists()){ $("addMsg").textContent="이미 등록된 학생입니다."; return; }
+    await setDoc(doc(db,"students",vh), { name, studentId:sid });
+    $("addMsg").style.color="#2f8f6a"; $("addMsg").textContent=`${name} 학생을 추가했습니다.`;
+    $("addSid").value=""; $("addName").value=""; $("addBirth").value="";
+  }catch(e){ console.error(e); $("addMsg").textContent="추가 중 오류가 발생했습니다."; }
+});
+
+$("seedBtn").addEventListener("click", async ()=>{
+  const ex=await getDocs(collection(db,"departments"));
+  if(!ex.empty && !confirm("이미 학과 데이터가 있습니다. 시드값으로 덮어쓸까요? (신청 수 filled가 0으로 초기화됩니다)")) return;
+  if(ex.empty && !confirm("13개 학과를 정원 36명으로 생성합니다. 진행할까요?")) return;
+  try{ for(const s of SEED) await setDoc(doc(db,"departments",s.id),{ name:s.name, ord:s.ord, detail:s.detail, capacity:36, filled:0 });
+    setStatus("학과 초기 세팅 완료","ok"); }catch(e){ console.error(e); setStatus("세팅 중 오류가 발생했습니다.","err"); }
+});
+$("recalcBtn").addEventListener("click", async ()=>{
+  if(!confirm("실제 신청 내역을 기준으로 각 학과의 신청 수를 다시 계산합니다. (신청 숫자가 어긋났을 때 복구용) 진행할까요?")) return;
+  try{ const cnt={}; seats.forEach(s=>cnt[s.deptId]=(cnt[s.deptId]||0)+1);
+    for(const d of depts) await setDoc(doc(db,"departments",d.id),{ filled:cnt[d.id]||0 },{ merge:true });
+    setStatus("정원 재계산 완료","ok"); }catch(e){ console.error(e); setStatus("재계산 중 오류가 발생했습니다.","err"); }
+});
+$("importBtn").addEventListener("click", ()=>$("fileInput").click());
+$("fileInput").addEventListener("change", async (e)=>{
+  const file=e.target.files[0]; if(!file) return;
+  setStatus("엑셀을 읽는 중…");
+  try{
+    const buf=await file.arrayBuffer();
+    const wb=XLSX.read(buf,{type:"array"}); const ws=wb.Sheets[wb.SheetNames[0]];
+    const rows=XLSX.utils.sheet_to_json(ws,{defval:""});
+    const pick=(row,keys)=>{ for(const k of Object.keys(row)){ if(keys.some(t=>k.includes(t))) return row[k]; } return ""; };
+    const recs=[];
+    for(const r of rows){
+      const sid=String(pick(r,["학번"])).trim(); const name=String(pick(r,["이름","성명"])).trim();
+      const birth=normBirth(pick(r,["생년월일","생년","주민","생일"]));
+      if(/^\d{5}$/.test(sid) && name && /^\d{6}$/.test(birth)) recs.push({sid,name,birth});
+    }
+    if(!recs.length){ setStatus("학번/이름/생년월일 형식을 인식하지 못했습니다.","err"); return; }
+    if(!confirm(`${recs.length}명의 학생 명단을 등록합니다. 진행할까요?`)){ setStatus(""); return; }
+    setStatus("등록 중…"); let done=0;
+    for(let i=0;i<recs.length;i+=400){
+      const chunk=recs.slice(i,i+400); const batch=writeBatch(db);
+      for(const rec of chunk){ const vh=await vhashOf(rec.sid,rec.birth); batch.set(doc(db,"students",vh),{ name:rec.name, studentId:rec.sid }); }
+      await batch.commit(); done+=chunk.length; setStatus(`등록 중… ${done}/${recs.length}`);
+    }
+    setStatus(`학생 명단 ${recs.length}명 등록 완료`,"ok");
+  }catch(err){ console.error(err); setStatus("명단 가져오기 중 오류가 발생했습니다.","err"); }
+  finally{ e.target.value=""; }
+});
+
+function download(name,csv){ const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
+$("csvDeptBtn").addEventListener("click", ()=>{
+  const rows=seats.slice().sort((a,b)=>((ordOf[a.deptId]||0)-(ordOf[b.deptId]||0))||(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
+  let csv="학과,반,번호,이름,신청시각\n";
+  rows.forEach(r=>{ const t=r.createdAt?.toDate?r.createdAt.toDate().toLocaleString("ko-KR"):"";
+    csv+=`"${r.deptName}",${r.classNo},${r.studentNo},"${(r.name||"").replace(/"/g,'""')}","${t}"\n`; });
+  download(`전공체험_학과별명단_${new Date().toISOString().slice(0,10)}.csv`, csv);
+});
+function classCsv(){
+  const seatByVhash={}; seats.forEach(s=>seatByVhash[s.vhash]=s);
+  const recs=students.map(st=>{ const p=parseSid(st.studentId); return {...p, name:st.name, seat:seatByVhash[st.vhash]||null}; }).sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
+  let csv="반,번호,이름,신청학과,상태\n";
+  recs.forEach(r=>{ csv+=`${r.classNo},${r.studentNo},"${(r.name||"").replace(/"/g,'""')}","${r.seat?r.seat.deptName:""}","${r.seat?"신청완료":"미신청"}"\n`; });
+  download(`전공체험_전교생명단_${new Date().toISOString().slice(0,10)}.csv`, csv);
+}
+$("csvAllBtn").addEventListener("click", classCsv);
+$("csvClassBtn").addEventListener("click", classCsv);
 </script>
 </body>
 </html>
