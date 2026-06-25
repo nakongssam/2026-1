@@ -195,6 +195,11 @@
   .npill{ display:inline-block; font-size:.75rem; font-weight:600; color:var(--muted); background:var(--track); padding:2px 9px; border-radius:999px; }
   .rm{ color:var(--danger); cursor:pointer; font-size:.8rem; background:none; border:none; padding:0; font-weight:700; }
   .mempty{ color:var(--muted); font-size:.88rem; padding:14px 4px; }
+  .mlist{ display:grid; grid-template-columns:repeat(auto-fill,minmax(185px,1fr)); gap:0 18px; margin-top:10px; }
+  .mrow{ display:flex; align-items:center; gap:9px; padding:7px 0; border-bottom:1px solid var(--line); font-size:.92rem; }
+  .mrow .mno{ color:var(--muted); font-size:.8rem; min-width:62px; font-variant-numeric:tabular-nums; }
+  .mrow .mnm{ font-weight:600; color:var(--ink); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .mrow .rm{ font-size:.82rem; opacity:.55; } .mrow .rm:hover{ opacity:1; }
   .subhead{ margin-top:10px; padding:9px 12px; background:var(--yellow-soft); border-radius:10px; font-size:.84rem; font-weight:700; color:var(--ink); }
   .brow{ display:flex; gap:8px; align-items:flex-start; font-size:.86rem; padding:5px 0; border-bottom:1px solid var(--line); }
   .brow:last-child{ border-bottom:none; }
@@ -314,8 +319,8 @@
       <div class="summary" id="summary">불러오는 중…</div>
       <div class="tabs">
         <div class="tab active" id="tabDept">학과별 명단</div>
-        <div class="tab" id="tabAll">전교생 명단</div>
         <div class="tab" id="tabClass">반별 명단</div>
+        <div class="tab" id="tabAll">전교생 명단</div>
       </div>
       <div id="deptChips" class="chips"></div>
       <div class="toolbar show" id="deptTools"><div class="spacer"></div><button class="ghost" id="csvDeptBtn">학과별 CSV</button></div>
@@ -674,14 +679,14 @@ function _renderManage(){
   if(d){
     const mem=seats.filter(s=>s.deptId===d.id).sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
     const full=d.filled>=d.capacity;
-    const rows = mem.length
-      ? mem.map(m=>`<tr><td style="width:96px">${m.classNo}반 ${m.studentNo}번</td><td class="nm">${esc(m.name)}</td>
-          <td class="right" style="width:50px"><button class="rm" data-cancel="${m.vhash}">취소</button></td></tr>`).join("")
-      : `<tr><td colspan="3" class="mempty">아직 신청자가 없습니다.</td></tr>`;
+    const items = mem.length
+      ? `<div class="mlist">` + mem.map(m=>`<div class="mrow">
+          <span class="mno">${m.classNo}반 ${m.studentNo}번</span><span class="mnm">${esc(m.name)}</span>
+          <button class="rm" data-cancel="${m.vhash}" title="신청 취소">✕</button></div>`).join("") + `</div>`
+      : `<div class="mempty">아직 신청자가 없습니다.</div>`;
     $("deptView").innerHTML = `<div class="dcard" style="--dc:${colorOf(d.ord)}">
       <div class="head"><span class="nm">${dot(d.ord)}${esc(d.name)}</span><span class="cnt ${full?"full":""}">${full?"마감 ":""}${d.filled} / ${d.capacity}</span></div>
-      <div class="dt">${esc(d.detail||"")}</div>
-      <table><thead><tr><th>반·번호</th><th>이름</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+      <div class="dt">${esc(d.detail||"")}</div>${items}</div>`;
     $("deptView").querySelectorAll("[data-cancel]").forEach(b=>b.addEventListener("click", ()=>cancelSeat(b.dataset.cancel)));
   } else $("deptView").innerHTML = `<div class="mempty">학과가 없습니다.</div>`;
 
