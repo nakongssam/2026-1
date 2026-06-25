@@ -53,7 +53,7 @@
 
   /* 앱 헤더 + 탭 */
   .apphead{ position:sticky; top:0; z-index:20; background:var(--page); border-bottom:1px solid var(--line2); }
-  .apphead .in{ max-width:1080px; margin:0 auto; padding:9px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .apphead .in{ max-width:1080px; margin:0 auto; padding:9px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:52px; }
   .apphead .ttl{ font-size:1.12rem; color:var(--ink); display:flex; align-items:center; gap:8px; }
   .ttlwrap{ display:flex; flex-direction:column; gap:1px; min-width:0; }
   .appsub{ font-size:.76rem; color:var(--muted); padding-left:30px; }
@@ -324,7 +324,6 @@
       <div class="headright">
         <span class="dashctrl" id="dashCtrl">
           <span class="live"><span class="dotpulse"></span> 실시간</span>
-          <button class="refresh" id="refreshBtn">↻ 새로고침</button>
         </span>
         <button class="outbtn" id="outBtn">나가기</button>
       </div>
@@ -619,7 +618,7 @@ async function pollOnce(){
     renderApply(); renderDash(); if(role==="teacher") renderManage();
   }catch(e){}
 }
-$("refreshBtn").addEventListener("click", pollOnce);
+$("refreshBtn")?.addEventListener("click", pollOnce);
 
 /* ===== 신청 패널 ===== */
 function renderApply(){
