@@ -326,7 +326,7 @@
 <div id="app" style="display:none;">
   <div class="apphead">
     <div class="in">
-      <div class="ttl display">🎓 전공체험 <span class="who" id="who"></span><span class="appsub">7/14(화) 4~5교시 · 1학년 교실</span></div>
+      <div class="ttl display">🎓 전공체험 <span class="who" id="who"></span><span class="appsub">7/14(화) 4~5교시</span></div>
       <div class="headright">
         <span class="dashctrl" id="dashCtrl">
           <span class="live"><span class="dotpulse"></span> 실시간</span>
@@ -588,7 +588,7 @@ function showTab(id){
   if(id==="manage"){ renderManage(); mgSwitch(mgTab); }
   if(id==="qna") renderQna();
   if(id==="dash") requestAnimationFrame(syncHeight);
-  $("dashCtrl").style.display = (id==="dash")?"inline-flex":"none";
+  $("dashCtrl").style.display="inline-flex";
 }
 
 /* ===== 구독 ===== */
