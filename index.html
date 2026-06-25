@@ -313,13 +313,12 @@
       <div id="status"></div>
       <div class="summary" id="summary">불러오는 중…</div>
       <div class="tabs">
-        <div class="tab active" id="tabSummary">현황</div>
-        <div class="tab" id="tabDept">학과별 명단</div>
+        <div class="tab active" id="tabDept">학과별 명단</div>
         <div class="tab" id="tabAll">전교생 명단</div>
         <div class="tab" id="tabClass">반별 명단</div>
       </div>
-      <div id="deptChips" class="chips" style="display:none;"></div>
-      <div class="toolbar" id="deptTools"><div class="spacer"></div><button class="ghost" id="csvDeptBtn">학과별 CSV</button></div>
+      <div id="deptChips" class="chips"></div>
+      <div class="toolbar show" id="deptTools"><div class="spacer"></div><button class="ghost" id="csvDeptBtn">학과별 CSV</button></div>
       <div class="toolbar" id="allTools">
         <div class="field"><label for="allDeptFilter">학과 필터</label><select id="allDeptFilter"></select></div>
         <div class="spacer"></div><button class="ghost" id="csvAllBtn">전교생 CSV</button>
@@ -328,8 +327,7 @@
         <div class="field"><label for="classPick">반 선택</label><select id="classPick"></select></div>
         <div class="spacer"></div><button class="ghost" id="csvClassBtn">반별 CSV</button>
       </div>
-      <div id="summaryView" class="mgrid"></div>
-      <div id="deptView" style="display:none;"></div>
+      <div id="deptView"></div>
       <div id="allView" class="mgrid wide" style="display:none;"></div>
       <div id="classView" style="display:none;"></div>
     </div>
@@ -392,7 +390,7 @@ const $=(id)=>document.getElementById(id);
 let role=null, me=null, seat=null, selectedId=null;
 let depts=[], seats=[], students=[];
 let unsub=[], unsubSeat=null, pollTimer=null, curTab=null;
-let deptPick=null, allFilter="all", classPick="all", mgTab="summary";
+let deptPick=null, allFilter="all", classPick="all", mgTab="dept";
 const ordOf={};
 const esc=(s)=>String(s).replace(/[&<>]/g,(c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;" }[c]));
 const parseSid=(sid)=>{ const s=String(sid); return { classNo:+s.slice(1,3), studentNo:+s.slice(3,5) }; };
@@ -472,7 +470,7 @@ function showTab(id){
   $("panelApply").classList.toggle("on", id==="apply");
   $("panelDash").classList.toggle("on", id==="dash");
   $("panelManage").classList.toggle("on", id==="manage");
-  if(id==="manage") renderManage();
+  if(id==="manage"){ renderManage(); mgSwitch(mgTab); }
   if(id==="dash") requestAnimationFrame(syncHeight);
 }
 
@@ -635,9 +633,9 @@ $("mgTitle").addEventListener("click", ()=>{
   clickCount++; clearTimeout(clickTimer); clickTimer=setTimeout(()=>clickCount=0,1200);
   if(clickCount>=5){ clickCount=0; const a=$("advBtns"); a.style.display = a.style.display==="none"?"flex":"none"; }
 });
-["Summary","Dept","All","Class"].forEach(k=>$("tab"+k).addEventListener("click", ()=>mgSwitch(k.toLowerCase())));
+["Dept","All","Class"].forEach(k=>$("tab"+k).addEventListener("click", ()=>mgSwitch(k.toLowerCase())));
 function mgSwitch(t){ mgTab=t;
-  ["summary","dept","all","class"].forEach(k=>{
+  ["dept","all","class"].forEach(k=>{
     $("tab"+k[0].toUpperCase()+k.slice(1)).classList.toggle("active", k===t);
     const v=$(k+"View"); v.style.display = (k===t) ? (v.classList.contains("mgrid")?"grid":"block") : "none";
   });
@@ -664,16 +662,6 @@ function _renderManage(){
   $("summary").innerHTML =
     `신청 <b>${seats.length}</b>명 · 등록 학생 <b>${students.length}</b>명 · 학과 <b>${depts.length}</b>개`
     + (students.length?"":` · <span style="color:#dd5a4e">학생 명단이 없습니다. 「명단 관리」 제목을 5번 누르면 「학생 명단 가져오기」가 나타나요.</span>`);
-
-  $("summaryView").innerHTML = depts.map(d=>{
-    const pct=d.capacity?Math.round(d.filled/d.capacity*100):0; const full=d.filled>=d.capacity;
-    return `<div class="dcard clk" data-go="${d.id}" style="--dc:${colorOf(d.ord)}">
-      <div class="head"><span class="nm">${esc(d.name)}</span><span class="cnt ${full?"full":""}">${full?"마감 ":""}${d.filled} / ${d.capacity}</span></div>
-      <div class="dt">${esc(d.detail||"")}</div>
-      <div class="bartrack"><div class="barfill" style="width:${pct}%"></div></div>
-      <div class="hint">명단 보기 →</div></div>`;
-  }).join("");
-  $("summaryView").querySelectorAll(".dcard.clk").forEach(el=>el.addEventListener("click", ()=>{ deptPick=el.dataset.go; mgSwitch("dept"); renderManage(); }));
 
   $("deptChips").innerHTML = depts.map(d=>{
     const full=d.filled>=d.capacity;
