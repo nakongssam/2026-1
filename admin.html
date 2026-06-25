@@ -201,7 +201,7 @@ import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut,
          setPersistence, browserLocalPersistence }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  getFirestore, collection, doc, query, orderBy, onSnapshot,
+  getFirestore, initializeFirestore, collection, doc, query, orderBy, onSnapshot,
   getDoc, getDocs, setDoc, deleteDoc, writeBatch, runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -235,12 +235,14 @@ const DCOLORS = ["#e8643c","#3b7dd8","#2fa37a","#b65fd1","#cf9b00","#d8527c","#1
 const colorOf = (ord)=>DCOLORS[((ord||1)-1) % DCOLORS.length];
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+let db;
+try { db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true }); }
+catch(e){ db = getFirestore(app); }
 const auth = getAuth(app);
 setPersistence(auth, browserLocalPersistence).catch(()=>{});
 const $ = (id)=>document.getElementById(id);
 
-let depts=[], students=[], seats=[], unsub=[], tab="summary";
+let depts=[], students=[], seats=[], unsub=[], tab="summary", pollTimer=null;
 let deptPick=null, allFilter="all", classPick="all";
 const ordOf={}, nameOf={};
 
@@ -263,7 +265,7 @@ $("logoutBtn").addEventListener("click", ()=>signOut(auth));
 
 onAuthStateChanged(auth,(user)=>{
   if(user){ $("login").style.display="none"; $("dash").style.display="block"; startListening(); }
-  else { unsub.forEach(fn=>fn()); unsub=[]; $("login").style.display="block"; $("dash").style.display="none"; }
+  else { unsub.forEach(fn=>fn()); unsub=[]; if(pollTimer){clearInterval(pollTimer); pollTimer=null;} $("login").style.display="block"; $("dash").style.display="none"; }
 });
 
 function startListening(){
@@ -274,6 +276,26 @@ function startListening(){
     buildPickers(); render(); }));
   unsub.push(onSnapshot(collection(db,"students"), s=>{ students=s.docs.map(d=>({vhash:d.id,...d.data()})); buildPickers(); render(); }, e=>{console.error(e); setStatus("학생 명단을 불러오지 못했습니다.","err");}));
   unsub.push(onSnapshot(collection(db,"seats"), s=>{ seats=s.docs.map(d=>({vhash:d.id,...d.data()})); render(); }, e=>console.error(e)));
+  startPolling();
+}
+
+// 안전장치: 실시간 연결이 막혀도 주기적으로 최신 데이터를 다시 읽어옴
+function startPolling(){
+  if(pollTimer) return;
+  let tick=0;
+  pollTimer=setInterval(async ()=>{
+    try{
+      tick++;
+      const tasks=[ getDocs(query(collection(db,"departments"),orderBy("ord"))), getDocs(collection(db,"seats")) ];
+      if(tick%5===0) tasks.push(getDocs(collection(db,"students"))); // 학생 명단은 30초마다
+      const res=await Promise.all(tasks);
+      depts=res[0].docs.map(d=>({id:d.id,...d.data()})); depts.forEach(d=>{ordOf[d.id]=d.ord; nameOf[d.id]=d.name;});
+      if(!deptPick && depts.length) deptPick=depts[0].id;
+      seats=res[1].docs.map(d=>({vhash:d.id,...d.data()}));
+      if(res[2]) students=res[2].docs.map(d=>({vhash:d.id,...d.data()}));
+      buildPickers(); render();
+    }catch(e){ /* 조용히 무시 */ }
+  }, 6000);
 }
 
 let clickCount=0, clickTimer=null;
@@ -307,7 +329,8 @@ function buildPickers(){
 $("classPick").addEventListener("change", e=>{ classPick=e.target.value; render(); });
 $("allDeptFilter").addEventListener("change", e=>{ allFilter=e.target.value; render(); });
 
-function render(){
+function render(){ try{ _render(); }catch(e){ console.error("render error:", e); } }
+function _render(){
   const seatByVhash={}; seats.forEach(s=>seatByVhash[s.vhash]=s);
   $("summary").innerHTML =
     `신청 <b>${seats.length}</b>명 · 등록 학생 <b>${students.length}</b>명 · 학과 <b>${depts.length}</b>개`
