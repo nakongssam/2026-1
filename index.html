@@ -99,6 +99,23 @@
   .bigbtn:hover{ background:var(--yellow-d); } .bigbtn:disabled{ background:var(--line2); color:var(--muted); box-shadow:none; cursor:not-allowed; }
   .bigbtn.danger{ background:var(--surface); color:var(--danger); border:1.5px solid var(--danger); box-shadow:none; }
   .msg{ margin-top:14px; padding:12px 14px; border-radius:12px; font-size:.92rem; font-weight:600; display:none; border:1.5px solid transparent; text-align:center; }
+  .gatebanner{ margin:4px 0 12px; padding:13px 16px; border-radius:13px; font-weight:800; font-size:1rem; text-align:center; border:1.5px solid transparent; }
+  .gatebanner.wait{ background:var(--yellow-soft); color:#7a5c00; border-color:var(--yellow-d); }
+  .gatebanner.open{ background:var(--ok-soft); color:var(--ok); border-color:var(--ok); }
+  .gatebanner.closed{ background:#fdecec; color:var(--danger); border-color:var(--danger); }
+  .gatebanner .cd{ font-variant-numeric:tabular-nums; }
+  .gateadmin{ background:var(--surface); border:1px solid var(--line2); border-radius:14px; padding:14px 16px; margin-bottom:14px; box-shadow:var(--shadow); }
+  .gateadmin .ga-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .gateadmin .ga-row.ga-sched{ margin-top:10px; padding-top:10px; border-top:1px solid var(--line); }
+  .gateadmin .ga-state{ font-weight:800; font-size:.98rem; flex:1; min-width:160px; }
+  .gateadmin .ga-btns{ display:flex; gap:8px; }
+  .gateadmin label{ font-size:.86rem; color:var(--muted); font-weight:700; }
+  .gateadmin input[type=datetime-local]{ padding:7px 10px; border:1.5px solid var(--line2); border-radius:10px; background:var(--page); color:var(--ink); font-size:.86rem; }
+  .gateadmin button{ border:none; border-radius:10px; padding:8px 14px; font-weight:700; font-size:.86rem; cursor:pointer; }
+  .gateadmin .ga-open{ background:var(--ok); color:#fff; }
+  .gateadmin .ga-close{ background:var(--danger); color:#fff; }
+  .gateadmin button.ghost{ background:var(--page); color:var(--body); border:1.5px solid var(--line2); }
+  .gateadmin button:disabled{ opacity:.45; cursor:default; }
   .msg.show{ display:block; } .msg.success{ background:var(--ok-soft); color:var(--ok); border-color:var(--ok); } .msg.error{ background:var(--yellow-soft); color:var(--danger); border-color:var(--danger); } .msg.info{ background:var(--yellow-soft); color:var(--ink); border-color:var(--yellow-d); }
 
   /* 대시보드 */
@@ -350,6 +367,7 @@
       <div class="hellorow">
         <div class="hello" id="hello"></div>
       </div>
+      <div class="gatebanner" id="gateBanner" style="display:none;"></div>
       <p class="lead">희망 학과 1곳을 골라 신청하세요. 학과당 선착순 최대 36명, 자리가 남아 있으면 취소 후 다시 신청할 수 있어요.</p>
       <div class="grid" id="grid"><div class="empty">학과 현황 불러오는 중…</div></div>
       <button id="applyBtn" class="bigbtn" disabled style="display:none;">신청하기</button>
@@ -359,6 +377,21 @@
 
     <!-- 현황판 -->
     <div class="panel" id="panelDash">
+      <div class="gateadmin" id="gateAdmin" style="display:none;">
+        <div class="ga-row">
+          <span class="ga-state" id="gaState">상태 확인 중…</span>
+          <div class="ga-btns">
+            <button class="ga-open" id="gateOpenBtn">🟢 신청 열기</button>
+            <button class="ga-close" id="gateCloseBtn">🔴 신청 닫기</button>
+          </div>
+        </div>
+        <div class="ga-row ga-sched">
+          <label>예약 오픈 시각</label>
+          <input type="datetime-local" id="gateAtInput">
+          <button class="ghost" id="gateSchedBtn">예약 저장</button>
+          <button class="ghost" id="gateSchedClear">예약 해제</button>
+        </div>
+      </div>
       <div class="kpis" id="kpis"></div>
       <div class="board">
         <div class="col">
@@ -451,7 +484,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInAnonymously, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, initializeFirestore, collection, doc, getDoc, getDocs, setDoc, deleteDoc, writeBatch, query, orderBy, onSnapshot, runTransaction, serverTimestamp, increment }
+import { getFirestore, initializeFirestore, collection, doc, getDoc, getDocs, setDoc, deleteDoc, writeBatch, query, orderBy, onSnapshot, runTransaction, serverTimestamp, increment, Timestamp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -490,6 +523,9 @@ const $=(id)=>document.getElementById(id);
 
 let role=null, me=null, seat=null, selectedId=null;
 let depts=[], seats=[], students=[], roster=null, live=null, lastRosterKey="", lastLiveKey="", questions=[], qnaPick=null, editId=null;
+let gate={open:false, openAt:null}, gateTimer=null;
+function openAtMs(){ const v=gate.openAt; if(!v) return null; if(typeof v?.toDate==="function") return v.toDate().getTime(); if(v instanceof Date) return v.getTime(); const n=new Date(v).getTime(); return isNaN(n)?null:n; }
+function isOpen(){ if(gate.open===true) return true; const t=openAtMs(); return t!=null && Date.now()>=t; }
 let unsub=[], unsubSeat=null, pollTimer=null, curTab=null;
 let deptPick=null, allFilter="all", classPick="all", mgTab="dept";
 const ordOf={};
@@ -561,7 +597,7 @@ $("outBtn").addEventListener("click", ()=>{
   $("sid").value=""; $("birth").value=""; $("email").value=""; $("pw").value="";
   $("app").style.display="none"; $("gate").style.display="flex";
 });
-function teardown(){ unsub.forEach(fn=>fn()); unsub=[]; if(unsubSeat){unsubSeat();unsubSeat=null;} if(pollTimer){clearInterval(pollTimer);pollTimer=null;} }
+function teardown(){ unsub.forEach(fn=>fn()); unsub=[]; if(unsubSeat){unsubSeat();unsubSeat=null;} if(pollTimer){clearInterval(pollTimer);pollTimer=null;} if(gateTimer){clearInterval(gateTimer);gateTimer=null;} }
 
 /* ===== 입장 ===== */
 function enterStudent(){
@@ -599,6 +635,11 @@ function showTab(id){
 
 /* ===== 구독 ===== */
 function subscribe(){
+  unsub.push(onSnapshot(doc(db,"config","gate"), s=>{
+    gate = s.exists()? {open:!!s.data().open, openAt:s.data().openAt||null} : {open:false,openAt:null};
+    renderGate();
+  }, e=>console.error(e)));
+  if(!gateTimer) gateTimer=setInterval(renderGate, 1000);
   unsub.push(onSnapshot(query(collection(db,"departments"),orderBy("ord")), s=>{
     depts=s.docs.map(d=>({id:d.id,...d.data()})); depts.forEach(d=>ordOf[d.id]=d.ord);
     if(!deptPick && depts.length) deptPick=depts[0].id;
@@ -653,9 +694,12 @@ function renderApply(){
     $("seatBadge").innerHTML="";
     $("applyBtn").style.display="block"; $("applyBtn").disabled=!selectedId; $("cancelBtn").style.display="none";
   }
+  syncApplyLock(isOpen());
 }
 $("applyBtn").addEventListener("click", async ()=>{
-  clearMsg($("mainMsg")); if(!selectedId) return showMsg($("mainMsg"),"신청할 학과를 선택해 주세요.","error");
+  clearMsg($("mainMsg"));
+  if(!isOpen()) return showMsg($("mainMsg"),"아직 신청이 열리지 않았습니다.","error");
+  if(!selectedId) return showMsg($("mainMsg"),"신청할 학과를 선택해 주세요.","error");
   $("applyBtn").disabled=true; $("applyBtn").textContent="신청 중…";
   try{
     const r=await runTransaction(db, async (tx)=>{
@@ -673,9 +717,10 @@ $("applyBtn").addEventListener("click", async ()=>{
     else if(r.s==="HAS") showMsg($("mainMsg"),`이미 '${r.n}'에 신청되어 있습니다.`,"info");
     else showMsg($("mainMsg"),"학과 정보를 찾을 수 없습니다.","error");
   }catch(e){ console.error(e); showMsg($("mainMsg"),"신청 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.","error"); }
-  finally{ $("applyBtn").textContent="신청하기"; }
+  finally{ $("applyBtn").textContent="신청하기"; syncApplyLock(isOpen()); }
 });
 $("cancelBtn").addEventListener("click", async ()=>{
+  if(!isOpen()){ showMsg($("mainMsg"),"신청이 마감되어 변경할 수 없습니다.","error"); return; }
   if(!confirm("신청을 취소할까요? 취소 후 다른 학과를 다시 선택할 수 있습니다.")) return;
   clearMsg($("mainMsg"));
   try{
@@ -690,8 +735,71 @@ $("cancelBtn").addEventListener("click", async ()=>{
   }catch(e){ console.error(e); showMsg($("mainMsg"),"취소 중 오류가 발생했습니다.","error"); }
 });
 
-/* ===== 현황판 패널 ===== */
-function renderDash(){ try{ _renderDash(); }catch(e){ console.error(e); } requestAnimationFrame(syncHeight); }
+/* ===== 신청 오픈/마감 ===== */
+function fmtCountdown(ms){
+  if(ms<0) ms=0; const s=Math.floor(ms/1000);
+  const h=Math.floor(s/3600), m=Math.floor((s%3600)/60), sec=s%60;
+  const p=n=>String(n).padStart(2,"0");
+  return h>0 ? `${h}:${p(m)}:${p(sec)}` : `${p(m)}:${p(sec)}`;
+}
+function fmtTime(ms){ const d=new Date(ms); const p=n=>String(n).padStart(2,"0");
+  return `${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`; }
+function renderGate(){
+  const open=isOpen(), t=openAtMs();
+  // 학생 배너
+  const b=$("gateBanner");
+  if(b){
+    if(role==="student"){
+      b.style.display="block";
+      if(open){ b.className="gatebanner open"; b.textContent="🟢 신청이 열렸습니다. 원하는 학과를 신청하세요!"; }
+      else if(t!=null && Date.now()<t){ b.className="gatebanner wait"; b.innerHTML=`⏳ 신청 대기 중 · 오픈까지 <span class="cd">${fmtCountdown(t-Date.now())}</span> (${fmtTime(t)} 오픈)`; }
+      else { b.className="gatebanner closed"; b.textContent="🔴 아직 신청이 열리지 않았습니다. 잠시만 기다려 주세요."; }
+    } else b.style.display="none";
+  }
+  // 학생 버튼 잠금 반영
+  if(role==="student") syncApplyLock(open);
+  // 교사 컨트롤
+  const ga=$("gateAdmin");
+  if(ga){
+    if(role==="teacher"){
+      ga.style.display="block";
+      if(t!=null && Date.now()>=t && !gate.open){ setGate({open:true, openAt:null}); }
+      const st=$("gaState");
+      if(open) st.innerHTML=`현재 상태: <span style="color:var(--ok)">🟢 신청 열림</span>`;
+      else if(t!=null && Date.now()<t) st.innerHTML=`현재 상태: <span style="color:#7a5c00">⏳ 예약됨</span> · ${fmtTime(t)} 자동 오픈 (${fmtCountdown(t-Date.now())} 남음)`;
+      else st.innerHTML=`현재 상태: <span style="color:var(--danger)">🔴 신청 닫힘</span>`;
+      $("gateOpenBtn").disabled=open;
+      $("gateCloseBtn").disabled=(!gate.open && t==null);
+    } else ga.style.display="none";
+  }
+}
+function syncApplyLock(open){
+  const applyB=$("applyBtn"), cancelB=$("cancelBtn");
+  if(!applyB||!cancelB) return;
+  if(seat){
+    applyB.style.display="none"; cancelB.style.display="block";
+    cancelB.disabled=!open; cancelB.textContent = open ? "신청 취소하고 다시 선택" : "🔒 마감되어 변경할 수 없어요";
+  }else{
+    cancelB.style.display="none"; applyB.style.display="block";
+    applyB.disabled = !open || !selectedId;
+    applyB.textContent = open ? "신청하기" : "🔒 신청 대기 중";
+  }
+}
+async function setGate(patch){
+  try{ await setDoc(doc(db,"config","gate"), patch, {merge:true}); }
+  catch(e){ console.error(e); alert("상태 변경 중 오류가 발생했습니다. 권한(규칙)을 확인해 주세요."); }
+}
+$("gateOpenBtn")?.addEventListener("click", ()=>{ if(confirm("지금 신청을 열까요? 모든 학생이 바로 신청할 수 있습니다.")) setGate({open:true}); });
+$("gateCloseBtn")?.addEventListener("click", ()=>{ if(confirm("신청을 닫을까요? 예약된 오픈 시각도 함께 해제됩니다.")) setGate({open:false, openAt:null}); });
+$("gateSchedBtn")?.addEventListener("click", ()=>{
+  const v=$("gateAtInput").value; if(!v){ alert("오픈 시각을 먼저 선택해 주세요."); return; }
+  const when=new Date(v);
+  if(confirm(`${fmtTime(when.getTime())}에 자동 오픈으로 예약할까요? (그때까지는 신청이 닫혀 있어요)`))
+    setGate({ open:false, openAt: Timestamp.fromDate(when) });
+});
+$("gateSchedClear")?.addEventListener("click", ()=>{ setGate({ openAt:null }); });
+
+
 function syncHeight(){
   document.querySelectorAll("#panelDash .board .col").forEach(c=>{ c.style.height=""; c.style.minHeight=""; });
 }
