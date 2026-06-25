@@ -60,12 +60,13 @@
   .appsub{ font-size:.76rem; color:var(--muted); font-weight:400; }
   .ttl .appsub::before{ content:"·"; margin:0 6px; color:var(--muted); }
   .apphead .who{ font-size:.78rem; color:var(--muted); font-weight:600; }
-  .outbtn{ border:1.5px solid var(--line2); background:var(--surface); color:var(--body); border-radius:10px; padding:7px 12px; font-size:.82rem; font-weight:700; cursor:pointer; }
-  .headright{ display:flex; align-items:center; gap:8px; }
-  .dashctrl{ display:inline-flex; align-items:center; gap:8px; }
+  .outbtn{ border:1.5px solid var(--line2); background:var(--surface); color:var(--body); border-radius:10px; padding:7px 12px; font-size:.82rem; font-weight:700; cursor:pointer; white-space:nowrap; flex:none; }
+  .headright{ display:flex; align-items:center; gap:8px; flex:none; }
+  .dashctrl{ display:inline-flex; align-items:center; gap:8px; flex:none; }
+  .curbadge-h{ display:inline-flex; align-items:center; white-space:nowrap; background:var(--ok-soft); color:var(--ok); border:1px solid var(--ok); border-radius:999px; padding:6px 12px; font-weight:700; font-size:.82rem; }
   .tabbar{ max-width:1080px; margin:0 auto; padding:8px 16px 0; display:flex; gap:6px; }
-  .tabbtn{ flex:1; max-width:220px; padding:11px 14px; border:none; border-radius:12px 12px 0 0; background:transparent; color:var(--muted);
-           font-weight:700; font-size:.95rem; cursor:pointer; border-bottom:3px solid transparent; transition:.15s; }
+  .tabbtn{ flex:1; max-width:220px; padding:11px 10px; border:none; border-radius:12px 12px 0 0; background:transparent; color:var(--muted);
+           font-weight:700; font-size:.95rem; cursor:pointer; border-bottom:3px solid transparent; transition:.15s; white-space:nowrap; }
   .tabbtn.on{ color:var(--ink); border-bottom-color:var(--yellow-d); }
 
   .panel{ display:none; padding-top:12px; }
@@ -97,12 +98,12 @@
   .bigbtn{ width:100%; margin-top:16px; padding:15px; border:none; border-radius:13px; font-size:1.04rem; font-weight:700; cursor:pointer; background:var(--yellow); color:#3a3320; box-shadow:0 4px 14px rgba(245,197,24,.35); }
   .bigbtn:hover{ background:var(--yellow-d); } .bigbtn:disabled{ background:var(--line2); color:var(--muted); box-shadow:none; cursor:not-allowed; }
   .bigbtn.danger{ background:var(--surface); color:var(--danger); border:1.5px solid var(--danger); box-shadow:none; }
-  .msg{ margin-top:14px; padding:12px 14px; border-radius:12px; font-size:.92rem; font-weight:600; display:none; border:1.5px solid transparent; }
+  .msg{ margin-top:14px; padding:12px 14px; border-radius:12px; font-size:.92rem; font-weight:600; display:none; border:1.5px solid transparent; text-align:center; }
   .msg.show{ display:block; } .msg.success{ background:var(--ok-soft); color:var(--ok); border-color:var(--ok); } .msg.error{ background:var(--yellow-soft); color:var(--danger); border-color:var(--danger); } .msg.info{ background:var(--yellow-soft); color:var(--ink); border-color:var(--yellow-d); }
 
   /* 대시보드 */
   .dashtools{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }
-  .live{ display:inline-flex; align-items:center; gap:6px; padding:7px 13px; border-radius:999px; background:var(--ok-soft); color:var(--ok); font-weight:700; font-size:.82rem; }
+  .live{ display:inline-flex; align-items:center; gap:6px; padding:7px 13px; border-radius:999px; background:var(--ok-soft); color:var(--ok); font-weight:700; font-size:.82rem; white-space:nowrap; }
   .dotpulse{ width:8px; height:8px; border-radius:50%; background:var(--ok); animation:pulse 1.6s infinite; }
   @keyframes pulse{ 0%{box-shadow:0 0 0 0 rgba(47,143,106,.5);} 70%{box-shadow:0 0 0 7px rgba(47,143,106,0);} 100%{box-shadow:0 0 0 0 rgba(47,143,106,0);} }
   @media (prefers-reduced-motion: reduce){ .dotpulse{ animation:none; } }
@@ -290,6 +291,8 @@
     .grid{ grid-template-columns:repeat(2,1fr); gap:8px; } .kpi .v{ font-size:1.4rem; }
     .dgrid{ grid-template-columns:1fr; } .cgrid{ grid-template-columns:repeat(2,1fr); } .mgrid, .mgrid.wide{ grid-template-columns:1fr; } .mlist{ grid-template-columns:repeat(2,1fr); } .toolbar select{ min-width:0; flex:1; }
     .chipgrid{ grid-template-columns:repeat(2,1fr); } .chipgrid.cls{ grid-template-columns:repeat(5,1fr); }
+    .tabbtn{ font-size:.82rem; padding:11px 2px; }
+    .headright{ gap:6px; } .live{ padding:7px 10px; font-size:.78rem; } .outbtn{ padding:7px 9px; font-size:.78rem; } .curbadge-h{ padding:6px 10px; font-size:.78rem; }
   }
 </style>
 </head>
@@ -326,11 +329,12 @@
 <div id="app" style="display:none;">
   <div class="apphead">
     <div class="in">
-      <div class="ttl display">🎓 전공체험 <span class="who" id="who"></span><span class="appsub">7/14(화) 4~5교시</span></div>
+      <div class="ttl display">🎓 천안오성고등학교 1학년 전공체험 <span class="who" id="who"></span><span class="appsub">7/14(화) 4~5교시</span></div>
       <div class="headright">
         <span class="dashctrl" id="dashCtrl">
           <span class="live"><span class="dotpulse"></span> 실시간</span>
         </span>
+        <span id="seatBadge"></span>
         <button class="outbtn" id="outBtn">나가기</button>
       </div>
     </div>
@@ -342,7 +346,6 @@
     <div class="panel" id="panelApply">
       <div class="hellorow">
         <div class="hello" id="hello"></div>
-        <div id="statusBadge"></div>
       </div>
       <p class="lead">희망 학과 1곳을 골라 신청하세요. 학과당 선착순 최대 36명, 자리가 남아 있으면 취소 후 다시 신청할 수 있어요.</p>
       <div class="grid" id="grid"><div class="empty">학과 현황 불러오는 중…</div></div>
@@ -641,10 +644,10 @@ function renderApply(){
   }).join("");
   if(!locked) $("grid").querySelectorAll(".blk:not(.full)").forEach(el=>el.addEventListener("click", ()=>{ selectedId=el.dataset.id; renderApply(); }));
   if(seat){
-    $("statusBadge").innerHTML=`<span class="curbadge"><span class="lb">✓ 현재 신청</span>${esc(seat.deptName)}</span>`;
+    $("seatBadge").innerHTML=`<span class="curbadge-h">✓ ${esc(shortDept(seat.deptName))}</span>`;
     $("applyBtn").style.display="none"; $("cancelBtn").style.display="block";
   }else{
-    $("statusBadge").innerHTML="";
+    $("seatBadge").innerHTML="";
     $("applyBtn").style.display="block"; $("applyBtn").disabled=!selectedId; $("cancelBtn").style.display="none";
   }
 }
