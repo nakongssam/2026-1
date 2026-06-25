@@ -128,14 +128,16 @@
   .ditem .num{ font-size:.82rem; font-weight:700; color:var(--body); white-space:nowrap; font-variant-numeric:tabular-nums; }
   .ditem .num.full{ color:var(--danger); }
   .ditem .track > i{ display:block; height:100%; border-radius:5px; transition:width .4s; }
-  /* 반별: 4열 카드형 */
-  .cgrid{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
-  .citem{ display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
-          background:var(--page); border:1px solid var(--line2); border-radius:11px; padding:9px 6px; }
-  .citem .cn{ font-weight:700; color:var(--ink); font-size:.86rem; }
-  .citem .cf{ font-size:.74rem; color:var(--muted); margin-top:2px; font-variant-numeric:tabular-nums; }
-  .citem .pc{ font-weight:800; color:var(--yellow-d); font-size:.95rem; margin-top:3px; font-variant-numeric:tabular-nums; }
-  .citem.zero .pc{ color:var(--muted); }
+  /* 반별: 학과별과 동일한 2열 + 막대 */
+  .cgrid{ display:grid; grid-template-columns:1fr 1fr; gap:0 22px; }
+  .citem{ padding:8px 0; border-bottom:1px solid var(--line); }
+  .citem .ctop{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .citem .cn{ font-weight:600; color:var(--ink); font-size:.9rem; }
+  .citem .pc{ font-size:.82rem; font-weight:700; color:var(--body); white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .citem .pc .p{ color:var(--yellow-d); }
+  .citem.zero .pc .p{ color:var(--muted); }
+  .citem .track{ height:4px; background:var(--track); border-radius:5px; overflow:hidden; margin-top:5px; }
+  .citem .track > i{ display:block; height:100%; background:var(--yellow-d); border-radius:5px; transition:width .4s; }
   .trow{ display:flex; align-items:center; gap:11px; padding:8px 0; border-top:1px solid var(--line); }
   .trow:first-child{ border-top:none; }
   .rank{ width:23px; height:23px; border-radius:8px; display:grid; place-items:center; font-weight:800; font-size:.8rem; color:#fff; flex:none; background:var(--muted); }
@@ -616,7 +618,10 @@ function _renderDash(){
     $("classMeta").textContent = keys.length?`${keys.length}개 반`:"";
     $("classList").innerHTML = keys.length ? keys.map(c=>{
       const t=cls[c], dn=done[c]||0, pct=t?Math.round(dn/t*100):0;
-      return `<div class="citem ${dn===0?"zero":""}"><span class="cn">${c}반</span><span class="cf">${dn}/${t}</span><span class="pc">${pct}%</span></div>`;
+      return `<div class="citem ${dn===0?"zero":""}">
+        <div class="ctop"><span class="cn">${c}반</span><span class="pc">${dn}/${t} · <span class="p">${pct}%</span></span></div>
+        <div class="track"><i style="width:${pct}%"></i></div>
+      </div>`;
     }).join("") : `<div class="empty">학생 명단이 없습니다.</div>`;
   }
 }
