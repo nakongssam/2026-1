@@ -69,7 +69,7 @@
   .hello{ font-size:1.12rem; font-weight:700; color:var(--ink); margin:6px 0 4px; }
   .hello .small{ font-size:.85rem; font-weight:500; color:var(--muted); margin-left:6px; }
   .lead{ color:var(--muted); font-size:.92rem; margin:0 0 16px; }
-  .grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(158px,1fr)); gap:9px; }
+  .grid{ display:grid; grid-template-columns:repeat(5,1fr); gap:9px; }
   .blk{ position:relative; text-align:left; background:var(--surface); border:1.5px solid var(--line2); border-radius:13px; padding:11px 12px; cursor:pointer; transition:.14s; }
   .blk:hover{ border-color:var(--yellow-d); transform:translateY(-2px); box-shadow:var(--shadow); }
   .blk .nm{ font-weight:700; color:var(--ink); font-size:.97rem; line-height:1.3; }
@@ -83,8 +83,8 @@
   .blk.mine{ border-color:var(--ok); background:var(--ok-soft); }
   .blk.mine .nm::after{ content:"신청함"; margin-left:7px; font-size:.72rem; font-weight:700; color:#fff; background:var(--ok); padding:2px 8px; border-radius:999px; vertical-align:middle; }
   .blk.locked{ cursor:default; } .blk.locked:not(.mine):hover{ border-color:var(--line2); transform:none; box-shadow:none; }
-  .current{ background:var(--ok-soft); border:1.5px solid var(--ok); border-radius:14px; padding:15px 17px; margin-bottom:14px; }
-  .current .lab{ font-size:.82rem; color:var(--ok); font-weight:600; } .current .val{ font-size:1.25rem; font-weight:700; color:var(--ok); margin-top:2px; }
+  .current{ background:var(--ok-soft); border:1px solid var(--ok); border-radius:11px; padding:8px 14px; margin-bottom:12px; display:flex; align-items:center; gap:9px; }
+  .current .lab{ font-size:.8rem; color:var(--ok); font-weight:700; flex:none; } .current .val{ font-size:1rem; font-weight:700; color:var(--ok); }
   .bigbtn{ width:100%; margin-top:16px; padding:15px; border:none; border-radius:13px; font-size:1.04rem; font-weight:700; cursor:pointer; background:var(--yellow); color:#3a3320; box-shadow:0 4px 14px rgba(245,197,24,.35); }
   .bigbtn:hover{ background:var(--yellow-d); } .bigbtn:disabled{ background:var(--line2); color:var(--muted); box-shadow:none; cursor:not-allowed; }
   .bigbtn.danger{ background:var(--surface); color:var(--danger); border:1.5px solid var(--danger); box-shadow:none; }
@@ -218,6 +218,7 @@
   @media (max-width:760px){
     .board{ grid-template-columns:1fr; }
     .kpis, .kpis.s5{ grid-template-columns:repeat(3,1fr); }
+    .grid{ grid-template-columns:repeat(3,1fr); }
   }
   @media (max-width:520px){
     .grid{ grid-template-columns:repeat(2,1fr); gap:8px; } .kpi .v{ font-size:1.4rem; }
@@ -268,7 +269,7 @@
     <!-- 신청 -->
     <div class="panel" id="panelApply">
       <div class="hello" id="hello"></div>
-      <p class="lead">희망 학과 1곳을 골라 신청하세요. 학과당 선착순 36명, 자리가 남아 있으면 취소 후 다시 신청할 수 있어요.</p>
+      <p class="lead">희망 학과 1곳을 골라 신청하세요. 학과당 선착순 최대 36명, 자리가 남아 있으면 취소 후 다시 신청할 수 있어요.</p>
       <div id="statusArea"></div>
       <div class="grid" id="grid"><div class="empty">학과 현황 불러오는 중…</div></div>
       <button id="applyBtn" class="bigbtn" disabled style="display:none;">신청하기</button>
@@ -393,7 +394,7 @@ setPersistence(auth, browserLocalPersistence).catch(()=>{});
 const $=(id)=>document.getElementById(id);
 
 let role=null, me=null, seat=null, selectedId=null;
-let depts=[], seats=[], students=[];
+let depts=[], seats=[], students=[], pub=null, lastStatsKey="";
 let unsub=[], unsubSeat=null, pollTimer=null, curTab=null;
 let deptPick=null, allFilter="all", classPick="all", mgTab="dept";
 const ordOf={};
@@ -453,7 +454,7 @@ function enterStudent(){
   role="student"; $("who").textContent=`· ${me.name} (${me.classNo}반 ${me.studentNo}번)`;
   $("hello").innerHTML=`${me.name} 학생, 환영합니다 <span class="small">${me.classNo}반 ${me.studentNo}번</span>`;
   buildTabs([{id:"apply",label:"🎓 신청하기"},{id:"dash",label:"📊 현황판"}]);
-  $("classCard").style.display="none";
+  $("classCard").style.display="block";
   $("gate").style.display="none"; $("app").style.display="block";
   subscribe(); showTab("apply");
 }
@@ -488,6 +489,7 @@ function subscribe(){
   }, e=>console.error(e)));
   if(role==="student"){
     unsubSeat=onSnapshot(doc(db,"seats",me.vhash), s=>{ seat=s.exists()?s.data():null; if(seat) selectedId=null; renderApply(); });
+    unsub.push(onSnapshot(doc(db,"stats","public"), s=>{ pub=s.exists()?s.data():null; renderDash(); }, e=>console.error(e)));
   }
   if(role==="teacher"){
     unsub.push(onSnapshot(collection(db,"seats"), s=>{ seats=s.docs.map(d=>({vhash:d.id,...d.data()})); renderDash(); renderManage(); }, e=>console.error(e)));
@@ -499,9 +501,11 @@ async function pollOnce(){
   try{
     const tasks=[ getDocs(query(collection(db,"departments"),orderBy("ord"))) ];
     if(role==="teacher"){ tasks.push(getDocs(collection(db,"seats"))); tasks.push(getDocs(collection(db,"students"))); }
+    else { tasks.push(getDoc(doc(db,"stats","public"))); }
     const res=await Promise.all(tasks);
     depts=res[0].docs.map(d=>({id:d.id,...d.data()})); depts.forEach(d=>ordOf[d.id]=d.ord);
     if(role==="teacher"){ seats=res[1].docs.map(d=>({vhash:d.id,...d.data()})); students=res[2].docs.map(d=>({vhash:d.id,...d.data()})); }
+    else if(res[1]){ pub=res[1].exists()?res[1].data():null; }
     renderApply(); renderDash(); if(role==="teacher") renderManage();
   }catch(e){}
 }
@@ -518,11 +522,11 @@ function renderApply(){
     return `<div class="${cls}" data-id="${d.id}" ${(!locked&&!full)?'role="button"':''}>
       <div class="nm">${esc(d.name)}</div><div class="dt">${esc(d.detail||"")}</div>
       <div class="bartrack"><div class="barfill" style="width:${pct}%"></div></div>
-      <div class="seat">${full&&!isMine?"마감":`잔여 ${rem}석`}</div></div>`;
+      <div class="seat">${full&&!isMine?`마감 · ${d.filled}/${d.capacity}`:`${d.filled}/${d.capacity} · 잔여 ${rem}석`}</div></div>`;
   }).join("");
   if(!locked) $("grid").querySelectorAll(".blk:not(.full)").forEach(el=>el.addEventListener("click", ()=>{ selectedId=el.dataset.id; renderApply(); }));
   if(seat){
-    $("statusArea").innerHTML=`<div class="current"><div class="lab">현재 신청한 학과</div><div class="val">${esc(seat.deptName)}</div></div>`;
+    $("statusArea").innerHTML=`<div class="current"><span class="lab">현재 신청</span><span class="val">${esc(seat.deptName)}</span></div>`;
     $("applyBtn").style.display="none"; $("cancelBtn").style.display="block";
   }else{
     $("statusArea").innerHTML="";
@@ -567,35 +571,46 @@ function syncHeight(){
   document.querySelectorAll("#panelDash .board .col").forEach(c=>{ c.style.height=""; c.style.minHeight=""; });
 }
 window.addEventListener("resize", ()=>requestAnimationFrame(syncHeight));
+function publishStats(){
+  if(role!=="teacher") return;
+  const classTotals={}, classDone={};
+  students.forEach(st=>{ const p=parseSid(st.studentId); classTotals[p.classNo]=(classTotals[p.classNo]||0)+1; });
+  seats.forEach(s=>classDone[s.classNo]=(classDone[s.classNo]||0)+1);
+  const payload={ totalStudents:students.length, classTotals, classDone };
+  const key=JSON.stringify(payload);
+  if(key===lastStatsKey) return; lastStatsKey=key;
+  setDoc(doc(db,"stats","public"), {...payload, ts:serverTimestamp()}).catch(e=>console.error("stats write:",e));
+}
 function _renderDash(){
   if(!role) return;
+  const isT = role==="teacher";
   const totalCap=depts.reduce((s,d)=>s+(d.capacity||0),0);
   const filled=depts.reduce((s,d)=>s+(d.filled||0),0);
   const remain=depts.reduce((s,d)=>s+Math.max(0,(d.capacity||0)-(d.filled||0)),0);
   const closed=depts.filter(d=>d.filled>=d.capacity).length;
 
-  if(role==="teacher"){
-    const stuN=students.length, na=Math.max(0,stuN-filled), rate=stuN?Math.round(filled/stuN*100):0;
-    $("kpis").className="kpis s5";
-    $("kpis").innerHTML=`
-      <div class="kpi"><div class="ic">🙋</div><div class="tx"><div class="v">${filled}</div><div class="l">신청 완료</div></div></div>
-      <div class="kpi"><div class="ic">⏳</div><div class="tx"><div class="v">${na}</div><div class="l">미신청</div></div></div>
-      <div class="kpi"><div class="ic">📈</div><div class="tx"><div class="v">${rate}<span style="font-size:.9rem">%</span></div><div class="l">신청률</div></div></div>
-      <div class="kpi"><div class="ic">💺</div><div class="tx"><div class="v">${remain}</div><div class="l">남은 자리</div></div></div>
-      <div class="kpi"><div class="ic">🚩</div><div class="tx"><div class="v">${closed}<span style="font-size:.9rem">/${depts.length}</span></div><div class="l">마감 학과</div></div></div>`;
-  }else{
-    $("kpis").className="kpis s3";
-    $("kpis").innerHTML=`
-      <div class="kpi"><div class="ic">🙋</div><div class="tx"><div class="v">${filled}</div><div class="l">신청 완료</div></div></div>
-      <div class="kpi"><div class="ic">💺</div><div class="tx"><div class="v">${remain}</div><div class="l">남은 자리</div></div></div>
-      <div class="kpi"><div class="ic">🚩</div><div class="tx"><div class="v">${closed}<span style="font-size:.9rem">/${depts.length}</span></div><div class="l">마감 학과</div></div></div>`;
-  }
+  // 집계 소스: 교사=실데이터, 학생=공개집계(pub)
+  if(isT) publishStats();
+  const classTotals = isT ? (()=>{ const o={}; students.forEach(st=>{const p=parseSid(st.studentId); o[p.classNo]=(o[p.classNo]||0)+1;}); return o; })() : (pub?.classTotals||{});
+  const classDone   = isT ? (()=>{ const o={}; seats.forEach(s=>o[s.classNo]=(o[s.classNo]||0)+1); return o; })() : (pub?.classDone||{});
+  const stuN = isT ? students.length : (pub?.totalStudents ?? 0);
+  const haveTotal = stuN>0;
+  const na = haveTotal ? Math.max(0,stuN-filled) : null;
+  const rate = haveTotal ? Math.round(filled/stuN*100) : null;
+
+  // KPI (양쪽 동일 5칸)
+  $("kpis").className="kpis s5";
+  $("kpis").innerHTML=`
+    <div class="kpi"><div class="ic">🙋</div><div class="tx"><div class="v">${filled}</div><div class="l">신청 완료</div></div></div>
+    <div class="kpi"><div class="ic">⏳</div><div class="tx"><div class="v">${na===null?"–":na}</div><div class="l">미신청</div></div></div>
+    <div class="kpi"><div class="ic">📈</div><div class="tx"><div class="v">${rate===null?"–":rate+'<span style="font-size:.9rem">%</span>'}</div><div class="l">신청률</div></div></div>
+    <div class="kpi"><div class="ic">💺</div><div class="tx"><div class="v">${remain}</div><div class="l">남은 자리</div></div></div>
+    <div class="kpi"><div class="ic">🚩</div><div class="tx"><div class="v">${closed}<span style="font-size:.9rem">/${depts.length}</span></div><div class="l">마감 학과</div></div></div>`;
 
   $("deptMeta").textContent=`총 ${filled} / ${totalCap}석`;
-  const clk = role==="teacher";
   $("deptList").innerHTML = depts.length ? depts.map(d=>{
     const pct=d.capacity?Math.round(d.filled/d.capacity*100):0, full=d.filled>=d.capacity;
-    return `<div class="ditem${clk?" clk":""}" ${clk?`data-godept="${d.id}"`:""}>
+    return `<div class="ditem${isT?" clk":""}" ${isT?`data-godept="${d.id}"`:""}>
       <div class="dtop">
         <span class="nm"><span class="ddot" style="background:${colorOf(d.ord)}"></span><span class="t">${esc(d.name)}</span></span>
         <span class="num ${full?"full":""}">${full?"마감":`${d.filled}/${d.capacity}`}</span>
@@ -604,7 +619,7 @@ function _renderDash(){
       <div class="track"><i style="width:${pct}%;background:${colorOf(d.ord)}"></i></div>
     </div>`;
   }).join("") : `<div class="empty">학과 데이터를 불러오는 중…</div>`;
-  if(clk) $("deptList").querySelectorAll("[data-godept]").forEach(el=>el.addEventListener("click", ()=>{
+  if(isT) $("deptList").querySelectorAll("[data-godept]").forEach(el=>el.addEventListener("click", ()=>{
     deptPick=el.dataset.godept; showTab("manage"); mgSwitch("dept"); renderManage();
     document.querySelector("#panelManage")?.scrollIntoView({behavior:"smooth",block:"start"});
   }));
@@ -614,22 +629,19 @@ function _renderDash(){
     <div class="trow"><span class="rank r${i+1}">${i+1}</span><span class="tn">${esc(d.name)}</span><span class="tv">${d.filled}명</span></div>`).join("")
     : `<div class="empty">아직 신청 내역이 없어요.</div>`;
 
-  if(role==="teacher"){
-    const cls={}; students.forEach(st=>{ const p=parseSid(st.studentId); (cls[p.classNo] ||= 0); cls[p.classNo]++; });
-    const done={}; seats.forEach(s=>done[s.classNo]=(done[s.classNo]||0)+1);
-    const keys=Object.keys(cls).map(Number).sort((a,b)=>a-b);
-    $("classMeta").textContent = keys.length?`${keys.length}개 반`:"";
-    $("classList").innerHTML = keys.length ? keys.map(c=>{
-      const t=cls[c], dn=done[c]||0, pct=t?Math.round(dn/t*100):0;
-      return `<div class="citem ${dn===0?"zero":""}" data-goclass="${c}">
-        <span class="cn">${c}반</span><span class="cf">${dn}/${t}</span><span class="pc">${pct}%</span></div>`;
-    }).join("") : `<div class="empty">학생 명단이 없습니다.</div>`;
-    $("classList").querySelectorAll("[data-goclass]").forEach(el=>el.addEventListener("click", ()=>{
-      classPick=el.dataset.goclass; const cp=$("classPick"); if(cp) cp.value=classPick;
-      showTab("manage"); mgSwitch("class"); renderManage();
-      document.querySelector("#panelManage")?.scrollIntoView({behavior:"smooth",block:"start"});
-    }));
-  }
+  // 반별 (양쪽 동일, 클릭 점프는 교사만)
+  const keys=Object.keys(classTotals).map(Number).sort((a,b)=>a-b);
+  $("classMeta").textContent = keys.length?`${keys.length}개 반`:"";
+  $("classList").innerHTML = keys.length ? keys.map(c=>{
+    const t=classTotals[c], dn=classDone[c]||0, pct=t?Math.round(dn/t*100):0;
+    return `<div class="citem ${dn===0?"zero":""}" ${isT?`data-goclass="${c}"`:""}>
+      <span class="cn">${c}반</span><span class="cf">${dn}/${t}</span><span class="pc">${pct}%</span></div>`;
+  }).join("") : `<div class="empty">${isT?"학생 명단이 없습니다.":"집계 준비 중이에요."}</div>`;
+  if(isT) $("classList").querySelectorAll("[data-goclass]").forEach(el=>el.addEventListener("click", ()=>{
+    classPick=el.dataset.goclass; const cp=$("classPick"); if(cp) cp.value=classPick;
+    showTab("manage"); mgSwitch("class"); renderManage();
+    document.querySelector("#panelManage")?.scrollIntoView({behavior:"smooth",block:"start"});
+  }));
 }
 
 /* ===== 명단 관리 패널 ===== */
