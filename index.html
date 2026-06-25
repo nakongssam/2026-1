@@ -220,7 +220,8 @@
   .distgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(165px,1fr)); gap:9px; margin-top:10px; }
   .distcard{ background:var(--page); border:1px solid var(--line2); border-left:4px solid var(--dc,var(--yellow-d)); border-radius:11px; padding:10px 12px; }
   .distcard .dh{ display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:6px; }
-  .distcard .dn{ font-weight:700; color:var(--ink); font-size:.86rem; }
+  .distcard .dn{ font-weight:700; color:var(--ink); font-size:.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+  .distcard .dh .npill{ flex:none; white-space:nowrap; }
   .ntags{ display:flex; flex-wrap:wrap; gap:4px; }
   .mtag{ font-size:.76rem; background:var(--surface); border:1px solid var(--line); border-radius:7px; padding:1px 6px; color:var(--body); white-space:nowrap; }
   .ntags .muted{ color:var(--muted); font-size:.82rem; }
@@ -813,7 +814,7 @@ function renderClass(seatByVhash){
     const cards = depts.map(dd=>{
       const arr=(byD[dd.id]||[]).sort((a,b)=>a.studentNo-b.studentNo);
       const names = arr.length ? arr.map(tag).join("") : `<span class="muted">—</span>`;
-      return `<div class="distcard" style="--dc:${colorOf(dd.ord)}"><div class="dh"><span class="dn">${esc(dd.name)}</span><span class="npill">${arr.length}명</span></div><div class="ntags">${names}</div></div>`;
+      return `<div class="distcard" style="--dc:${colorOf(dd.ord)}"><div class="dh"><span class="dn" title="${esc(dd.name)}">${esc(shortDept(dd.name))}</span><span class="npill">${arr.length}명</span></div><div class="ntags">${names}</div></div>`;
     }).join("");
     const noneArr=all.filter(x=>!x.seat);
     const noneCard = `<div class="distcard" style="--dc:var(--line2)"><div class="dh"><span class="dn">미신청</span><span class="npill">${noneArr.length}명</span></div><div class="ntags">${noneArr.length?noneArr.map(tag).join(""):'<span class="muted">—</span>'}</div></div>`;
