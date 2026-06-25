@@ -456,11 +456,22 @@ function setStatus(t,cls=""){ const e=$("status"); if(e){ e.textContent=t; e.cla
 $("segStu").addEventListener("click", ()=>{ $("segStu").classList.add("on"); $("segTea").classList.remove("on"); $("stuForm").style.display="block"; $("teaForm").style.display="none"; $("gateErr").textContent=""; });
 $("segTea").addEventListener("click", ()=>{ $("segTea").classList.add("on"); $("segStu").classList.remove("on"); $("teaForm").style.display="block"; $("stuForm").style.display="none"; $("gateErr").textContent=""; });
 
-signInAnonymously(auth).then(()=>{ $("stuGo").disabled=false; }).catch(e=>console.error(e));
-
 onAuthStateChanged(auth,(user)=>{
-  if(user && !user.isAnonymous && user.email===TEACHER_EMAIL){ if(role!=="teacher") enterTeacher(); }
+  if(user && !user.isAnonymous && user.email===TEACHER_EMAIL){ if(role!=="teacher") enterTeacher(); return; }
+  if(!user){ signInAnonymously(auth).catch(e=>console.error(e)); return; }
+  // 익명 인증 준비됨 → 학생 입장 가능 + 저장된 학생 세션 복원
+  $("stuGo").disabled=false;
+  tryRestoreStudent();
 });
+function tryRestoreStudent(){
+  if(role) return;
+  let s=null; try{ s=JSON.parse(localStorage.getItem("ses_student")||"null"); }catch(e){}
+  if(!s || !/^\d{5}$/.test(s.sid||"") || !/^\d{6}$/.test(s.birth||"")) return;
+  vhashOf(s.sid,s.birth).then(vh=>getDoc(doc(db,"students",vh)).then(snap=>{
+    if(snap.exists()){ me={ studentId:s.sid, vhash:vh, name:snap.data().name, ...parseSid(s.sid) }; enterStudent(); }
+    else { try{ localStorage.removeItem("ses_student"); }catch(e){} }
+  })).catch(()=>{});
+}
 
 $("stuGo").addEventListener("click", async ()=>{
   $("gateErr").textContent="";
@@ -473,6 +484,7 @@ $("stuGo").addEventListener("click", async ()=>{
     const snap=await getDoc(doc(db,"students",vh));
     if(!snap.exists()){ $("gateErr").textContent="학번 또는 생년월일이 일치하지 않습니다."; return; }
     me={ studentId:sid, vhash:vh, name:snap.data().name, ...parseSid(sid) };
+    try{ localStorage.setItem("ses_student", JSON.stringify({sid, birth})); }catch(e){}
     enterStudent();
   }catch(e){ console.error(e); $("gateErr").textContent="확인 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."; }
   finally{ $("stuGo").disabled=false; $("stuGo").textContent="입장하기"; }
@@ -490,6 +502,7 @@ onEnter("sid","stuGo"); onEnter("birth","stuGo");
 onEnter("email","teaGo"); onEnter("pw","teaGo");
 
 $("outBtn").addEventListener("click", ()=>{
+  try{ localStorage.removeItem("ses_student"); }catch(e){}
   if(role==="teacher"){ signOut(auth).then(()=>signInAnonymously(auth)); }
   teardown(); role=null; me=null; seat=null; selectedId=null;
   $("sid").value=""; $("birth").value=""; $("email").value=""; $("pw").value="";
