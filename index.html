@@ -183,7 +183,10 @@
   .toolbar.show{ display:flex; }
   .toolbar .field{ display:flex; align-items:center; gap:7px; }
   .toolbar .field label{ margin:0; font-size:.85rem; color:var(--body); font-weight:600; white-space:nowrap; }
-  .toolbar select{ width:auto; min-width:150px; padding:9px 12px; border:1.5px solid var(--line2); border-radius:11px; background:var(--page); color:var(--ink); }
+  .toolbar select{ width:auto; min-width:160px; padding:9px 14px; border:1.5px solid var(--yellow-d); border-radius:11px; background:var(--surface); color:var(--ink); font-weight:600; cursor:pointer; box-shadow:var(--shadow); }
+  .alltbl td.no, .alltbl th.no{ width:1%; white-space:nowrap; padding-right:18px; color:var(--muted); }
+  .alltbl td.nm, .alltbl th:nth-child(2){ width:1%; white-space:nowrap; }
+  .alltbl td.seat, .alltbl th.seat{ width:100%; text-align:right; padding-right:8px; }
   .toolbar .spacer{ flex:1; }
   .mgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:14px; }
   .mgrid.wide{ grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); }
@@ -261,7 +264,7 @@
 <div class="gatewrap" id="gate">
   <span class="gbadge">🎓 천안오성고등학교 1학년</span>
   <h1 class="gtitle display">전공체험 학과 신청</h1>
-  <div class="gsub">선문대학교 · <b>7/14(화) 4~5교시</b> · 1학년 교실</div>
+  <div class="gsub"><b>7/14(화) 4~5교시</b> · 1학년 교실</div>
   <div class="gcard">
     <div class="seg">
       <button id="segStu" class="on">학생</button>
@@ -774,11 +777,11 @@ function renderAll(seatByVhash){
     if(allFilter==="none") list=all.filter(x=>!x.seat);
     else if(allFilter!=="all") list=all.filter(x=>x.seat && x.seat.deptId===allFilter);
     const note = allFilter==="all" ? `${done}/${all.length} 신청` : allFilter==="none" ? `미신청 ${list.length}명` : `${list.length}명`;
-    const rows = list.length ? list.map(x=>`<tr><td style="width:42px">${x.studentNo}</td><td class="nm">${esc(x.name)}</td>
-        <td>${x.seat?deptBadge(x.seat.deptName, ordOf[x.seat.deptId]):'<span class="npill">미신청</span>'}</td></tr>`).join("")
+    const rows = list.length ? list.map(x=>`<tr><td class="no">${x.studentNo}</td><td class="nm">${esc(x.name)}</td>
+        <td class="seat">${x.seat?deptBadge(x.seat.deptName, ordOf[x.seat.deptId]):'<span class="npill">미신청</span>'}</td></tr>`).join("")
       : `<tr><td colspan="3" class="mempty">해당 학생 없음</td></tr>`;
     return `<div class="dcard plain"><div class="head"><span class="nm">${c}반</span><span class="cnt">${note}</span></div>
-      <table><thead><tr><th>번호</th><th>이름</th><th>신청 학과</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+      <table class="alltbl"><thead><tr><th class="no">번호</th><th>이름</th><th class="seat">신청 학과</th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }).join("");
 }
 function renderClass(seatByVhash){
