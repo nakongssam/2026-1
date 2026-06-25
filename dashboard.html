@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>전공체험 실시간 상황판</title>
+<title>전공체험 신청 현황판</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Gmarket+Sans:wght@500;700&display=swap" rel="stylesheet">
@@ -32,21 +32,22 @@
   body{ margin:0; font-family:"Pretendard","Apple SD Gothic Neo",system-ui,sans-serif; color:var(--body);
         font-size:15.5px; line-height:1.55; background:var(--page); -webkit-font-smoothing:antialiased; }
   .display{ font-family:"Gmarket Sans","Pretendard",sans-serif; }
-  .wrap{ max-width:1280px; margin:0 auto; padding:22px 22px 60px; }
+  .wrap{ max-width:1180px; margin:0 auto; padding:22px 22px 60px; }
 
-  /* 로그인 */
-  .login{ max-width:380px; margin:70px auto; background:var(--surface); border:1px solid var(--line2);
-          border-radius:var(--r); padding:28px 24px; box-shadow:var(--shadow); }
-  .login h2{ margin:0 0 4px; font-size:1.2rem; color:var(--ink); }
-  .login .hint{ color:var(--muted); font-size:.86rem; margin:0 0 14px; }
+  /* 본인 확인 / 로그인 게이트 */
+  .gate{ max-width:400px; margin:54px auto; background:var(--surface); border:1px solid var(--line2);
+         border-radius:var(--r); padding:26px 24px; box-shadow:var(--shadow); }
+  .gate h2{ margin:0 0 4px; font-size:1.2rem; color:var(--ink); }
+  .gate .hint{ color:var(--muted); font-size:.86rem; margin:0 0 14px; }
+  .seg{ display:flex; gap:4px; background:var(--lav-soft); padding:4px; border-radius:12px; margin-bottom:6px; }
+  .seg button{ flex:1; padding:9px; border:none; border-radius:9px; background:transparent; color:var(--body); font-weight:700; font-size:.9rem; cursor:pointer; }
+  .seg button.on{ background:var(--surface); color:var(--lav); box-shadow:var(--shadow); }
   label{ display:block; font-size:.82rem; font-weight:600; margin:12px 0 6px; color:var(--body); }
-  input{ width:100%; padding:12px 13px; border:1.5px solid var(--line2); border-radius:11px; font-size:1rem;
-         background:var(--page); color:var(--ink); }
+  input{ width:100%; padding:12px 13px; border:1.5px solid var(--line2); border-radius:11px; font-size:1rem; background:var(--page); color:var(--ink); }
   input:focus{ outline:none; border-color:var(--lav); box-shadow:0 0 0 3px rgba(124,127,224,.2); }
-  .login button{ width:100%; margin-top:18px; padding:13px; font-size:1rem; border:none; border-radius:11px;
-                 background:var(--lav); color:#fff; font-weight:700; cursor:pointer; }
+  .gate .go{ width:100%; margin-top:18px; padding:13px; font-size:1rem; border:none; border-radius:11px; background:var(--lav); color:#fff; font-weight:700; cursor:pointer; }
+  .gate .err{ color:var(--danger); font-size:.85rem; margin-top:8px; font-weight:600; min-height:1em; }
 
-  /* 헤더 */
   .top{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:20px; }
   .top h1{ font-size:1.7rem; color:var(--ink); margin:0; letter-spacing:-.01em; display:flex; align-items:center; gap:9px; }
   .top .date{ color:var(--muted); font-size:.92rem; margin-top:5px; }
@@ -59,9 +60,8 @@
   @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(63,180,145,.5);} 70%{ box-shadow:0 0 0 7px rgba(63,180,145,0);} 100%{ box-shadow:0 0 0 0 rgba(63,180,145,0);} }
   @media (prefers-reduced-motion: reduce){ .dotpulse{ animation:none; } }
 
-  /* KPI */
   .kpis{ display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin-bottom:18px; }
-  .kpi{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:16px 18px; box-shadow:var(--shadow); position:relative; overflow:hidden; }
+  .kpi{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r); padding:16px 18px; box-shadow:var(--shadow); }
   .kpi .ic{ width:34px; height:34px; border-radius:10px; display:grid; place-items:center; font-size:1.05rem; margin-bottom:10px; }
   .kpi .v{ font-size:1.9rem; font-weight:800; color:var(--ink); line-height:1.1; letter-spacing:-.02em; }
   .kpi .l{ font-size:.82rem; color:var(--muted); margin-top:3px; font-weight:600; }
@@ -69,7 +69,6 @@
   .kpi.mint .ic{ background:var(--mint-soft); } .kpi.peach .ic{ background:var(--peach-soft); }
   .kpi.rose .ic{ background:var(--rose-soft); }
 
-  /* 그리드 레이아웃 */
   .board{ display:grid; grid-template-columns:1.5fr 1fr; gap:16px; align-items:start; }
   .col{ display:flex; flex-direction:column; gap:16px; }
   .card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow); overflow:hidden; }
@@ -78,7 +77,6 @@
   .card .ch .meta{ font-size:.82rem; color:var(--muted); font-weight:600; }
   .card .cb{ padding:4px 18px 16px; }
 
-  /* 학과별 진행 리스트 */
   .drow{ display:grid; grid-template-columns:1fr auto; gap:6px 12px; align-items:center; padding:9px 0; border-top:1px solid var(--line); }
   .drow:first-child{ border-top:none; }
   .drow .nm{ font-weight:600; color:var(--ink); font-size:.92rem; display:flex; align-items:center; gap:7px; }
@@ -88,31 +86,12 @@
   .drow .track{ grid-column:1 / -1; height:7px; background:var(--line2); border-radius:5px; overflow:hidden; }
   .drow .track > i{ display:block; height:100%; border-radius:5px; transition:width .4s; }
 
-  /* 반별 */
-  .crow{ display:flex; align-items:center; gap:10px; padding:8px 0; border-top:1px solid var(--line); }
-  .crow:first-child{ border-top:none; }
-  .crow .cn{ width:42px; font-weight:700; color:var(--ink); font-size:.9rem; flex:none; }
-  .crow .track{ flex:1; height:9px; background:var(--line2); border-radius:5px; overflow:hidden; }
-  .crow .track > i{ display:block; height:100%; background:linear-gradient(90deg,var(--sky),var(--lav)); border-radius:5px; transition:width .4s; }
-  .crow .pc{ width:62px; text-align:right; font-size:.82rem; font-weight:700; color:var(--body); font-variant-numeric:tabular-nums; flex:none; }
-
-  /* TOP */
-  .trow{ display:flex; align-items:center; gap:11px; padding:8px 0; border-top:1px solid var(--line); }
+  .trow{ display:flex; align-items:center; gap:11px; padding:9px 0; border-top:1px solid var(--line); }
   .trow:first-child{ border-top:none; }
   .rank{ width:24px; height:24px; border-radius:8px; display:grid; place-items:center; font-weight:800; font-size:.82rem; color:#fff; flex:none; background:var(--muted); }
   .rank.r1{ background:#f5b500; } .rank.r2{ background:#aab2c4; } .rank.r3{ background:#d08a5a; }
   .trow .tn{ flex:1; font-weight:600; color:var(--ink); font-size:.92rem; }
   .trow .tv{ font-weight:800; color:var(--lav); font-variant-numeric:tabular-nums; }
-
-  /* 최근 신청 */
-  .frow{ display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid var(--line); font-size:.9rem; }
-  .frow:first-child{ border-top:none; }
-  .frow .who{ color:var(--body); }
-  .frow .who b{ color:var(--ink); font-weight:700; }
-  .frow .arr{ color:var(--muted); }
-  .frow .to{ font-weight:700; }
-  .frow .ago{ margin-left:auto; font-size:.78rem; color:var(--muted); white-space:nowrap; }
-  .dpill{ display:inline-block; font-size:.74rem; font-weight:700; color:#fff; padding:2px 9px; border-radius:999px; }
 
   .empty{ color:var(--muted); font-size:.88rem; padding:14px 0; text-align:center; }
   #status{ font-size:.84rem; color:var(--lav); margin:-8px 0 12px; min-height:1em; font-weight:600; }
@@ -123,36 +102,56 @@
 </head>
 <body>
 <div class="wrap">
-  <div class="login" id="login">
-    <h2>상황판 로그인</h2>
-    <p class="hint">담임 계정으로 로그인하세요. (관리자 화면과 동일)</p>
-    <label>이메일</label><input id="email" type="email" placeholder="교사 계정 이메일" />
-    <label>비밀번호</label><input id="pw" type="password" />
-    <button id="loginBtn">로그인</button>
-    <div id="loginErr" style="color:#e0556b;font-size:.85rem;margin-top:8px;font-weight:600;"></div>
+  <!-- 입장 게이트 -->
+  <div class="gate" id="gate">
+    <h2>신청 현황판</h2>
+    <p class="hint">본인 확인 후 현황판을 볼 수 있어요.</p>
+    <div class="seg">
+      <button id="segStu" class="on">학생</button>
+      <button id="segTea">교사</button>
+    </div>
+
+    <div id="stuForm">
+      <label for="sid">학번 (5자리)</label>
+      <input id="sid" inputmode="numeric" maxlength="5" placeholder="예) 10101" />
+      <label for="birth">생년월일 6자리</label>
+      <input id="birth" inputmode="numeric" maxlength="6" placeholder="예) 100101" />
+      <button class="go" id="stuGo" disabled>현황판 보기</button>
+    </div>
+
+    <div id="teaForm" style="display:none;">
+      <label for="email">이메일</label>
+      <input id="email" type="email" placeholder="교사 계정 이메일" />
+      <label for="pw">비밀번호</label>
+      <input id="pw" type="password" />
+      <button class="go" id="teaGo">로그인</button>
+    </div>
+
+    <div class="err" id="gateErr"></div>
   </div>
 
+  <!-- 대시보드 -->
   <div id="dash" style="display:none;">
     <div class="top">
       <div>
-        <h1 class="display">🎯 전공체험 실시간 상황판</h1>
-        <div class="date" id="date">선문대 전공체험 · 2026. 7. 14.(화)</div>
+        <h1 class="display">📊 전공체험 신청 현황판</h1>
+        <div class="date">선문대 전공체험 · 2026. 7. 14.(화)</div>
       </div>
       <div class="ctrl">
         <span class="pill live"><span class="dotpulse"></span> 실시간</span>
         <button class="pill" id="refreshBtn">↻ 새로고침</button>
-        <a class="pill" href="admin.html">📋 명단 관리</a>
+        <a class="pill" id="adminLink" href="admin.html" style="display:none;">📋 명단 관리</a>
+        <button class="pill" id="outBtn">나가기</button>
       </div>
     </div>
 
     <div id="status"></div>
-
     <div class="kpis" id="kpis"></div>
 
     <div class="board">
       <div class="col">
         <div class="card">
-          <div class="ch"><span class="t">📊 학과별 신청 현황</span><span class="meta" id="deptMeta"></span></div>
+          <div class="ch"><span class="t">📋 학과별 신청 현황</span><span class="meta" id="deptMeta"></span></div>
           <div class="cb" id="deptList"></div>
         </div>
       </div>
@@ -162,12 +161,10 @@
           <div class="cb" id="topList"></div>
         </div>
         <div class="card">
-          <div class="ch"><span class="t">🏫 반별 신청률</span><span class="meta" id="classMeta"></span></div>
-          <div class="cb" id="classList"></div>
-        </div>
-        <div class="card">
-          <div class="ch"><span class="t">⚡ 최근 신청</span><span class="meta">최근 12건</span></div>
-          <div class="cb" id="recentList"></div>
+          <div class="ch"><span class="t">💡 신청 팁</span></div>
+          <div class="cb" style="padding-bottom:16px; font-size:.9rem; color:var(--body); line-height:1.65;">
+            마감된 학과는 신청할 수 없어요. 남은 자리가 많은 학과를 노리면 원하는 곳에 더 쉽게 갈 수 있어요. 신청 후에도 자리가 남아 있으면 다른 학과로 바꿀 수 있습니다.
+          </div>
         </div>
       </div>
     </div>
@@ -176,9 +173,9 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence }
+import { getAuth, signInAnonymously, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, initializeFirestore, collection, query, orderBy, onSnapshot, getDocs }
+import { getFirestore, initializeFirestore, collection, doc, getDoc, query, orderBy, onSnapshot, getDocs }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -190,6 +187,7 @@ const firebaseConfig = {
   appId: "1:651427691407:web:2c7530ff9b8035428469fa",
   measurementId: "G-FTNE1QRPN7",
 };
+const TEACHER_EMAIL = "hn9193@gmail.com";
 const DCOLORS = ["#e8643c","#3b7dd8","#2fa37a","#b65fd1","#cf9b00","#d8527c","#1fa3a0",
                  "#6a78e0","#d8453f","#5aa02c","#c2792e","#8a64d6","#4a8db5"];
 const colorOf=(ord)=>DCOLORS[((ord||1)-1)%DCOLORS.length];
@@ -200,75 +198,117 @@ const auth = getAuth(app);
 setPersistence(auth, browserLocalPersistence).catch(()=>{});
 const $=(id)=>document.getElementById(id);
 
-let depts=[], students=[], seats=[], unsub=[], pollTimer=null;
-const ordOf={};
+let depts=[], seats=[], students=[], isTeacher=false, entered=false, unsub=[], pollTimer=null;
 const esc=(s)=>String(s).replace(/[&<>]/g,(c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;" }[c]));
-const parseSid=(sid)=>{ const s=String(sid); return { classNo:+s.slice(1,3), studentNo:+s.slice(3,5) }; };
 
-$("loginBtn").addEventListener("click", async ()=>{
-  $("loginErr").textContent="";
-  try{ await signInWithEmailAndPassword(auth,$("email").value.trim(),$("pw").value); }
-  catch(e){ $("loginErr").textContent="로그인 실패: 이메일/비밀번호를 확인해 주세요."; }
+async function sha256Hex(str){ const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(str));
+  return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
+const normBirth=(s)=>String(s).replace(/\D/g,"").padStart(6,"0").slice(-6);
+const vhashOf=(sid,birth)=>sha256Hex(`${String(sid).trim()}|${normBirth(birth)}`);
+
+// 탭 전환
+$("segStu").addEventListener("click", ()=>{ $("segStu").classList.add("on"); $("segTea").classList.remove("on");
+  $("stuForm").style.display="block"; $("teaForm").style.display="none"; $("gateErr").textContent=""; });
+$("segTea").addEventListener("click", ()=>{ $("segTea").classList.add("on"); $("segStu").classList.remove("on");
+  $("teaForm").style.display="block"; $("stuForm").style.display="none"; $("gateErr").textContent=""; });
+
+// 익명 로그인(학생 경로 + departments 읽기용)
+signInAnonymously(auth).then(()=>{ $("stuGo").disabled=false; }).catch(e=>console.error(e));
+
+// 교사 로그인 상태 감지 (이미 admin에 로그인돼 있으면 자동 교사 모드)
+onAuthStateChanged(auth,(user)=>{
+  isTeacher = !!(user && !user.isAnonymous && user.email===TEACHER_EMAIL);
+  if(isTeacher){ enter(true); }
+});
+
+// 학생 본인 확인
+$("stuGo").addEventListener("click", async ()=>{
+  $("gateErr").textContent="";
+  const sid=$("sid").value.trim(), birth=$("birth").value.trim();
+  if(!/^\d{5}$/.test(sid)) return $("gateErr").textContent="학번은 5자리 숫자로 입력해 주세요.";
+  if(!/^\d{6}$/.test(birth)) return $("gateErr").textContent="생년월일은 6자리 숫자로 입력해 주세요.";
+  $("stuGo").disabled=true; $("stuGo").textContent="확인 중…";
+  try{
+    const vh=await vhashOf(sid,birth);
+    const snap=await getDoc(doc(db,"students",vh));
+    if(!snap.exists()){ $("gateErr").textContent="학번 또는 생년월일이 일치하지 않습니다."; return; }
+    enter(false);
+  }catch(e){ console.error(e); $("gateErr").textContent="확인 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요."; }
+  finally{ $("stuGo").disabled=false; $("stuGo").textContent="현황판 보기"; }
+});
+
+// 교사 로그인
+$("teaGo").addEventListener("click", async ()=>{
+  $("gateErr").textContent="";
+  try{ await signInWithEmailAndPassword(auth,$("email").value.trim(),$("pw").value); /* onAuthStateChanged가 enter 처리 */ }
+  catch(e){ $("gateErr").textContent="로그인 실패: 이메일/비밀번호를 확인해 주세요."; }
+});
+
+$("outBtn").addEventListener("click", ()=>{
+  if(isTeacher){ signOut(auth).then(()=>signInAnonymously(auth)); }
+  entered=false; isTeacher=false;
+  unsub.forEach(fn=>fn()); unsub=[]; if(pollTimer){clearInterval(pollTimer);pollTimer=null;}
+  $("dash").style.display="none"; $("gate").style.display="block";
 });
 $("refreshBtn").addEventListener("click", ()=>pollOnce(true));
 
-onAuthStateChanged(auth,(user)=>{
-  if(user){ $("login").style.display="none"; $("dash").style.display="block"; startListening(); }
-  else { unsub.forEach(fn=>fn()); unsub=[]; if(pollTimer){clearInterval(pollTimer);pollTimer=null;} $("login").style.display="block"; $("dash").style.display="none"; }
-});
+function enter(teacher){
+  isTeacher=teacher; entered=true;
+  $("adminLink").style.display = teacher? "inline-flex":"none";
+  $("gate").style.display="none"; $("dash").style.display="block";
+  startListening();
+}
 
 function startListening(){
   if(unsub.length) return;
-  unsub.push(onSnapshot(query(collection(db,"departments"),orderBy("ord")), s=>{ depts=s.docs.map(d=>({id:d.id,...d.data()})); depts.forEach(d=>ordOf[d.id]=d.ord); render(); }));
-  unsub.push(onSnapshot(collection(db,"students"), s=>{ students=s.docs.map(d=>({vhash:d.id,...d.data()})); render(); }, e=>console.error(e)));
-  unsub.push(onSnapshot(collection(db,"seats"), s=>{ seats=s.docs.map(d=>({vhash:d.id,...d.data()})); render(); }, e=>console.error(e)));
+  unsub.push(onSnapshot(query(collection(db,"departments"),orderBy("ord")), s=>{ depts=s.docs.map(d=>({id:d.id,...d.data()})); render(); }, e=>console.error(e)));
+  if(isTeacher){
+    unsub.push(onSnapshot(collection(db,"seats"), s=>{ seats=s.docs.map(d=>({vhash:d.id,...d.data()})); render(); }, e=>console.error(e)));
+    unsub.push(onSnapshot(collection(db,"students"), s=>{ students=s.docs.map(d=>({vhash:d.id,...d.data()})); render(); }, e=>console.error(e)));
+  }
   if(!pollTimer) pollTimer=setInterval(()=>pollOnce(false), 6000);
 }
 
 async function pollOnce(show){
-  if(show){ $("status").textContent="새로고침 중…"; }
+  if(show) $("status").textContent="새로고침 중…";
   try{
-    const [ds,ss,st]=await Promise.all([
-      getDocs(query(collection(db,"departments"),orderBy("ord"))),
-      getDocs(collection(db,"seats")),
-      getDocs(collection(db,"students")),
-    ]);
-    depts=ds.docs.map(d=>({id:d.id,...d.data()})); depts.forEach(d=>ordOf[d.id]=d.ord);
-    seats=ss.docs.map(d=>({vhash:d.id,...d.data()}));
-    students=st.docs.map(d=>({vhash:d.id,...d.data()}));
+    const tasks=[ getDocs(query(collection(db,"departments"),orderBy("ord"))) ];
+    if(isTeacher){ tasks.push(getDocs(collection(db,"seats"))); tasks.push(getDocs(collection(db,"students"))); }
+    const res=await Promise.all(tasks);
+    depts=res[0].docs.map(d=>({id:d.id,...d.data()}));
+    if(isTeacher){ seats=res[1].docs.map(d=>({vhash:d.id,...d.data()})); students=res[2].docs.map(d=>({vhash:d.id,...d.data()})); }
     render();
     if(show){ $("status").textContent="최신 상태로 새로고침했어요."; setTimeout(()=>$("status").textContent="",1500); }
   }catch(e){ if(show) $("status").textContent="새로고침 중 오류가 발생했습니다."; }
 }
 
-function timeAgo(ts){
-  if(!ts || !ts.toDate) return "";
-  const sec=Math.floor((Date.now()-ts.toDate().getTime())/1000);
-  if(sec<60) return "방금";
-  if(sec<3600) return `${Math.floor(sec/60)}분 전`;
-  if(sec<86400) return `${Math.floor(sec/3600)}시간 전`;
-  return `${Math.floor(sec/86400)}일 전`;
-}
-
 function render(){ try{ _render(); }catch(e){ console.error("render error",e); } }
 function _render(){
+  if(!entered) return;
   const totalCap=depts.reduce((s,d)=>s+(d.capacity||0),0);
-  const filled=seats.length;
-  const stuN=students.length;
-  const notApplied=Math.max(0, stuN-filled);
-  const rate=stuN?Math.round(filled/stuN*100):0;
-  const closed=depts.filter(d=>d.filled>=d.capacity).length;
+  const filled=depts.reduce((s,d)=>s+(d.filled||0),0);  // 공개 데이터(학과 filled 합)
   const remain=depts.reduce((s,d)=>s+Math.max(0,(d.capacity||0)-(d.filled||0)),0);
+  const closed=depts.filter(d=>d.filled>=d.capacity).length;
 
-  // KPI
-  $("kpis").innerHTML = `
+  // KPI: 학생 공통(신청 완료/남은 자리/마감) + 교사 전용(미신청/신청률)
+  let kpi = `
     <div class="kpi lav"><div class="ic">🙋</div><div class="v">${filled}</div><div class="l">신청 완료</div></div>
+    <div class="kpi mint"><div class="ic">💺</div><div class="v">${remain}</div><div class="l">남은 자리</div></div>
+    <div class="kpi rose"><div class="ic">🚩</div><div class="v">${closed}<span style="font-size:1rem"> / ${depts.length}</span></div><div class="l">마감 학과</div></div>`;
+  if(isTeacher){
+    const stuN=students.length, notApplied=Math.max(0,stuN-filled), rate=stuN?Math.round(filled/stuN*100):0;
+    kpi = `<div class="kpi lav"><div class="ic">🙋</div><div class="v">${filled}</div><div class="l">신청 완료</div></div>
     <div class="kpi peach"><div class="ic">⏳</div><div class="v">${notApplied}</div><div class="l">미신청</div></div>
     <div class="kpi sky"><div class="ic">📈</div><div class="v">${rate}<span style="font-size:1rem">%</span></div><div class="l">신청률</div></div>
     <div class="kpi mint"><div class="ic">💺</div><div class="v">${remain}</div><div class="l">남은 자리</div></div>
     <div class="kpi rose"><div class="ic">🚩</div><div class="v">${closed}<span style="font-size:1rem"> / ${depts.length}</span></div><div class="l">마감 학과</div></div>`;
+    $("kpis").style.gridTemplateColumns="repeat(5,1fr)";
+  } else {
+    $("kpis").style.gridTemplateColumns="repeat(3,1fr)";
+  }
+  $("kpis").innerHTML = kpi;
 
-  // 학과별 현황
+  // 학과별 현황 (공개 데이터)
   $("deptMeta").textContent = `총 ${filled} / ${totalCap}석`;
   $("deptList").innerHTML = depts.length ? depts.map(d=>{
     const pct=d.capacity?Math.round(d.filled/d.capacity*100):0; const full=d.filled>=d.capacity;
@@ -277,7 +317,7 @@ function _render(){
       <div class="num ${full?"full":""}">${full?"마감 · ":""}${d.filled}/${d.capacity}</div>
       <div class="track"><i style="width:${pct}%;background:${colorOf(d.ord)}"></i></div>
     </div>`;
-  }).join("") : `<div class="empty">학과 데이터가 없습니다.</div>`;
+  }).join("") : `<div class="empty">학과 데이터를 불러오는 중…</div>`;
 
   // 인기 TOP5
   const top=[...depts].sort((a,b)=>b.filled-a.filled).slice(0,5);
@@ -285,33 +325,6 @@ function _render(){
     <div class="trow"><span class="rank r${i+1}">${i+1}</span>
       <span class="tn">${esc(d.name)}</span><span class="tv">${d.filled}명</span></div>`).join("")
     : `<div class="empty">아직 신청 내역이 없어요.</div>`;
-
-  // 반별 신청률
-  const cls={};
-  students.forEach(st=>{ const p=parseSid(st.studentId); (cls[p.classNo] ||= {t:0,d:0}); cls[p.classNo].t++; });
-  const seatSet=new Set(seats.map(s=>s.classNo+"-"+s.studentNo));
-  Object.keys(cls).forEach(c=>{ /* recount done below */ });
-  // count done per class from seats
-  const doneByClass={}; seats.forEach(s=>doneByClass[s.classNo]=(doneByClass[s.classNo]||0)+1);
-  const ckeys=Object.keys(cls).map(Number).sort((a,b)=>a-b);
-  $("classMeta").textContent = ckeys.length?`${ckeys.length}개 반`:"";
-  $("classList").innerHTML = ckeys.length ? ckeys.map(c=>{
-    const t=cls[c].t, dn=doneByClass[c]||0, pct=t?Math.round(dn/t*100):0;
-    return `<div class="crow"><span class="cn">${c}반</span>
-      <span class="track"><i style="width:${pct}%"></i></span>
-      <span class="pc">${dn}/${t} · ${pct}%</span></div>`;
-  }).join("") : `<div class="empty">학생 명단이 없습니다.</div>`;
-
-  // 최근 신청
-  const recent=[...seats].filter(s=>s.createdAt&&s.createdAt.toDate)
-    .sort((a,b)=>b.createdAt.toDate()-a.createdAt.toDate()).slice(0,12);
-  $("recentList").innerHTML = recent.length ? recent.map(s=>`
-    <div class="frow">
-      <span class="who"><b>${esc(s.name)}</b> <span style="color:var(--muted)">${s.classNo}반 ${s.studentNo}번</span></span>
-      <span class="arr">→</span>
-      <span class="to"><span class="dpill" style="background:${colorOf(ordOf[s.deptId])}">${esc(s.deptName)}</span></span>
-      <span class="ago">${timeAgo(s.createdAt)}</span>
-    </div>`).join("") : `<div class="empty">아직 신청 내역이 없어요.</div>`;
 }
 </script>
 </body>

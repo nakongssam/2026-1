@@ -31,21 +31,15 @@
 
   .band{ background:transparent; }
   .band .inner{ max-width:560px; transition:max-width .2s; margin:0 auto; padding:34px 20px 22px; text-align:center; }
-  .band .inner.hero{ max-width:960px; }
-  .band .inner.hero.wide{ max-width:1140px; }
-  .hero{ display:grid; grid-template-columns:1fr minmax(330px,420px); gap:28px; align-items:center; text-align:left; }
-  .hero-left{ display:flex; flex-direction:column; align-items:flex-start; }
-  .hero-right{ margin:0 !important; }
-  @media (max-width:760px){
-    .hero{ grid-template-columns:1fr; gap:18px; text-align:center; }
-    .hero-left{ align-items:center; }
-  }
   .badge{ display:inline-block; background:var(--yellow-soft); color:var(--yellow-d); font-weight:700; font-size:.8rem;
           padding:6px 14px; border-radius:999px; }
   @media (prefers-color-scheme: dark){ .badge{ color:#ffe06b; } }
   .band h1{ font-size:2rem; color:var(--ink); margin:14px 0 6px; letter-spacing:-.01em; }
   .band .tag{ color:var(--muted); font-size:.95rem; font-weight:500; }
   .band .tag b{ color:var(--body); }
+  .hdrlink{ display:inline-block; margin-top:12px; padding:7px 16px; border-radius:999px; border:1.5px solid var(--line2);
+            background:var(--surface); color:var(--body); font-size:.86rem; font-weight:700; text-decoration:none; transition:.15s; }
+  .hdrlink:hover{ border-color:var(--yellow-d); color:var(--yellow-d); }
 
   .wrap{ max-width:560px; margin:0 auto; padding:8px 20px 72px; transition:max-width .2s; }
   .wrap.wide{ max-width:1140px; }
@@ -113,23 +107,23 @@
 </head>
 <body>
 <div class="band">
-  <div class="inner hero" id="bandInner">
-    <div class="hero-left">
-      <span class="badge">🎓 선문대 전공체험</span>
-      <h1 class="display">전공체험 학과 신청</h1>
-      <div class="tag"><b>7/14(화) 4~5교시</b> · 1학년 교실</div>
-    </div>
-    <div class="intro hero-right">
-      <ul>
-        <li>희망 학과 <b>1곳</b>을 골라 2시간 동안 전공 활동에 참여해요</li>
-        <li>학과당 <b>선착순 36명</b>, 정원이 차면 선택할 수 없어요</li>
-        <li>취소 후 재신청 가능 <b>(가려는 학과에 자리가 남아 있을 때만)</b></li>
-      </ul>
-    </div>
+  <div class="inner" id="bandInner">
+    <span class="badge">🎓 선문대 전공체험</span>
+    <h1 class="display">전공체험 학과 신청</h1>
+    <div class="tag"><b>7/14(화) 4~5교시</b> · 1학년 교실</div>
+    <a class="hdrlink" href="dashboard.html">📊 전체 신청 현황판 보기</a>
   </div>
 </div>
 
 <div class="wrap" id="wrap">
+  <div class="intro">
+    <ul>
+      <li>희망 학과 <b>1곳</b>을 골라 2시간 동안 전공 활동에 참여해요</li>
+      <li>학과당 <b>선착순 36명</b>, 정원이 차면 선택할 수 없어요</li>
+      <li>취소 후 재신청 가능 <b>(가려는 학과에 자리가 남아 있을 때만)</b></li>
+    </ul>
+  </div>
+
   <div class="card" id="authCard">
     <h2>본인 확인</h2>
     <p class="sub">학번과 생년월일로 본인을 확인합니다.</p>
