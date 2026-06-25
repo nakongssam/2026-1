@@ -150,7 +150,9 @@
   .empty{ color:var(--muted); font-size:.86rem; padding:12px 0; text-align:center; }
 
   /* ===== 명단 관리(탭 내장) ===== */
-  .mgbar{ display:flex; align-items:center; justify-content:flex-end; gap:10px; margin-bottom:10px; flex-wrap:wrap; }
+  .mgbar{ display:flex; align-items:center; justify-content:flex-start; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+  .mgbar .spacer{ flex:1; }
+  .mgbar .tabs{ margin-bottom:0; }
   .mgtitle{ font-size:1.12rem; font-weight:700; color:var(--ink); cursor:default; user-select:none; }
   .mgbar button{ border:none; border-radius:11px; background:var(--yellow); color:#3a3320; font-weight:700; cursor:pointer; padding:9px 14px; font-size:.86rem; }
   .bar{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:14px; }
@@ -332,6 +334,12 @@
     <!-- 명단 관리 (교사) -->
     <div class="panel" id="panelManage">
       <div class="mgbar">
+        <div class="tabs">
+          <div class="tab active" id="tabDept">학과별 명단</div>
+          <div class="tab" id="tabClass">반별 명단</div>
+          <div class="tab" id="tabAll">전교생 명단</div>
+        </div>
+        <div class="spacer"></div>
         <button class="ghost" id="csvBtn">CSV</button>
         <button id="addStuBtn">＋ 학생 추가</button>
       </div>
@@ -343,11 +351,6 @@
       </div>
       <div id="status"></div>
       <div class="summary" id="summary" style="display:none;"></div>
-      <div class="tabs">
-        <div class="tab active" id="tabDept">학과별 명단</div>
-        <div class="tab" id="tabClass">반별 명단</div>
-        <div class="tab" id="tabAll">전교생 명단</div>
-      </div>
       <div id="deptChips" class="chipgrid"></div>
       <div id="classChips" class="chipgrid cls" style="display:none;"></div>
       <div class="toolbar" id="allTools">
