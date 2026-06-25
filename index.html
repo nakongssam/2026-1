@@ -35,7 +35,7 @@
 
   /* 게이트 */
   .gatewrap{ min-height:100dvh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:24px 16px; }
-  .gbadge{ display:inline-block; background:var(--yellow-soft); color:var(--yellow-d); font-weight:700; font-size:.8rem; padding:6px 14px; border-radius:999px; }
+  .gbadge{ display:inline-block; background:var(--yellow-soft); color:var(--ink); font-weight:700; font-size:.8rem; padding:6px 14px; border-radius:999px; }
   .gtitle{ font-size:1.9rem; color:var(--ink); margin:14px 0 4px; text-align:center; letter-spacing:-.01em; }
   .gsub{ color:var(--muted); font-size:.92rem; margin-bottom:22px; text-align:center; }
   .gcard{ width:100%; max-width:400px; background:var(--surface); border:1px solid var(--line2); border-radius:18px; padding:22px; box-shadow:var(--shadow); }
@@ -178,11 +178,12 @@
   .qnamsg.ok{ color:var(--ok); } .qnamsg.err{ color:var(--danger); }
   .qnalist{ margin-top:14px; display:flex; flex-direction:column; gap:10px; }
   .qitem{ border:1px solid var(--line); border-radius:12px; padding:11px 14px; background:var(--page); }
-  .qitem .qtop{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:5px; }
-  .qitem .qwho{ font-weight:700; color:var(--ink); font-size:.9rem; }
-  .qitem .qwho .qcls{ font-weight:500; color:var(--muted); font-size:.8rem; margin-left:5px; }
-  .qitem .qtime{ font-size:.76rem; color:var(--muted); }
-  .qitem .qbody{ color:var(--body); font-size:.93rem; line-height:1.55; white-space:pre-wrap; word-break:break-word; }
+  .qitem .qtop{ display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
+  .qitem .qline{ display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; min-width:0; flex:1; }
+  .qitem .qsid{ color:var(--muted); font-size:.82rem; font-variant-numeric:tabular-nums; flex:none; }
+  .qitem .qname{ font-weight:700; color:var(--ink); font-size:.9rem; flex:none; }
+  .qitem .qq{ color:var(--body); font-size:.93rem; line-height:1.5; word-break:break-word; }
+  .qitem .qtime{ font-size:.76rem; color:var(--muted); white-space:nowrap; flex:none; }
   .qitem .qdel{ border:none; background:none; color:var(--danger); font-size:.8rem; cursor:pointer; opacity:.7; padding:0; }
   .qitem .qdel:hover{ opacity:1; }
   .qempty{ color:var(--muted); font-size:.9rem; padding:18px 4px; text-align:center; }
@@ -981,9 +982,10 @@ function _renderQna(){
   $("qnaList").innerHTML = list.length ? list.map(q=>{
     const canDel = role==="teacher" || (me && q.vhash===me.vhash);
     return `<div class="qitem">
-      <div class="qtop"><span class="qwho">${esc(q.name||"익명")}${q.classNo?`<span class="qcls">${q.classNo}반</span>`:""}</span>
-        <span class="qtime">${qnaTimeStr(q.createdAt)}${canDel?` · <button class="qdel" data-del="${q.id}">삭제</button>`:""}</span></div>
-      <div class="qbody">${esc(q.text||"")}</div></div>`;
+      <div class="qtop">
+        <div class="qline"><span class="qsid">${esc(q.studentId||"")}</span><span class="qname">${esc(q.name||"익명")}</span><span class="qq">${esc(q.text||"")}</span></div>
+        <span class="qtime">${qnaTimeStr(q.createdAt)}${canDel?` · <button class="qdel" data-del="${q.id}">삭제</button>`:""}</span>
+      </div></div>`;
   }).join("") : `<div class="qempty">아직 질문이 없어요. 첫 질문을 남겨보세요!</div>`;
   $("qnaList").querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click", ()=>deleteQuestion(b.dataset.del)));
 }
