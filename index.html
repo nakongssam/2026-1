@@ -158,7 +158,7 @@
   .empty{ color:var(--muted); font-size:.86rem; padding:12px 0; text-align:center; }
 
   /* ===== 명단 관리(탭 내장) ===== */
-  .mgbar{ display:flex; align-items:center; justify-content:flex-start; gap:10px; margin-bottom:12px; flex-wrap:wrap; }
+  .mgbar{ display:flex; align-items:center; justify-content:flex-start; gap:10px; margin-bottom:7px; flex-wrap:wrap; }
   .mgbar .spacer{ flex:1; }
   .mgbar .tabs{ margin-bottom:0; }
   .mgtitle{ font-size:1.12rem; font-weight:700; color:var(--ink); cursor:default; user-select:none; }
@@ -400,7 +400,7 @@
           <div class="tab" id="tabAll">전교생 명단</div>
         </div>
         <div class="spacer"></div>
-        <button class="ghost" id="csvBtn">CSV</button>
+        <button class="ghost" id="csvBtn">⬇ 다운로드</button>
         <button id="addStuBtn">＋ 학생 추가</button>
       </div>
       <div class="bar" id="advBtns" style="display:none;">
@@ -570,7 +570,7 @@ function enterStudent(){
   subscribe(); showTab("apply");
 }
 function enterTeacher(){
-  role="teacher"; $("who").textContent="· 교사";
+  role="teacher"; $("who").textContent="· 교사"; $("seatBadge").innerHTML="";
   buildTabs([{id:"dash",label:"📊 현황판"},{id:"manage",label:"📋 명단 관리"},{id:"qna",label:"💬 학과 Q&A"}]);
   $("classCard").style.display="block";
   $("gate").style.display="none"; $("app").style.display="block";
@@ -817,7 +817,7 @@ function _renderManage(){
     const full=d.filled>=d.capacity;
     const items = mem.length
       ? `<div class="mlist">` + mem.map(m=>`<div class="mrow">
-          <span class="mno">${m.classNo}반 ${m.studentNo}번</span><span class="mnm">${esc(m.name)}</span>
+          <span class="mno">${esc(m.studentId||(m.classNo+"반 "+m.studentNo+"번"))}</span><span class="mnm">${esc(m.name)}</span>
           <button class="rm" data-cancel="${m.vhash}" title="신청 취소">✕</button></div>`).join("") + `</div>`
       : `<div class="mempty">아직 신청자가 없습니다.</div>`;
     $("deptView").innerHTML = `<div class="dcard" style="--dc:${colorOf(d.ord)}">
@@ -846,11 +846,13 @@ function renderAll(seatByVhash){
     else if(allFilter!=="all") list=all.filter(x=>x.seat && x.seat.deptId===allFilter);
     const note = allFilter==="all" ? `${done}/${all.length} 신청` : allFilter==="none" ? `미신청 ${list.length}명` : `${list.length}명`;
     const rows = list.length ? list.map(x=>`<tr><td class="no">${x.studentNo}</td><td class="nm">${esc(x.name)}</td>
-        <td class="seat">${x.seat?deptBadge(x.seat.deptName, ordOf[x.seat.deptId]):'<span class="npill">미신청</span>'}</td></tr>`).join("")
-      : `<tr><td colspan="3" class="mempty">해당 학생 없음</td></tr>`;
+        <td class="seat">${x.seat?deptBadge(x.seat.deptName, ordOf[x.seat.deptId]):'<span class="npill">미신청</span>'}</td>
+        <td class="right gearcol"><button class="gear" data-menu="${x.vhash}" title="설정">⚙</button></td></tr>`).join("")
+      : `<tr><td colspan="4" class="mempty">해당 학생 없음</td></tr>`;
     return `<div class="dcard plain"><div class="head"><span class="nm">${c}반</span><span class="cnt">${note}</span></div>
-      <table class="alltbl"><thead><tr><th class="no">번호</th><th>이름</th><th class="seat">신청 학과</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+      <table class="alltbl"><thead><tr><th class="no">번호</th><th>이름</th><th class="seat">신청 학과</th><th class="gearcol"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }).join("");
+  $("allView").querySelectorAll("[data-menu]").forEach(b=>b.addEventListener("click", ()=>openRowMenu(b.dataset.menu)));
 }
 function renderClass(seatByVhash){
   const classes=classGroups(seatByVhash);
