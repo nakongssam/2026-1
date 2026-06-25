@@ -57,6 +57,8 @@
   .apphead .ttl{ font-size:1.12rem; color:var(--ink); display:flex; align-items:center; gap:8px; }
   .apphead .who{ font-size:.78rem; color:var(--muted); font-weight:600; }
   .outbtn{ border:1.5px solid var(--line2); background:var(--surface); color:var(--body); border-radius:10px; padding:7px 12px; font-size:.82rem; font-weight:700; cursor:pointer; }
+  .headright{ display:flex; align-items:center; gap:8px; }
+  .dashctrl{ display:inline-flex; align-items:center; gap:8px; }
   .tabbar{ max-width:1080px; margin:0 auto; padding:8px 16px 0; display:flex; gap:6px; }
   .tabbtn{ flex:1; max-width:220px; padding:11px 14px; border:none; border-radius:12px 12px 0 0; background:transparent; color:var(--muted);
            font-weight:700; font-size:.95rem; cursor:pointer; border-bottom:3px solid transparent; transition:.15s; }
@@ -160,6 +162,9 @@
   .tab{ padding:9px 16px; border-radius:9px; background:transparent; color:var(--muted); cursor:pointer; font-weight:700; font-size:.9rem; }
   .tab.active{ background:var(--surface); color:var(--ink); box-shadow:var(--shadow); }
   .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .chipgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(132px,1fr)); gap:8px; margin-bottom:14px; }
+  .chipgrid.cls{ grid-template-columns:repeat(auto-fill,minmax(72px,1fr)); }
+  .chipgrid .chip{ justify-content:center; }
   .chip{ display:inline-flex; align-items:center; gap:7px; padding:8px 14px; border-radius:999px; background:var(--surface); border:1.5px solid var(--line2); color:var(--body); cursor:pointer; font-size:.88rem; font-weight:600; }
   .chip:hover{ border-color:var(--dc); }
   .chip.active{ background:var(--dc); border-color:var(--dc); color:#fff; }
@@ -201,6 +206,11 @@
   .mrow .mnm{ font-weight:600; color:var(--ink); flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .mrow .rm{ font-size:.82rem; opacity:.55; } .mrow .rm:hover{ opacity:1; }
   .subhead{ margin-top:10px; padding:9px 12px; background:var(--yellow-soft); border-radius:10px; font-size:.84rem; font-weight:700; color:var(--ink); }
+  .distgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:9px; margin-top:10px; }
+  .distcard{ background:var(--page); border:1px solid var(--line2); border-left:4px solid var(--dc,var(--yellow-d)); border-radius:11px; padding:10px 12px; }
+  .distcard .dh{ display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:5px; }
+  .distcard .dn{ font-weight:700; color:var(--ink); font-size:.88rem; }
+  .distcard .names{ font-size:.82rem; color:var(--body); line-height:1.55; }
   .brow{ display:flex; gap:8px; align-items:flex-start; font-size:.86rem; padding:5px 0; border-bottom:1px solid var(--line); }
   .brow:last-child{ border-bottom:none; }
   .brow .names{ color:var(--body); }
@@ -260,7 +270,13 @@
   <div class="apphead">
     <div class="in">
       <div class="ttl display">🎓 전공체험 <span class="who" id="who"></span></div>
-      <button class="outbtn" id="outBtn">나가기</button>
+      <div class="headright">
+        <span class="dashctrl" id="dashCtrl">
+          <span class="live"><span class="dotpulse"></span> 실시간</span>
+          <button class="refresh" id="refreshBtn">↻ 새로고침</button>
+        </span>
+        <button class="outbtn" id="outBtn">나가기</button>
+      </div>
     </div>
     <div class="tabbar" id="tabbar"></div>
   </div>
@@ -279,10 +295,6 @@
 
     <!-- 현황판 -->
     <div class="panel" id="panelDash">
-      <div class="dashtools">
-        <span class="live"><span class="dotpulse"></span> 실시간</span>
-        <button class="refresh" id="refreshBtn">↻ 새로고침</button>
-      </div>
       <div class="kpis" id="kpis"></div>
       <div class="board">
         <div class="col">
@@ -307,6 +319,7 @@
     <!-- 명단 관리 (교사) -->
     <div class="panel" id="panelManage">
       <div class="mgbar">
+        <button class="ghost" id="csvBtn">⬇ CSV</button>
         <button id="addStuBtn">＋ 학생 추가</button>
       </div>
       <div class="bar" id="advBtns" style="display:none;">
@@ -322,15 +335,10 @@
         <div class="tab" id="tabClass">반별 명단</div>
         <div class="tab" id="tabAll">전교생 명단</div>
       </div>
-      <div id="deptChips" class="chips"></div>
-      <div class="toolbar show" id="deptTools"><div class="spacer"></div><button class="ghost" id="csvDeptBtn">학과별 CSV</button></div>
+      <div id="deptChips" class="chipgrid"></div>
+      <div id="classChips" class="chipgrid cls" style="display:none;"></div>
       <div class="toolbar" id="allTools">
         <div class="field"><label for="allDeptFilter">학과 필터</label><select id="allDeptFilter"></select></div>
-        <div class="spacer"></div><button class="ghost" id="csvAllBtn">전교생 CSV</button>
-      </div>
-      <div class="toolbar" id="classTools">
-        <div class="field"><label for="classPick">반 선택</label><select id="classPick"></select></div>
-        <div class="spacer"></div><button class="ghost" id="csvClassBtn">반별 CSV</button>
       </div>
       <div id="deptView"></div>
       <div id="allView" class="mgrid wide" style="display:none;"></div>
@@ -477,6 +485,7 @@ function showTab(id){
   $("panelManage").classList.toggle("on", id==="manage");
   if(id==="manage"){ renderManage(); mgSwitch(mgTab); }
   if(id==="dash") requestAnimationFrame(syncHeight);
+  $("dashCtrl").style.display = (id==="dash")?"inline-flex":"none";
 }
 
 /* ===== 구독 ===== */
@@ -597,13 +606,13 @@ function _renderDash(){
   const na = haveTotal ? Math.max(0,stuN-filled) : null;
   const rate = haveTotal ? Math.round(filled/stuN*100) : null;
 
-  // KPI (양쪽 동일 5칸)
+  // KPI (양쪽 동일 5칸): 신청완료/미신청/전교생/신청률/마감학과
   $("kpis").className="kpis s5";
   $("kpis").innerHTML=`
     <div class="kpi"><div class="ic">🙋</div><div class="tx"><div class="v">${filled}</div><div class="l">신청 완료</div></div></div>
     <div class="kpi"><div class="ic">⏳</div><div class="tx"><div class="v">${na===null?"–":na}</div><div class="l">미신청</div></div></div>
+    <div class="kpi"><div class="ic">👥</div><div class="tx"><div class="v">${haveTotal?stuN:"–"}</div><div class="l">전교생</div></div></div>
     <div class="kpi"><div class="ic">📈</div><div class="tx"><div class="v">${rate===null?"–":rate+'<span style="font-size:.9rem">%</span>'}</div><div class="l">신청률</div></div></div>
-    <div class="kpi"><div class="ic">💺</div><div class="tx"><div class="v">${remain}</div><div class="l">남은 자리</div></div></div>
     <div class="kpi"><div class="ic">🚩</div><div class="tx"><div class="v">${closed}<span style="font-size:.9rem">/${depts.length}</span></div><div class="l">마감 학과</div></div></div>`;
 
   $("deptMeta").textContent=`총 ${filled} / ${totalCap}석`;
@@ -655,21 +664,15 @@ function mgSwitch(t){ mgTab=t;
     $("tab"+k[0].toUpperCase()+k.slice(1)).classList.toggle("active", k===t);
     const v=$(k+"View"); v.style.display = (k===t) ? (v.classList.contains("mgrid")?"grid":"block") : "none";
   });
-  $("deptChips").style.display = t==="dept"?"flex":"none";
-  $("deptTools").classList.toggle("show", t==="dept");
+  $("deptChips").style.display = t==="dept"?"grid":"none";
+  $("classChips").style.display = t==="class"?"grid":"none";
   $("allTools").classList.toggle("show", t==="all");
-  $("classTools").classList.toggle("show", t==="class");
 }
 function buildPickers(){
-  const cls=[...new Set(students.map(st=>parseSid(st.studentId).classNo))].sort((a,b)=>a-b);
-  const cp=$("classPick"), pc=cp.value||"all";
-  cp.innerHTML = `<option value="all">전체 반</option>` + cls.map(c=>`<option value="${c}">${c}반</option>`).join("");
-  cp.value=[...cp.options].some(o=>o.value===pc)?pc:"all";
   const af=$("allDeptFilter"), pf=af.value||"all";
   af.innerHTML = `<option value="all">전체 학과</option><option value="none">미신청만</option>` + depts.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join("");
   af.value=[...af.options].some(o=>o.value===pf)?pf:"all";
 }
-$("classPick").addEventListener("change", e=>{ classPick=e.target.value; renderManage(); });
 $("allDeptFilter").addEventListener("change", e=>{ allFilter=e.target.value; renderManage(); });
 
 function renderManage(){ if(role!=="teacher") return; try{ _renderManage(); }catch(e){ console.error("manage error:",e); } }
@@ -680,11 +683,16 @@ function _renderManage(){
   else { sm.style.display="block"; sm.innerHTML=`<span style="color:#dd5a4e">학생 명단이 없습니다. 「명단 관리」 제목을 5번 누르면 「학생 명단 가져오기」가 나타나요.</span>`; }
 
   $("deptChips").innerHTML = depts.map(d=>{
-    const full=d.filled>=d.capacity;
     return `<button class="chip ${d.id===deptPick?"active":""}" data-pick="${d.id}" style="--dc:${colorOf(d.ord)}">
-      <span class="cdot"></span>${esc(d.name)} <span class="cn">${d.filled}/${d.capacity}${full?" 마감":""}</span></button>`;
+      <span class="cdot"></span>${esc(d.name)}</button>`;
   }).join("");
   $("deptChips").querySelectorAll("[data-pick]").forEach(b=>b.addEventListener("click", ()=>{ deptPick=b.dataset.pick; renderManage(); }));
+
+  // 반 선택 버튼(칩)
+  const classNos=[...new Set(students.map(st=>parseSid(st.studentId).classNo))].sort((a,b)=>a-b);
+  $("classChips").innerHTML = `<button class="chip ${classPick==="all"?"active":""}" data-cls="all" style="--dc:var(--yellow-d)">전체</button>`
+    + classNos.map(c=>`<button class="chip ${String(classPick)===String(c)?"active":""}" data-cls="${c}" style="--dc:var(--yellow-d)">${c}반</button>`).join("");
+  $("classChips").querySelectorAll("[data-cls]").forEach(b=>b.addEventListener("click", ()=>{ classPick=b.dataset.cls; renderManage(); }));
 
   const d=depts.find(x=>x.id===deptPick);
   if(d){
@@ -741,10 +749,10 @@ function renderClass(seatByVhash){
     const byD={}; all.forEach(x=>{ if(x.seat) (byD[x.seat.deptId] ||= []).push(x); });
     const noneCnt=all.length-done;
     const dlist=depts.filter(dd=>byD[dd.id]&&byD[dd.id].length);
-    const brk = `<div class="subhead">📊 ${c}반 학과별 분포</div>`
-      + dlist.map(dd=>{ const names=byD[dd.id].sort((a,b)=>a.studentNo-b.studentNo).map(x=>`${x.studentNo} ${esc(x.name)}`).join(", ");
-          return `<div class="brow"><div style="min-width:150px">${deptBadge(dd.name,dd.ord)} <span style="color:var(--muted)">${byD[dd.id].length}명</span></div><div class="names">${names}</div></div>`; }).join("")
-      + (noneCnt? `<div class="brow"><div style="min-width:150px"><span class="npill">미신청</span> <span style="color:var(--muted)">${noneCnt}명</span></div><div class="names">${all.filter(x=>!x.seat).map(x=>`${x.studentNo} ${esc(x.name)}`).join(", ")}</div></div>` : "");
+    const cards = dlist.map(dd=>{ const names=byD[dd.id].sort((a,b)=>a.studentNo-b.studentNo).map(x=>`${x.studentNo} ${esc(x.name)}`).join(", ");
+        return `<div class="distcard" style="--dc:${colorOf(dd.ord)}"><div class="dh"><span class="dn">${esc(dd.name)}</span><span class="npill">${byD[dd.id].length}명</span></div><div class="names">${names}</div></div>`; }).join("");
+    const noneCard = noneCnt ? `<div class="distcard" style="--dc:var(--line2)"><div class="dh"><span class="dn">미신청</span><span class="npill">${noneCnt}명</span></div><div class="names">${all.filter(x=>!x.seat).map(x=>`${x.studentNo} ${esc(x.name)}`).join(", ")}</div></div>` : "";
+    const brk = `<div class="subhead">📊 ${c}반 학과별 분포</div><div class="distgrid">${cards}${noneCard||'<div class="mempty">신청 내역이 없습니다.</div>'}</div>`;
     return `<div class="mgrid wide" style="margin-bottom:14px">
       <div class="dcard plain"><div class="head"><span class="nm">🏫 ${c}반 전체</span><span class="cnt">${done}/${all.length} 신청</span></div>
         <table><thead><tr><th>번호</th><th>이름</th><th>신청 학과</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>
@@ -836,13 +844,13 @@ $("fileInput").addEventListener("change", async (e)=>{
 
 function download(name,csv){ const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
-$("csvDeptBtn").addEventListener("click", ()=>{
+function csvDept(){
   const rows=seats.slice().sort((a,b)=>((ordOf[a.deptId]||0)-(ordOf[b.deptId]||0))||(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
   let csv="학과,반,번호,이름,신청시각\n";
   rows.forEach(r=>{ const t=r.createdAt?.toDate?r.createdAt.toDate().toLocaleString("ko-KR"):"";
     csv+=`"${r.deptName}",${r.classNo},${r.studentNo},"${(r.name||"").replace(/"/g,'""')}","${t}"\n`; });
   download(`전공체험_학과별명단_${new Date().toISOString().slice(0,10)}.csv`, csv);
-});
+}
 function classCsv(){
   const seatByVhash={}; seats.forEach(s=>seatByVhash[s.vhash]=s);
   const recs=students.map(st=>{ const p=parseSid(st.studentId); return {...p, name:st.name, seat:seatByVhash[st.vhash]||null}; }).sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
@@ -850,8 +858,7 @@ function classCsv(){
   recs.forEach(r=>{ csv+=`${r.classNo},${r.studentNo},"${(r.name||"").replace(/"/g,'""')}","${r.seat?r.seat.deptName:""}","${r.seat?"신청완료":"미신청"}"\n`; });
   download(`전공체험_전교생명단_${new Date().toISOString().slice(0,10)}.csv`, csv);
 }
-$("csvAllBtn").addEventListener("click", classCsv);
-$("csvClassBtn").addEventListener("click", classCsv);
+$("csvBtn").addEventListener("click", ()=>{ if(mgTab==="dept") csvDept(); else classCsv(); });
 </script>
 </body>
 </html>
