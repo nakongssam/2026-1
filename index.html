@@ -551,7 +551,7 @@ function teardown(){ unsub.forEach(fn=>fn()); unsub=[]; if(unsubSeat){unsubSeat(
 function enterStudent(){
   role="student"; $("who").textContent=`· ${me.name} (${me.studentId})`;
   $("hello").innerHTML=`${me.name} 학생, 환영합니다`;
-  buildTabs([{id:"apply",label:"✅ 신청하기"},{id:"dash",label:"📊 현황판"},{id:"qna",label:"💬 학과 Q&A"}]);
+  buildTabs([{id:"apply",label:"📝 신청하기"},{id:"dash",label:"📊 현황판"},{id:"qna",label:"💬 학과 Q&A"}]);
   $("classCard").style.display="block";
   $("gate").style.display="none"; $("app").style.display="block";
   subscribe(); showTab("apply");
