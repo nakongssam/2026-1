@@ -69,7 +69,7 @@
 
   /* 신청 패널 */
   .hello{ font-size:1.12rem; font-weight:700; color:var(--ink); margin:0; }
-  .hellorow{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:6px 0 4px; min-height:34px; }
+  .hellorow{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:6px 0 4px; height:38px; }
   .curbadge{ display:inline-flex; align-items:center; gap:7px; background:var(--ok-soft); color:var(--ok); border:1px solid var(--ok); border-radius:999px; padding:6px 14px; font-weight:700; font-size:.9rem; white-space:nowrap; }
   .curbadge .lb{ font-size:.78rem; opacity:.85; }
   .hello .small{ font-size:.85rem; font-weight:500; color:var(--muted); margin-left:6px; }
@@ -515,8 +515,8 @@ function teardown(){ unsub.forEach(fn=>fn()); unsub=[]; if(unsubSeat){unsubSeat(
 
 /* ===== 입장 ===== */
 function enterStudent(){
-  role="student"; $("who").textContent=`· ${me.name} (${me.classNo}반 ${me.studentNo}번)`;
-  $("hello").innerHTML=`${me.name} 학생, 환영합니다 <span class="small">${me.classNo}반 ${me.studentNo}번</span>`;
+  role="student"; $("who").textContent=`· ${me.name} (${me.studentId})`;
+  $("hello").innerHTML=`${me.name} 학생, 환영합니다 <span class="small">학번 ${me.studentId}</span>`;
   buildTabs([{id:"apply",label:"🎓 신청하기"},{id:"dash",label:"📊 현황판"}]);
   $("classCard").style.display="block";
   $("gate").style.display="none"; $("app").style.display="block";
