@@ -167,6 +167,25 @@
   .tab{ padding:9px 16px; border-radius:9px; background:transparent; color:var(--muted); cursor:pointer; font-weight:700; font-size:.9rem; }
   .tab.active{ background:var(--surface); color:var(--ink); box-shadow:var(--shadow); }
   .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+  .qnacard{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px 18px; box-shadow:var(--shadow); }
+  .qnahead{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px; }
+  .qnahead .t{ font-weight:800; color:var(--ink); font-size:1.02rem; }
+  .qnahead .meta{ font-size:.82rem; color:var(--muted); }
+  .qnaform{ display:flex; gap:8px; align-items:stretch; }
+  .qnaform textarea{ flex:1; resize:vertical; min-height:42px; padding:10px 12px; border:1.5px solid var(--line2); border-radius:11px; background:var(--page); color:var(--ink); font:inherit; font-size:.92rem; }
+  .qnaform button{ flex:none; border:none; border-radius:11px; background:var(--yellow); color:#3a3320; font-weight:700; padding:0 16px; cursor:pointer; font-size:.9rem; }
+  .qnamsg{ font-size:.85rem; margin-top:8px; min-height:1px; }
+  .qnamsg.ok{ color:var(--ok); } .qnamsg.err{ color:var(--danger); }
+  .qnalist{ margin-top:14px; display:flex; flex-direction:column; gap:10px; }
+  .qitem{ border:1px solid var(--line); border-radius:12px; padding:11px 14px; background:var(--page); }
+  .qitem .qtop{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:5px; }
+  .qitem .qwho{ font-weight:700; color:var(--ink); font-size:.9rem; }
+  .qitem .qwho .qcls{ font-weight:500; color:var(--muted); font-size:.8rem; margin-left:5px; }
+  .qitem .qtime{ font-size:.76rem; color:var(--muted); }
+  .qitem .qbody{ color:var(--body); font-size:.93rem; line-height:1.55; white-space:pre-wrap; word-break:break-word; }
+  .qitem .qdel{ border:none; background:none; color:var(--danger); font-size:.8rem; cursor:pointer; opacity:.7; padding:0; }
+  .qitem .qdel:hover{ opacity:1; }
+  .qempty{ color:var(--muted); font-size:.9rem; padding:18px 4px; text-align:center; }
   .chipgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; margin-bottom:14px; }
   .chipgrid.cls{ grid-template-columns:repeat(14,1fr); }
   .chipgrid.cls .chip{ padding:8px 4px; font-size:.84rem; }
@@ -344,6 +363,20 @@
       </div>
     </div>
 
+    <!-- 학과 Q&A -->
+    <div class="panel" id="panelQna">
+      <div id="qnaChips" class="chipgrid" style="margin-top:2px;"></div>
+      <div class="qnacard">
+        <div class="qnahead"><span class="t" id="qnaTitle">💬 학과 Q&amp;A</span><span class="meta" id="qnaMeta"></span></div>
+        <div class="qnaform">
+          <textarea id="qnaText" rows="2" maxlength="500" placeholder="이 학과에 궁금한 점을 남겨보세요. (실명으로 등록돼요)"></textarea>
+          <button id="qnaPost">질문 남기기</button>
+        </div>
+        <div class="qnamsg" id="qnaMsg"></div>
+        <div id="qnaList" class="qnalist"></div>
+      </div>
+    </div>
+
     <!-- 명단 관리 (교사) -->
     <div class="panel" id="panelManage">
       <div class="mgbar">
@@ -439,7 +472,7 @@ setPersistence(auth, browserLocalPersistence).catch(()=>{});
 const $=(id)=>document.getElementById(id);
 
 let role=null, me=null, seat=null, selectedId=null;
-let depts=[], seats=[], students=[], roster=null, live=null, lastRosterKey="", lastLiveKey="";
+let depts=[], seats=[], students=[], roster=null, live=null, lastRosterKey="", lastLiveKey="", questions=[], qnaPick=null;
 let unsub=[], unsubSeat=null, pollTimer=null, curTab=null;
 let deptPick=null, allFilter="all", classPick="all", mgTab="dept";
 const ordOf={};
@@ -516,15 +549,15 @@ function teardown(){ unsub.forEach(fn=>fn()); unsub=[]; if(unsubSeat){unsubSeat(
 /* ===== 입장 ===== */
 function enterStudent(){
   role="student"; $("who").textContent=`· ${me.name} (${me.studentId})`;
-  $("hello").innerHTML=`${me.name} 학생, 환영합니다 <span class="small">학번 ${me.studentId}</span>`;
-  buildTabs([{id:"apply",label:"🎓 신청하기"},{id:"dash",label:"📊 현황판"}]);
+  $("hello").innerHTML=`${me.name} 학생, 환영합니다`;
+  buildTabs([{id:"apply",label:"🎓 신청하기"},{id:"dash",label:"📊 현황판"},{id:"qna",label:"💬 학과 Q&A"}]);
   $("classCard").style.display="block";
   $("gate").style.display="none"; $("app").style.display="block";
   subscribe(); showTab("apply");
 }
 function enterTeacher(){
   role="teacher"; $("who").textContent="· 교사";
-  buildTabs([{id:"dash",label:"📊 현황판"},{id:"manage",label:"📋 명단 관리"}]);
+  buildTabs([{id:"dash",label:"📊 현황판"},{id:"manage",label:"📋 명단 관리"},{id:"qna",label:"💬 학과 Q&A"}]);
   $("classCard").style.display="block";
   $("gate").style.display="none"; $("app").style.display="block";
   subscribe(); showTab("dash");
@@ -540,7 +573,9 @@ function showTab(id){
   $("panelApply").classList.toggle("on", id==="apply");
   $("panelDash").classList.toggle("on", id==="dash");
   $("panelManage").classList.toggle("on", id==="manage");
+  $("panelQna").classList.toggle("on", id==="qna");
   if(id==="manage"){ renderManage(); mgSwitch(mgTab); }
+  if(id==="qna") renderQna();
   if(id==="dash") requestAnimationFrame(syncHeight);
   $("dashCtrl").style.display = (id==="dash")?"inline-flex":"none";
 }
@@ -561,6 +596,9 @@ function subscribe(){
     unsub.push(onSnapshot(collection(db,"seats"), s=>{ seats=s.docs.map(d=>({vhash:d.id,...d.data()})); renderDash(); renderManage(); }, e=>console.error(e)));
     unsub.push(onSnapshot(collection(db,"students"), s=>{ students=s.docs.map(d=>({vhash:d.id,...d.data()})); buildPickers(); renderDash(); renderManage(); }, e=>console.error(e)));
   }
+  unsub.push(onSnapshot(query(collection(db,"questions"),orderBy("createdAt","desc")), s=>{
+    questions=s.docs.map(d=>({id:d.id,...d.data()})); if(curTab==="qna") renderQna();
+  }, e=>console.error(e)));
   pollTimer=setInterval(pollOnce, 6000);
 }
 async function pollOnce(){
@@ -926,6 +964,54 @@ $("fileInput").addEventListener("change", async (e)=>{
   }catch(err){ console.error(err); setStatus("명단 가져오기 중 오류가 발생했습니다.","err"); }
   finally{ e.target.value=""; }
 });
+
+/* ===== 학과 Q&A ===== */
+function qnaTimeStr(ts){ try{ const d=ts?.toDate?ts.toDate():null; if(!d) return ""; const mm=String(d.getMonth()+1), dd=String(d.getDate()), hh=String(d.getHours()).padStart(2,"0"), mi=String(d.getMinutes()).padStart(2,"0"); return `${mm}/${dd} ${hh}:${mi}`; }catch(e){ return ""; } }
+function renderQna(){ try{ _renderQna(); }catch(e){ console.error("qna:",e); } }
+function _renderQna(){
+  if(!role) return;
+  if(!qnaPick && depts.length) qnaPick=depts[0].id;
+  $("qnaChips").innerHTML = depts.map(d=>`<button class="chip ${d.id===qnaPick?"active":""}" data-qna="${d.id}" style="--dc:${colorOf(d.ord)}">
+      <span class="cdot"></span><span class="cnm" title="${esc(d.name)}">${esc(shortDept(d.name))}</span></button>`).join("");
+  $("qnaChips").querySelectorAll("[data-qna]").forEach(b=>b.addEventListener("click", ()=>{ qnaPick=b.dataset.qna; renderQna(); }));
+  const d=depts.find(x=>x.id===qnaPick);
+  $("qnaTitle").innerHTML = d?`💬 ${esc(d.name)} Q&amp;A`:"💬 학과 Q&amp;A";
+  const list=questions.filter(q=>q.deptId===qnaPick);
+  $("qnaMeta").textContent = list.length?`질문 ${list.length}개`:"";
+  $("qnaList").innerHTML = list.length ? list.map(q=>{
+    const canDel = role==="teacher" || (me && q.vhash===me.vhash);
+    return `<div class="qitem">
+      <div class="qtop"><span class="qwho">${esc(q.name||"익명")}${q.classNo?`<span class="qcls">${q.classNo}반</span>`:""}</span>
+        <span class="qtime">${qnaTimeStr(q.createdAt)}${canDel?` · <button class="qdel" data-del="${q.id}">삭제</button>`:""}</span></div>
+      <div class="qbody">${esc(q.text||"")}</div></div>`;
+  }).join("") : `<div class="qempty">아직 질문이 없어요. 첫 질문을 남겨보세요!</div>`;
+  $("qnaList").querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click", ()=>deleteQuestion(b.dataset.del)));
+}
+$("qnaPost").addEventListener("click", async ()=>{
+  const t=$("qnaText").value.trim(); const msg=$("qnaMsg");
+  msg.className="qnamsg"; msg.textContent="";
+  if(!qnaPick){ msg.classList.add("err"); msg.textContent="학과를 먼저 선택해 주세요."; return; }
+  if(t.length<2){ msg.classList.add("err"); msg.textContent="질문을 입력해 주세요."; return; }
+  if(role!=="student"){ msg.classList.add("err"); msg.textContent="질문 작성은 학생만 가능해요. (교사는 보기·삭제만)"; return; }
+  $("qnaPost").disabled=true;
+  try{
+    const d=depts.find(x=>x.id===qnaPick);
+    await setDoc(doc(collection(db,"questions")), {
+      deptId:qnaPick, deptName:d?d.name:"", text:t,
+      name:me.name, vhash:me.vhash, studentId:me.studentId, classNo:me.classNo,
+      createdAt:serverTimestamp()
+    });
+    $("qnaText").value=""; msg.classList.add("ok"); msg.textContent="질문이 등록되었어요!";
+    setTimeout(()=>{ msg.textContent=""; msg.className="qnamsg"; }, 2500);
+  }catch(e){ console.error(e); msg.classList.add("err"); msg.textContent="등록 중 오류가 발생했습니다."; }
+  finally{ $("qnaPost").disabled=false; }
+});
+async function deleteQuestion(id){
+  const q=questions.find(x=>x.id===id); if(!q) return;
+  if(!confirm(`${q.name||""} 학생의 질문을 삭제할까요?`)) return;
+  try{ await deleteDoc(doc(db,"questions",id)); }
+  catch(e){ console.error(e); alert("삭제 중 오류가 발생했습니다."); }
+}
 
 function download(name,csv){ const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
