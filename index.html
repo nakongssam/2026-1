@@ -604,7 +604,7 @@ function subscribe(){
   unsub.push(onSnapshot(query(collection(db,"questions"),orderBy("createdAt","desc")), s=>{
     questions=s.docs.map(d=>({id:d.id,...d.data()})); if(curTab==="qna") renderQna();
   }, e=>console.error(e)));
-  pollTimer=setInterval(pollOnce, 6000);
+  pollTimer=setInterval(pollOnce, 15000);
 }
 async function pollOnce(){
   try{
