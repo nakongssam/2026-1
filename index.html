@@ -93,8 +93,8 @@
   .bigbtn{ width:100%; margin-top:16px; padding:15px; border:none; border-radius:13px; font-size:1.04rem; font-weight:700; cursor:pointer; background:var(--yellow); color:#3a3320; box-shadow:0 4px 14px rgba(245,197,24,.35); }
   .bigbtn:hover{ background:var(--yellow-d); } .bigbtn:disabled{ background:var(--line2); color:var(--muted); box-shadow:none; cursor:not-allowed; }
   .bigbtn.danger{ background:var(--surface); color:var(--danger); border:1.5px solid var(--danger); box-shadow:none; }
-  .msg{ margin-top:14px; padding:12px 14px; border-radius:12px; font-size:.92rem; font-weight:600; display:none; }
-  .msg.show{ display:block; } .msg.success{ background:var(--ok-soft); color:var(--ok); } .msg.error{ background:var(--yellow-soft); color:var(--danger); } .msg.info{ background:var(--yellow-soft); color:var(--ink); }
+  .msg{ margin-top:14px; padding:12px 14px; border-radius:12px; font-size:.92rem; font-weight:600; display:none; border:1.5px solid transparent; }
+  .msg.show{ display:block; } .msg.success{ background:var(--ok-soft); color:var(--ok); border-color:var(--ok); } .msg.error{ background:var(--yellow-soft); color:var(--danger); border-color:var(--danger); } .msg.info{ background:var(--yellow-soft); color:var(--ink); border-color:var(--yellow-d); }
 
   /* 대시보드 */
   .dashtools{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }
