@@ -566,7 +566,7 @@ function renderApply(){
     const isMine=seat&&seat.deptId===d.id, isSel=!locked&&selectedId===d.id;
     let cls="blk"; if(isMine) cls+=" mine locked"; else if(locked) cls+=" locked"; else if(full) cls+=" full"; else if(isSel) cls+=" selected";
     return `<div class="${cls}" data-id="${d.id}" ${(!locked&&!full)?'role="button"':''}>
-      <div class="nm">${esc(d.name)}</div><div class="dt">${esc(d.detail||"")}</div>
+      <div class="nm" title="${esc(d.name)}">${esc(d.name.length>9?d.name.slice(0,9)+"…":d.name)}</div><div class="dt">${esc(d.detail||"")}</div>
       <div class="bartrack"><div class="barfill" style="width:${pct}%"></div></div>
       <div class="seat">${full&&!isMine?`마감 · ${d.filled}/${d.capacity}`:`${d.filled}/${d.capacity} · 잔여 ${rem}석`}</div></div>`;
   }).join("");
@@ -729,7 +729,7 @@ function _renderManage(){
 
   $("deptChips").innerHTML = depts.map(d=>{
     return `<button class="chip ${d.id===deptPick?"active":""}" data-pick="${d.id}" style="--dc:${colorOf(d.ord)}">
-      <span class="cdot"></span><span class="cnm">${esc(d.name)}</span></button>`;
+      <span class="cdot"></span><span class="cnm" title="${esc(d.name)}">${esc(d.name.length>9?d.name.slice(0,9)+"…":d.name)}</span></button>`;
   }).join("");
   $("deptChips").querySelectorAll("[data-pick]").forEach(b=>b.addEventListener("click", ()=>{ deptPick=b.dataset.pick; renderManage(); }));
 
