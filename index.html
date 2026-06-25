@@ -103,7 +103,7 @@
 
   /* 대시보드 */
   .dashtools{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }
-  .live{ display:inline-flex; align-items:center; gap:6px; padding:7px 13px; border-radius:999px; background:var(--ok-soft); color:var(--ok); font-weight:700; font-size:.82rem; white-space:nowrap; }
+  .live{ display:inline-flex; align-items:center; gap:6px; padding:7px 13px; border-radius:999px; background:var(--track); color:var(--muted); font-weight:700; font-size:.82rem; white-space:nowrap; border:1px solid var(--line); }
   .dotpulse{ width:8px; height:8px; border-radius:50%; background:var(--ok); animation:pulse 1.6s infinite; }
   @keyframes pulse{ 0%{box-shadow:0 0 0 0 rgba(47,143,106,.5);} 70%{box-shadow:0 0 0 7px rgba(47,143,106,0);} 100%{box-shadow:0 0 0 0 rgba(47,143,106,0);} }
   @media (prefers-reduced-motion: reduce){ .dotpulse{ animation:none; } }
@@ -331,10 +331,10 @@
     <div class="in">
       <div class="ttl display">🎓 천안오성고등학교 1학년 전공체험 <span class="who" id="who"></span><span class="appsub">7/14(화) 4~5교시</span></div>
       <div class="headright">
+        <span id="seatBadge"></span>
         <span class="dashctrl" id="dashCtrl">
           <span class="live"><span class="dotpulse"></span> 실시간</span>
         </span>
-        <span id="seatBadge"></span>
         <button class="outbtn" id="outBtn">나가기</button>
       </div>
     </div>
