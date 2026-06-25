@@ -114,8 +114,8 @@
   .card .cb{ padding:2px 16px 14px; }
   /* 학과별 2단 + 짧은 막대 */
   .dgrid{ display:grid; grid-template-columns:1fr 1fr; gap:0 22px; }
-  .fillcard{ display:flex; flex-direction:column; }
-  .fillcard > .cb{ flex:1 1 auto; display:flex; }
+  .fillcard{ display:flex; flex-direction:column; overflow:hidden; }
+  .fillcard > .cb{ flex:1 1 auto; display:flex; overflow:auto; }
   .fillcard .dgrid, .fillcard .cgrid{ flex:1 1 auto; align-content:space-between; }
   .ditem{ padding:8px 0; border-bottom:1px solid var(--line); }
   .ditem .dtop{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
@@ -559,10 +559,12 @@ function renderDash(){ try{ _renderDash(); }catch(e){ console.error(e); } reques
 function syncHeight(){
   const cols=document.querySelectorAll("#panelDash .board .col");
   if(!cols.length) return;
-  cols.forEach(c=>c.style.minHeight="");
+  cols.forEach(c=>{ c.style.height=""; c.style.minHeight=""; });
   if(window.innerWidth<=760 || !$("panelDash").classList.contains("on")) return;
-  const max=Math.max(...[...cols].map(c=>c.getBoundingClientRect().height));
-  if(max>0) cols.forEach(c=>c.style.minHeight=max+"px");
+  const hs=[...cols].map(c=>c.getBoundingClientRect().height).filter(h=>h>0);
+  if(!hs.length) return;
+  const minH=Math.min(...hs);
+  cols.forEach(c=>{ c.style.height=minH+"px"; });
 }
 window.addEventListener("resize", ()=>requestAnimationFrame(syncHeight));
 function _renderDash(){
