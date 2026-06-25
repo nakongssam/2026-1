@@ -204,7 +204,7 @@
   th{ color:var(--muted); font-weight:600; font-size:.8rem; }
   td.nm{ font-weight:500; color:var(--ink); }
   td.right{ text-align:right; }
-  .dpill{ display:inline-block; font-size:.75rem; font-weight:700; color:#fff; padding:2px 9px; border-radius:999px; }
+  .dpill{ display:inline-block; font-size:.75rem; font-weight:700; color:#fff; padding:2px 9px; border-radius:999px; white-space:nowrap; }
   .npill{ display:inline-block; font-size:.75rem; font-weight:600; color:var(--muted); background:var(--track); padding:2px 9px; border-radius:999px; }
   .rm{ color:var(--danger); cursor:pointer; font-size:.8rem; background:none; border:none; padding:0; font-weight:700; }
   .mempty{ color:var(--muted); font-size:.88rem; padding:14px 4px; }
@@ -225,7 +225,7 @@
   .leftlist td.no, .leftlist th.no{ width:38px; }
   .leftlist td.nm{ white-space:nowrap; width:100%; }
   .leftlist .seatcol{ white-space:nowrap; width:1%; padding-right:2px; }
-  .leftlist .dpill{ max-width:118px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; vertical-align:middle; }
+  .leftlist .dpill{ white-space:nowrap; vertical-align:middle; }
   .leftlist .gearcol{ width:24px; padding-left:0; }
   .gear{ background:none; border:none; cursor:pointer; font-size:1rem; opacity:.55; padding:0; line-height:1; }
   .gear:hover{ opacity:1; }
@@ -443,7 +443,8 @@ async function sha256Hex(str){ const b=await crypto.subtle.digest("SHA-256",new 
 const normBirth=(s)=>String(s).replace(/\D/g,"").padStart(6,"0").slice(-6);
 const vhashOf=(sid,birth)=>sha256Hex(`${String(sid).trim()}|${normBirth(birth)}`);
 const dot=(ord)=>`<span class="ddot" style="background:${colorOf(ord)};display:inline-block;vertical-align:-1px;margin-right:6px"></span>`;
-const deptBadge=(name,ord)=>`<span class="dpill" style="background:${colorOf(ord)}">${esc(name)}</span>`;
+const shortDept=(name)=>{ const n=String(name||""); return n.length>9 ? n.slice(0,9) : n; };
+const deptBadge=(name,ord)=>`<span class="dpill" style="background:${colorOf(ord)}" title="${esc(name)}">${esc(shortDept(name))}</span>`;
 function showMsg(el,t,type){ el.textContent=t; el.className="msg show "+type; }
 function clearMsg(el){ el.className="msg"; }
 function setStatus(t,cls=""){ const e=$("status"); if(e){ e.textContent=t; e.className=cls; } }
@@ -729,7 +730,7 @@ function _renderManage(){
 
   $("deptChips").innerHTML = depts.map(d=>{
     return `<button class="chip ${d.id===deptPick?"active":""}" data-pick="${d.id}" style="--dc:${colorOf(d.ord)}">
-      <span class="cdot"></span><span class="cnm" title="${esc(d.name)}">${esc(d.name.length>9?d.name.slice(0,9)+"…":d.name)}</span></button>`;
+      <span class="cdot"></span><span class="cnm" title="${esc(d.name)}">${esc(shortDept(d.name))}</span></button>`;
   }).join("");
   $("deptChips").querySelectorAll("[data-pick]").forEach(b=>b.addEventListener("click", ()=>{ deptPick=b.dataset.pick; renderManage(); }));
 
