@@ -29,10 +29,10 @@
         font-size:16px; line-height:1.62; background:var(--page); -webkit-font-smoothing:antialiased; }
   .display{ font-family:"Gmarket Sans","Pretendard",sans-serif; }
 
-  .band{ background:linear-gradient(180deg,var(--band) 0%, var(--page) 100%); }
-  .band .inner{ max-width:560px; transition:max-width .2s; margin:0 auto; padding:28px 20px 26px; text-align:center; }
-  .badge{ display:inline-block; background:var(--surface); color:var(--yellow-d); font-weight:700; font-size:.8rem;
-          padding:6px 14px; border-radius:999px; box-shadow:var(--shadow); }
+  .band{ background:transparent; }
+  .band .inner{ max-width:560px; transition:max-width .2s; margin:0 auto; padding:34px 20px 22px; text-align:center; }
+  .badge{ display:inline-block; background:var(--yellow-soft); color:var(--yellow-d); font-weight:700; font-size:.8rem;
+          padding:6px 14px; border-radius:999px; }
   @media (prefers-color-scheme: dark){ .badge{ color:#ffe06b; } }
   .band h1{ font-size:2rem; color:var(--ink); margin:14px 0 6px; letter-spacing:-.01em; }
   .band .tag{ color:var(--muted); font-size:.95rem; font-weight:500; }
@@ -146,7 +146,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 import {
-  getFirestore, collection, doc, getDoc, query, orderBy,
+  getFirestore, initializeFirestore, collection, doc, getDoc, query, orderBy,
   onSnapshot, runTransaction, serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -161,7 +161,9 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+let db;
+try { db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true }); }
+catch(e){ db = getFirestore(app); }
 const auth = getAuth(app);
 const $ = (id) => document.getElementById(id);
 
