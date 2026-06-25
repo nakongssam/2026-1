@@ -164,11 +164,13 @@
   .tab{ padding:9px 16px; border-radius:9px; background:transparent; color:var(--muted); cursor:pointer; font-weight:700; font-size:.9rem; }
   .tab.active{ background:var(--surface); color:var(--ink); box-shadow:var(--shadow); }
   .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
-  .chipgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(132px,1fr)); gap:8px; margin-bottom:14px; }
+  .chipgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:8px; margin-bottom:14px; }
   .chipgrid.cls{ grid-template-columns:repeat(14,1fr); }
   .chipgrid.cls .chip{ padding:8px 4px; font-size:.84rem; }
   .chipgrid .chip{ justify-content:center; }
-  .chip{ display:inline-flex; align-items:center; gap:7px; padding:8px 14px; border-radius:999px; background:var(--surface); border:1.5px solid var(--line2); color:var(--body); cursor:pointer; font-size:.88rem; font-weight:600; }
+  .chip{ display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:999px; background:var(--surface); border:1.5px solid var(--line2); color:var(--body); cursor:pointer; font-size:.85rem; font-weight:600; white-space:nowrap; overflow:hidden; }
+  .chip .cdot{ flex:none; }
+  .chip > span:not(.cdot){ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .chip:hover{ border-color:var(--dc); }
   .chip.active{ background:var(--dc); border-color:var(--dc); color:#fff; }
   .chip .cdot{ width:10px; height:10px; border-radius:50%; background:var(--dc); }
@@ -709,7 +711,7 @@ function _renderManage(){
 
   $("deptChips").innerHTML = depts.map(d=>{
     return `<button class="chip ${d.id===deptPick?"active":""}" data-pick="${d.id}" style="--dc:${colorOf(d.ord)}">
-      <span class="cdot"></span>${esc(d.name)}</button>`;
+      <span class="cdot"></span><span class="cnm">${esc(d.name)}</span></button>`;
   }).join("");
   $("deptChips").querySelectorAll("[data-pick]").forEach(b=>b.addEventListener("click", ()=>{ deptPick=b.dataset.pick; renderManage(); }));
 
