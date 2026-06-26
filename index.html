@@ -110,9 +110,11 @@
   .gateadmin .ga-main{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
   .gateadmin .ga-state{ font-weight:700; font-size:.9rem; flex:1; min-width:150px; }
   .gateadmin .ga-btns{ display:flex; gap:6px; flex-wrap:wrap; }
-  .gateadmin .ga-sched{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:8px; padding-top:8px; border-top:1px solid var(--line); }
+  .gateadmin .ga-sched{ display:flex; align-items:center; gap:8px; flex-wrap:nowrap; margin-top:8px; padding-top:8px; border-top:1px solid var(--line); }
+  .gateadmin .ga-sched label{ flex:none; }
   .gateadmin label{ font-size:.84rem; color:var(--muted); font-weight:700; }
-  .gateadmin input[type=datetime-local]{ padding:6px 9px; border:1.5px solid var(--line2); border-radius:9px; background:var(--page); color:var(--ink); font-size:.84rem; }
+  .gateadmin input[type=datetime-local]{ flex:1; min-width:0; padding:6px 9px; border:1.5px solid var(--line2); border-radius:9px; background:var(--page); color:var(--ink); font-size:.84rem; font-family:inherit; }
+  .gateadmin .ga-sched button{ flex:none; }
   .gateadmin button{ border:none; border-radius:9px; padding:6px 12px; font-weight:700; font-size:.83rem; cursor:pointer; white-space:nowrap; }
   .gateadmin .ga-open{ background:var(--ok); color:#fff; }
   .gateadmin .ga-close{ background:var(--danger); color:#fff; }
@@ -389,7 +391,7 @@
           </span>
         </div>
         <div class="ga-sched" id="gateSchedRow" style="display:none;">
-          <label>예약 오픈 시각</label>
+          <label>오픈 시각</label>
           <input type="datetime-local" id="gateAtInput">
           <button class="ghost" id="gateSchedBtn">저장</button>
           <button class="ghost" id="gateSchedClear">해제</button>
