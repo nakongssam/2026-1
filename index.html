@@ -104,18 +104,18 @@
   .gatebanner.open{ background:var(--ok-soft); color:var(--ok); border-color:var(--ok); }
   .gatebanner.closed{ background:#fdecec; color:var(--danger); border-color:var(--danger); }
   .gatebanner .cd{ font-variant-numeric:tabular-nums; }
-  .gateadmin{ background:var(--surface); border:1px solid var(--line2); border-radius:14px; padding:14px 16px; margin-bottom:14px; box-shadow:var(--shadow); }
-  .gateadmin .ga-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-  .gateadmin .ga-row.ga-sched{ margin-top:10px; padding-top:10px; border-top:1px solid var(--line); }
-  .gateadmin .ga-state{ font-weight:800; font-size:.98rem; flex:1; min-width:160px; }
-  .gateadmin .ga-btns{ display:flex; gap:8px; }
-  .gateadmin label{ font-size:.86rem; color:var(--muted); font-weight:700; }
-  .gateadmin input[type=datetime-local]{ padding:7px 10px; border:1.5px solid var(--line2); border-radius:10px; background:var(--page); color:var(--ink); font-size:.86rem; }
-  .gateadmin button{ border:none; border-radius:10px; padding:8px 14px; font-weight:700; font-size:.86rem; cursor:pointer; }
+  .gateadmin{ background:var(--surface); border:1px solid var(--line2); border-radius:12px; padding:8px 12px; margin-bottom:12px; }
+  .gateadmin .ga-main{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .gateadmin .ga-state{ font-weight:700; font-size:.9rem; flex:1; min-width:150px; }
+  .gateadmin .ga-btns{ display:flex; gap:6px; flex-wrap:wrap; }
+  .gateadmin .ga-sched{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:8px; padding-top:8px; border-top:1px solid var(--line); }
+  .gateadmin label{ font-size:.84rem; color:var(--muted); font-weight:700; }
+  .gateadmin input[type=datetime-local]{ padding:6px 9px; border:1.5px solid var(--line2); border-radius:9px; background:var(--page); color:var(--ink); font-size:.84rem; }
+  .gateadmin button{ border:none; border-radius:9px; padding:6px 12px; font-weight:700; font-size:.83rem; cursor:pointer; white-space:nowrap; }
   .gateadmin .ga-open{ background:var(--ok); color:#fff; }
   .gateadmin .ga-close{ background:var(--danger); color:#fff; }
   .gateadmin button.ghost{ background:var(--page); color:var(--body); border:1.5px solid var(--line2); }
-  .gateadmin button:disabled{ opacity:.45; cursor:default; }
+  .gateadmin button:disabled{ opacity:.4; cursor:default; }
   .msg.show{ display:block; } .msg.success{ background:var(--ok-soft); color:var(--ok); border-color:var(--ok); } .msg.error{ background:var(--yellow-soft); color:var(--danger); border-color:var(--danger); } .msg.info{ background:var(--yellow-soft); color:var(--ink); border-color:var(--yellow-d); }
 
   /* 대시보드 */
@@ -378,18 +378,19 @@
     <!-- 현황판 -->
     <div class="panel" id="panelDash">
       <div class="gateadmin" id="gateAdmin" style="display:none;">
-        <div class="ga-row">
+        <div class="ga-main">
           <span class="ga-state" id="gaState">상태 확인 중…</span>
-          <div class="ga-btns">
-            <button class="ga-open" id="gateOpenBtn">🟢 신청 열기</button>
-            <button class="ga-close" id="gateCloseBtn">🔴 신청 닫기</button>
-          </div>
+          <span class="ga-btns">
+            <button class="ga-open" id="gateOpenBtn">🟢 열기</button>
+            <button class="ga-close" id="gateCloseBtn">🔴 닫기</button>
+            <button class="ghost ga-toggle" id="gateSchedToggle">⏰ 예약</button>
+          </span>
         </div>
-        <div class="ga-row ga-sched">
+        <div class="ga-sched" id="gateSchedRow" style="display:none;">
           <label>예약 오픈 시각</label>
           <input type="datetime-local" id="gateAtInput">
-          <button class="ghost" id="gateSchedBtn">예약 저장</button>
-          <button class="ghost" id="gateSchedClear">예약 해제</button>
+          <button class="ghost" id="gateSchedBtn">저장</button>
+          <button class="ghost" id="gateSchedClear">해제</button>
         </div>
       </div>
       <div class="kpis" id="kpis"></div>
@@ -789,6 +790,9 @@ async function setGate(patch){
   try{ await setDoc(doc(db,"config","gate"), patch, {merge:true}); }
   catch(e){ console.error(e); alert("상태 변경 중 오류가 발생했습니다. 권한(규칙)을 확인해 주세요."); }
 }
+$("gateSchedToggle")?.addEventListener("click", ()=>{
+  const r=$("gateSchedRow"); r.style.display = (r.style.display==="none"||!r.style.display) ? "flex" : "none";
+});
 $("gateOpenBtn")?.addEventListener("click", ()=>{ if(confirm("지금 신청을 열까요? 모든 학생이 바로 신청할 수 있습니다.")) setGate({open:true}); });
 $("gateCloseBtn")?.addEventListener("click", ()=>{ if(confirm("신청을 닫을까요? 예약된 오픈 시각도 함께 해제됩니다.")) setGate({open:false, openAt:null}); });
 $("gateSchedBtn")?.addEventListener("click", ()=>{
