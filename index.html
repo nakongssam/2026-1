@@ -319,7 +319,10 @@
     .dgrid{ grid-template-columns:1fr; } .cgrid{ grid-template-columns:repeat(2,1fr); } .mgrid, .mgrid.wide{ grid-template-columns:1fr; } .mlist{ grid-template-columns:repeat(2,1fr); } .toolbar select{ min-width:0; flex:1; }
     .chipgrid{ grid-template-columns:repeat(2,1fr); } .chipgrid.cls{ grid-template-columns:repeat(5,1fr); }
     .tabbtn{ font-size:.82rem; padding:11px 2px; }
-    .headright{ gap:6px; } .live{ padding:7px 10px; font-size:.78rem; } .outbtn{ padding:7px 9px; font-size:.78rem; } .curbadge-h{ padding:6px 10px; font-size:.78rem; }
+    .headright{ gap:6px; flex-wrap:wrap; justify-content:flex-end; } .live{ padding:7px 10px; font-size:.78rem; } .outbtn{ padding:7px 9px; font-size:.78rem; } .curbadge-h{ padding:6px 10px; font-size:.78rem; }
+    .headright .dashctrl{ order:1; } .headright .outbtn{ order:2; }
+    .headright #seatBadge{ order:3; flex-basis:100%; display:flex; justify-content:flex-end; margin-top:5px; }
+    .headright #seatBadge:empty{ display:none; margin:0; }
     .apphead .in{ align-items:flex-start; min-height:0; padding:9px 14px; }
     .apphead .ttl{ flex:1; min-width:0; gap:1px 6px; }
     .tt-main{ font-size:.8rem; white-space:nowrap; }
@@ -537,7 +540,7 @@ setPersistence(auth, browserLocalPersistence).catch(()=>{});
 const $=(id)=>document.getElementById(id);
 
 let role=null, me=null, seat=null, selectedId=null;
-let depts=[], seats=[], students=[], roster=null, live=null, lastRosterKey="", lastLiveKey="", questions=[], qnaPick=null, editId=null;
+let depts=[], seats=[], students=[], roster=null, live=null, lastRosterKey="", lastLiveKey="", questions=[], qnaPick=null, qnaUserPicked=false, editId=null;
 let gate={open:false, openAt:null}, gateTimer=null;
 function openAtMs(){ const v=gate.openAt; if(!v) return null; if(typeof v?.toDate==="function") return v.toDate().getTime(); if(v instanceof Date) return v.getTime(); const n=new Date(v).getTime(); return isNaN(n)?null:n; }
 function isOpen(){ if(gate.open===true) return true; const t=openAtMs(); return t!=null && Date.now()>=t; }
@@ -1147,14 +1150,15 @@ function renderQna(){ try{ _renderQna(); }catch(e){ console.error("qna:",e); } }
 function _renderQna(){
   if(!role) return;
   $("qnaCsvBtn").style.display = role==="teacher" ? "inline-block" : "none";
-  if(!qnaPick && depts.length) qnaPick=depts[0].id;
+  if(role==="student" && !qnaUserPicked && seat && seat.deptId) qnaPick=seat.deptId;
+  else if(!qnaPick && depts.length) qnaPick=depts[0].id;
   const cntOf={}; questions.forEach(q=>cntOf[q.deptId]=(cntOf[q.deptId]||0)+1);
   $("qnaChips").innerHTML = depts.map(d=>{
     const c=cntOf[d.id]||0;
     return `<button class="chip ${d.id===qnaPick?"active":""}" data-qna="${d.id}" style="--dc:${colorOf(d.ord)}">
       <span class="cdot"></span><span class="cnm" title="${esc(d.name)}">${esc(shortDept(d.name))}</span>${c?`<span class="qcount">${c}</span>`:""}</button>`;
   }).join("");
-  $("qnaChips").querySelectorAll("[data-qna]").forEach(b=>b.addEventListener("click", ()=>{ if(b.dataset.qna!==qnaPick) cancelEdit(); qnaPick=b.dataset.qna; renderQna(); }));
+  $("qnaChips").querySelectorAll("[data-qna]").forEach(b=>b.addEventListener("click", ()=>{ if(b.dataset.qna!==qnaPick) cancelEdit(); qnaUserPicked=true; qnaPick=b.dataset.qna; renderQna(); }));
   const d=depts.find(x=>x.id===qnaPick);
   $("qnaTitle").innerHTML = d?`💬 ${esc(d.name)} Q&amp;A`:"💬 학과 Q&amp;A";
   const list=questions.filter(q=>q.deptId===qnaPick);
