@@ -1150,7 +1150,8 @@ function renderQna(){ try{ _renderQna(); }catch(e){ console.error("qna:",e); } }
 function _renderQna(){
   if(!role) return;
   $("qnaCsvBtn").style.display = role==="teacher" ? "inline-block" : "none";
-  if(role==="student" && !qnaUserPicked && seat && seat.deptId) qnaPick=seat.deptId;
+  const myDept = (seat && seat.deptId) || selectedId;
+  if(role==="student" && !qnaUserPicked && myDept) qnaPick=myDept;
   else if(!qnaPick && depts.length) qnaPick=depts[0].id;
   const cntOf={}; questions.forEach(q=>cntOf[q.deptId]=(cntOf[q.deptId]||0)+1);
   $("qnaChips").innerHTML = depts.map(d=>{
