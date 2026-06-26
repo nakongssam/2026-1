@@ -57,6 +57,7 @@
   .apphead .in{ max-width:1080px; margin:0 auto; padding:9px 16px; display:flex; align-items:center; justify-content:space-between; gap:10px; min-height:52px; }
   .apphead .ttl{ font-size:1.12rem; color:var(--ink); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
   .ttlwrap{ display:flex; flex-direction:column; gap:1px; min-width:0; }
+  .tt-main{ font-weight:800; }
   .appsub{ font-size:.76rem; color:var(--muted); font-weight:400; }
   .ttl .appsub::before{ content:"·"; margin:0 6px; color:var(--muted); }
   .apphead .who{ font-size:.78rem; color:var(--muted); font-weight:600; }
@@ -194,9 +195,10 @@
   .tab.active{ background:var(--surface); color:var(--ink); box-shadow:var(--shadow); }
   .chips{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
   .qnacard{ background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:16px 18px; box-shadow:var(--shadow); }
-  .qnahead{ display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px; }
+  .qnahead{ display:flex; align-items:center; gap:8px; margin-bottom:12px; }
   .qnahead .t{ font-weight:800; color:var(--ink); font-size:1.02rem; }
   .qnahead .meta{ font-size:.82rem; color:var(--muted); }
+  .qnahead .qna-dl{ margin-left:auto; border:1.5px solid var(--line2); background:var(--page); color:var(--body); border-radius:10px; padding:7px 13px; font-weight:700; font-size:.83rem; cursor:pointer; white-space:nowrap; }
   .qnaform{ display:flex; gap:8px; align-items:stretch; }
   .qnaform textarea{ flex:1; resize:vertical; min-height:42px; padding:10px 12px; border:1.5px solid var(--line2); border-radius:11px; background:var(--page); color:var(--ink); font:inherit; font-size:.92rem; }
   .qnaform button{ flex:none; border:none; border-radius:11px; background:var(--yellow); color:#3a3320; font-weight:700; padding:0 16px; cursor:pointer; font-size:.9rem; }
@@ -353,7 +355,7 @@
 <div id="app" style="display:none;">
   <div class="apphead">
     <div class="in">
-      <div class="ttl display">🎓 천안오성고등학교 1학년 전공체험 <span class="who" id="who"></span><span class="appsub">7/14(화) 4~5교시</span></div>
+      <div class="ttl display"><span class="tt-main">🎓 천안오성고등학교 1학년 전공체험</span> <span class="who" id="who"></span><span class="appsub">7/14(화) 4~5교시</span></div>
       <div class="headright">
         <span id="seatBadge"></span>
         <span class="dashctrl" id="dashCtrl">
@@ -422,7 +424,7 @@
     <div class="panel" id="panelQna">
       <div id="qnaChips" class="chipgrid"></div>
       <div class="qnacard">
-        <div class="qnahead"><span class="t" id="qnaTitle">💬 학과 Q&amp;A</span><span class="meta" id="qnaMeta"></span></div>
+        <div class="qnahead"><span class="t" id="qnaTitle">💬 학과 Q&amp;A</span><span class="meta" id="qnaMeta"></span><button class="ghost qna-dl" id="qnaCsvBtn" style="display:none;">⬇ Q&A 다운로드</button></div>
         <div class="qnaform">
           <textarea id="qnaText" rows="2" maxlength="500" placeholder="이 학과에 궁금한 점을 남겨보세요. (실명으로 등록돼요)"></textarea>
           <button id="qnaPost">질문 남기기</button>
@@ -467,6 +469,7 @@
 <div class="modal" id="rowModal">
   <div class="box">
     <h3 id="rowTitle">학생</h3>
+    <button class="full" id="rowEditName">✏️ 이름 수정</button>
     <button class="full" id="rowCancelSeat">신청 취소</button>
     <button class="full" id="rowDelStu" style="background:var(--rose-soft,#fdeee4);color:var(--danger);">학생 삭제</button>
     <button class="full x" id="rowClose">닫기</button>
@@ -906,6 +909,7 @@ function mgSwitch(t){ mgTab=t;
   $("deptChips").style.display = t==="dept"?"grid":"none";
   $("classChips").style.display = t==="class"?"grid":"none";
   $("allTools").classList.toggle("show", t==="all");
+  const cb=$("csvBtn"); if(cb) cb.textContent = t==="dept" ? "⬇ 학과별 명단 다운로드" : t==="class" ? "⬇ 반별 명단 다운로드" : "⬇ 전교생 명단 다운로드";
 }
 function buildPickers(){
   const af=$("allDeptFilter"), pf=af.value||"all";
@@ -923,7 +927,7 @@ function _renderManage(){
 
   $("deptChips").innerHTML = depts.map(d=>{
     return `<button class="chip ${d.id===deptPick?"active":""}" data-pick="${d.id}" style="--dc:${colorOf(d.ord)}">
-      <span class="cdot"></span><span class="cnm" title="${esc(d.name)}">${esc(shortDept(d.name))}</span></button>`;
+      <span class="cdot"></span><span class="cnm" title="${esc(d.name)}">${esc(shortDept(d.name))}</span><span class="qcount">${d.filled||0}</span></button>`;
   }).join("");
   $("deptChips").querySelectorAll("[data-pick]").forEach(b=>b.addEventListener("click", ()=>{ deptPick=b.dataset.pick; renderManage(); }));
 
@@ -1029,6 +1033,23 @@ async function deleteStudent(vhash){
   }catch(e){ console.error(e); alert("삭제 중 오류가 발생했습니다."); }
 }
 
+async function editStudentName(vhash){
+  const st=students.find(x=>x.vhash===vhash); if(!st) return;
+  const p=parseSid(st.studentId);
+  const cur=st.name||"";
+  const nv=prompt(`이름을 수정합니다. (${p.classNo}반 ${p.studentNo}번)\n새 이름을 입력하세요:`, cur);
+  if(nv===null) return;
+  const name=nv.trim();
+  if(!name){ alert("이름은 비울 수 없습니다."); return; }
+  if(name===cur) return;
+  try{
+    await setDoc(doc(db,"students",vhash), { name }, { merge:true });
+    const hasSeat=seats.find(x=>x.vhash===vhash);
+    if(hasSeat) await setDoc(doc(db,"seats",vhash), { name }, { merge:true });
+    setStatus(`이름을 '${name}'(으)로 수정했습니다.`,"ok");
+  }catch(e){ console.error(e); alert("이름 수정 중 오류가 발생했습니다."); }
+}
+
 let rowVhash=null;
 function openRowMenu(vhash){
   const st=students.find(x=>x.vhash===vhash); if(!st) return;
@@ -1041,6 +1062,7 @@ function openRowMenu(vhash){
   $("rowModal").classList.add("show");
 }
 $("rowClose").addEventListener("click", ()=>$("rowModal").classList.remove("show"));
+$("rowEditName").addEventListener("click", ()=>{ $("rowModal").classList.remove("show"); if(rowVhash) editStudentName(rowVhash); });
 $("rowCancelSeat").addEventListener("click", ()=>{ if($("rowCancelSeat").disabled) return; $("rowModal").classList.remove("show"); if(rowVhash) cancelSeat(rowVhash); });
 $("rowDelStu").addEventListener("click", ()=>{ $("rowModal").classList.remove("show"); if(rowVhash) deleteStudent(rowVhash); });
 
@@ -1108,6 +1130,7 @@ function qnaTimeStr(ts){ try{ const d=ts?.toDate?ts.toDate():null; if(!d) return
 function renderQna(){ try{ _renderQna(); }catch(e){ console.error("qna:",e); } }
 function _renderQna(){
   if(!role) return;
+  $("qnaCsvBtn").style.display = role==="teacher" ? "inline-block" : "none";
   if(!qnaPick && depts.length) qnaPick=depts[0].id;
   const cntOf={}; questions.forEach(q=>cntOf[q.deptId]=(cntOf[q.deptId]||0)+1);
   $("qnaChips").innerHTML = depts.map(d=>{
@@ -1180,21 +1203,101 @@ async function deleteQuestion(id){
 
 function download(name,csv){ const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
-function csvDept(){
-  const rows=seats.slice().sort((a,b)=>((ordOf[a.deptId]||0)-(ordOf[b.deptId]||0))||(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
-  let csv="학과,반,번호,이름,신청시각\n";
-  rows.forEach(r=>{ const t=r.createdAt?.toDate?r.createdAt.toDate().toLocaleString("ko-KR"):"";
-    csv+=`"${r.deptName}",${r.classNo},${r.studentNo},"${(r.name||"").replace(/"/g,'""')}","${t}"\n`; });
-  download(`전공체험_학과별명단_${new Date().toISOString().slice(0,10)}.csv`, csv);
+/* ===== 엑셀(여러 시트) 다운로드 ===== */
+function ymd(){ return new Date().toISOString().slice(0,10); }
+function saveWb(wb, fname){ XLSX.writeFile(wb, fname); }
+function aoaSheet(aoa){ return XLSX.utils.aoa_to_sheet(aoa); }
+function safeName(s){ // 엑셀 시트명 31자·금지문자 제한
+  return String(s||"시트").replace(/[\\/?*\[\]:]/g,"·").slice(0,31);
 }
-function classCsv(){
-  const seatByVhash={}; seats.forEach(s=>seatByVhash[s.vhash]=s);
-  const recs=students.map(st=>{ const p=parseSid(st.studentId); return {...p, name:st.name, seat:seatByVhash[st.vhash]||null}; }).sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
-  let csv="반,번호,이름,신청학과,상태\n";
-  recs.forEach(r=>{ csv+=`${r.classNo},${r.studentNo},"${(r.name||"").replace(/"/g,'""')}","${r.seat?r.seat.deptName:""}","${r.seat?"신청완료":"미신청"}"\n`; });
-  download(`전공체험_전교생명단_${new Date().toISOString().slice(0,10)}.csv`, csv);
+function seatsSorted(){
+  return seats.slice().sort((a,b)=>((ordOf[a.deptId]||0)-(ordOf[b.deptId]||0))||(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
 }
-$("csvBtn").addEventListener("click", ()=>{ if(mgTab==="dept") csvDept(); else classCsv(); });
+function timeStr(ts){ return ts?.toDate ? ts.toDate().toLocaleString("ko-KR") : ""; }
+
+// 학과별 명단: 1시트 전체통합 + 학과별 시트
+function downloadDept(){
+  const wb=XLSX.utils.book_new();
+  const all=[["학과","학번","반","번호","이름","신청시각"]];
+  seatsSorted().forEach(r=>all.push([r.deptName, r.studentId||"", r.classNo, r.studentNo, r.name||"", timeStr(r.createdAt)]));
+  XLSX.utils.book_append_sheet(wb, aoaSheet(all), "전체학과통합명단");
+  depts.forEach(d=>{
+    const list=seats.filter(s=>s.deptId===d.id).sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
+    const aoa=[["학번","반","번호","이름","신청시각"]];
+    list.forEach(r=>aoa.push([r.studentId||"", r.classNo, r.studentNo, r.name||"", timeStr(r.createdAt)]));
+    if(list.length===0) aoa.push(["(신청자 없음)","","","",""]);
+    XLSX.utils.book_append_sheet(wb, aoaSheet(aoa), safeName(`${d.ord}.${d.name}`));
+  });
+  saveWb(wb, `전공체험_학과별명단_${ymd()}.xlsx`);
+}
+
+// 반별 명단: 1시트 전체통합 + 반별 시트
+function classRecords(){
+  const byV={}; seats.forEach(s=>byV[s.vhash]=s);
+  return students.map(st=>{ const p=parseSid(st.studentId); return {studentId:st.studentId||"", classNo:p.classNo, studentNo:p.studentNo, name:st.name, seat:byV[st.vhash]||null}; })
+    .sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
+}
+function downloadClass(){
+  const wb=XLSX.utils.book_new();
+  const recs=classRecords();
+  const all=[["반","번호","학번","이름","신청학과","상태"]];
+  recs.forEach(r=>all.push([r.classNo, r.studentNo, r.studentId, r.name||"", r.seat?r.seat.deptName:"", r.seat?"신청완료":"미신청"]));
+  XLSX.utils.book_append_sheet(wb, aoaSheet(all), "전체학급통합명단");
+  const classNos=[...new Set(recs.map(r=>r.classNo))].sort((a,b)=>a-b);
+  classNos.forEach(c=>{
+    const list=recs.filter(r=>r.classNo===c);
+    const aoa=[["번호","학번","이름","신청학과","상태"]];
+    list.forEach(r=>aoa.push([r.studentNo, r.studentId, r.name||"", r.seat?r.seat.deptName:"", r.seat?"신청완료":"미신청"]));
+    XLSX.utils.book_append_sheet(wb, aoaSheet(aoa), safeName(`${c}반`));
+  });
+  saveWb(wb, `전공체험_반별명단_${ymd()}.xlsx`);
+}
+
+// 전교생 명단: 1시트 전교생통합 + 학과별 시트 + 반별 시트
+function downloadAll(){
+  const wb=XLSX.utils.book_new();
+  const recs=classRecords();
+  const all=[["반","번호","학번","이름","신청학과","상태"]];
+  recs.forEach(r=>all.push([r.classNo, r.studentNo, r.studentId, r.name||"", r.seat?r.seat.deptName:"", r.seat?"신청완료":"미신청"]));
+  XLSX.utils.book_append_sheet(wb, aoaSheet(all), "전교생통합명단");
+  // 학과별
+  depts.forEach(d=>{
+    const list=seats.filter(s=>s.deptId===d.id).sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
+    const aoa=[["학번","반","번호","이름"]];
+    list.forEach(r=>aoa.push([r.studentId||"", r.classNo, r.studentNo, r.name||""]));
+    if(list.length===0) aoa.push(["(신청자 없음)","","",""]);
+    XLSX.utils.book_append_sheet(wb, aoaSheet(aoa), safeName(`학과-${d.ord}.${d.name}`));
+  });
+  // 반별
+  const classNos=[...new Set(recs.map(r=>r.classNo))].sort((a,b)=>a-b);
+  classNos.forEach(c=>{
+    const list=recs.filter(r=>r.classNo===c);
+    const aoa=[["번호","학번","이름","신청학과","상태"]];
+    list.forEach(r=>aoa.push([r.studentNo, r.studentId, r.name||"", r.seat?r.seat.deptName:"", r.seat?"신청완료":"미신청"]));
+    XLSX.utils.book_append_sheet(wb, aoaSheet(aoa), safeName(`${c}반`));
+  });
+  saveWb(wb, `전공체험_전교생명단_${ymd()}.xlsx`);
+}
+
+// Q&A: 1시트 모든 학과 + 학과별 시트
+function downloadQna(){
+  const wb=XLSX.utils.book_new();
+  const sorted=questions.slice().sort((a,b)=>((ordOf[a.deptId]||0)-(ordOf[b.deptId]||0)) || ((a.createdAt?.seconds||0)-(b.createdAt?.seconds||0)));
+  const all=[["학과","학번","이름","질문","작성시각","수정됨"]];
+  sorted.forEach(q=>all.push([q.deptName||"", q.studentId||"", q.name||"", q.text||"", timeStr(q.createdAt), q.editedAt?"수정됨":""]));
+  XLSX.utils.book_append_sheet(wb, aoaSheet(all), "모든학과질문");
+  depts.forEach(d=>{
+    const list=sorted.filter(q=>q.deptId===d.id);
+    const aoa=[["학번","이름","질문","작성시각","수정됨"]];
+    list.forEach(q=>aoa.push([q.studentId||"", q.name||"", q.text||"", timeStr(q.createdAt), q.editedAt?"수정됨":""]));
+    if(list.length===0) aoa.push(["(질문 없음)","","","",""]);
+    XLSX.utils.book_append_sheet(wb, aoaSheet(aoa), safeName(`${d.ord}.${d.name}`));
+  });
+  saveWb(wb, `전공체험_학과QnA_${ymd()}.xlsx`);
+}
+
+$("csvBtn").addEventListener("click", ()=>{ if(mgTab==="dept") downloadDept(); else if(mgTab==="class") downloadClass(); else downloadAll(); });
+$("qnaCsvBtn")?.addEventListener("click", downloadQna);
 </script>
 </body>
 </html>
