@@ -826,6 +826,8 @@ function publishStats(){
   const lk=JSON.stringify(classDone);
   if(lk!==lastLiveKey){ lastLiveKey=lk; setDoc(doc(db,"stats","live"), classDone).catch(e=>console.error("live write:",e)); }
 }
+/* ===== 현황판 패널 ===== */
+function renderDash(){ try{ _renderDash(); }catch(e){ console.error("renderDash err:",e); } requestAnimationFrame(syncHeight); }
 function _renderDash(){
   if(!role) return;
   const isT = role==="teacher";
