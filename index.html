@@ -612,7 +612,7 @@ $("outBtn").addEventListener("click", ()=>{
   $("sid").value=""; $("birth").value=""; $("email").value=""; $("pw").value="";
   $("app").style.display="none"; $("gate").style.display="flex";
 });
-function teardown(){ unsub.forEach(fn=>fn()); unsub=[]; if(unsubSeat){unsubSeat();unsubSeat=null;} if(pollTimer){clearInterval(pollTimer);pollTimer=null;} if(gateTimer){clearInterval(gateTimer);gateTimer=null;} }
+function teardown(){ unsub.forEach(fn=>fn()); unsub=[]; if(unsubSeat){unsubSeat();unsubSeat=null;} if(pollTimer){clearInterval(pollTimer);pollTimer=null;} if(gateTimer){clearInterval(gateTimer);gateTimer=null;} studentStatsSubbed=false; }
 
 /* ===== 입장 ===== */
 function enterStudent(){
@@ -644,7 +644,7 @@ function showTab(id){
   $("panelQna").classList.toggle("on", id==="qna");
   if(id==="manage"){ renderManage(); mgSwitch(mgTab); }
   if(id==="qna") renderQna();
-  if(id==="dash") requestAnimationFrame(syncHeight);
+  if(id==="dash"){ if(role==="student") ensureStudentStats(); requestAnimationFrame(syncHeight); }
   $("dashCtrl").style.display="inline-flex";
 }
 
@@ -662,8 +662,7 @@ function subscribe(){
   }, e=>console.error(e)));
   if(role==="student"){
     unsubSeat=onSnapshot(doc(db,"seats",me.vhash), s=>{ seat=s.exists()?s.data():null; if(seat) selectedId=null; renderApply(); });
-    unsub.push(onSnapshot(doc(db,"stats","roster"), s=>{ roster=s.exists()?s.data():null; renderDash(); }, e=>console.error(e)));
-    unsub.push(onSnapshot(doc(db,"stats","live"), s=>{ live=s.exists()?s.data():null; renderDash(); }, e=>console.error(e)));
+    // 통계(roster/live)는 학생이 '현황판'을 열 때만 구독 → 읽기 절약
   }
   if(role==="teacher"){
     unsub.push(onSnapshot(collection(db,"seats"), s=>{ seats=s.docs.map(d=>({vhash:d.id,...d.data()})); renderDash(); renderManage(); }, e=>console.error(e)));
@@ -672,7 +671,16 @@ function subscribe(){
   unsub.push(onSnapshot(query(collection(db,"questions"),orderBy("createdAt","desc")), s=>{
     questions=s.docs.map(d=>({id:d.id,...d.data()})); if(curTab==="qna") renderQna();
   }, e=>console.error(e)));
-  pollTimer=setInterval(pollOnce, 15000);
+  // 백업 폴링: 교사만(1~2명) 30초. 학생은 실시간 구독(onSnapshot)만 사용해 읽기 최소화.
+  if(role==="teacher") pollTimer=setInterval(pollOnce, 30000);
+}
+// 학생이 현황판을 처음 열 때 통계 구독(지연)
+let studentStatsSubbed=false;
+function ensureStudentStats(){
+  if(studentStatsSubbed || role!=="student") return;
+  studentStatsSubbed=true;
+  unsub.push(onSnapshot(doc(db,"stats","roster"), s=>{ roster=s.exists()?s.data():null; renderDash(); }, e=>console.error(e)));
+  unsub.push(onSnapshot(doc(db,"stats","live"), s=>{ live=s.exists()?s.data():null; renderDash(); }, e=>console.error(e)));
 }
 async function pollOnce(){
   try{
