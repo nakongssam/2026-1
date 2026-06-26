@@ -749,7 +749,8 @@ function fmtCountdown(ms){
 }
 function fmtTime(ms){ const d=new Date(ms); const p=n=>String(n).padStart(2,"0");
   return `${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`; }
-function renderGate(){
+function renderGate(){ try{ _renderGate(); }catch(e){ console.error("renderGate err:",e); } }
+function _renderGate(){
   const open=isOpen(), t=openAtMs();
   // 학생 배너
   const b=$("gateBanner");
@@ -834,7 +835,7 @@ function _renderDash(){
   const closed=depts.filter(d=>d.filled>=d.capacity).length;
 
   // 집계 소스: 교사=실데이터, 학생=roster(정원)+live(신청수)
-  if(isT) publishStats();
+  if(isT){ try{ publishStats(); }catch(e){ console.error("publishStats err:",e); } }
   const classTotals = isT ? (()=>{ const o={}; students.forEach(st=>{const p=parseSid(st.studentId); o[p.classNo]=(o[p.classNo]||0)+1;}); return o; })() : (roster?.classTotals||{});
   const classDone   = isT ? (()=>{ const o={}; seats.forEach(s=>o[s.classNo]=(o[s.classNo]||0)+1); return o; })() : (()=>{ const o={}; if(live) Object.keys(live).forEach(k=>{ if(/^\d+$/.test(k)) o[k]=Math.max(0,live[k]||0); }); return o; })();
   const stuN = isT ? students.length : (roster?.totalStudents ?? 0);
