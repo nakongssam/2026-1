@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>영화 속 직업 진로탐색 · 영화 신청</title>
+<title>영화 속 진로를 탐색하다 · 영화 신청</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
@@ -11,19 +11,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
-    --ink:#191f2e; --body:#414653; --muted:#8a8e9a; --line:#ecebe6; --line2:#e4e2da;
-    --yellow:#1e2536; --yellow-d:#10151f; --on-yellow:#ffffff; --yellow-soft:#eef0f3; --band:#eef0f3;
-    --ok:#1f5d45; --ok-soft:#e9f1ed; --danger:#b4493f; --danger-soft:#f6e8e6; --warn:#9a6b16; --warn-soft:#f5efe1;
-    --surface:#ffffff; --page:#fdfcf9; --track:#f1f0eb;
-    --shadow:0 1px 2px rgba(20,24,38,.04), 0 6px 22px rgba(20,24,38,.06);
+    --ink:#17181c; --body:#3c3d43; --muted:#9a9aa1; --line:#ececee; --line2:#e2e2e5;
+    --yellow:#1a1b20; --yellow-d:#0c0d10; --on-yellow:#ffffff; --yellow-soft:#f0f0f2; --band:#f0f0f2;
+    --ok:#2e7d5b; --ok-soft:#e9f2ed; --danger:#c0392b; --danger-soft:#f7e9e7; --warn:#8a6d1e; --warn-soft:#f2eee3;
+    --surface:#ffffff; --page:#fbfbfc; --track:#f1f1f3;
+    --shadow:0 1px 2px rgba(15,15,20,.05), 0 6px 22px rgba(15,15,20,.07);
     --r:16px;
   }
   @media (prefers-color-scheme: dark){
     :root{
-      --ink:#eceef3; --body:#c2c6d0; --muted:#888d99; --line:#2a2e38; --line2:#343845;
-      --yellow:#eceef3; --yellow-d:#ffffff; --on-yellow:#161922; --yellow-soft:#262b36; --band:#262b36;
-      --ok:#6cc6a2; --ok-soft:#1b2e28; --danger:#f0938a; --danger-soft:#33211f; --warn:#e6b85c; --warn-soft:#2e2a1f;
-      --surface:#1d2029; --page:#13151b; --track:#262a33;
+      --ink:#f2f2f4; --body:#c4c4c9; --muted:#88888f; --line:#2a2a2e; --line2:#343438;
+      --yellow:#f2f2f4; --yellow-d:#ffffff; --on-yellow:#161619; --yellow-soft:#26262b; --band:#26262b;
+      --ok:#5fcf9e; --ok-soft:#18241f; --danger:#f0938a; --danger-soft:#2e2020; --warn:#e6b85c; --warn-soft:#2a271f;
+      --surface:#1b1b1f; --page:#111113; --track:#252529;
       --shadow:0 2px 4px rgba(0,0,0,.25), 0 10px 26px rgba(0,0,0,.35);
     }
   }
@@ -94,7 +94,7 @@
   .gstep{ background:var(--page); border:1px solid var(--line2); border-left:4px solid var(--yellow-d); border-radius:12px; padding:11px 14px; }
   .gstep .h{ font-weight:800; color:var(--ink); font-size:.92rem; margin-bottom:3px; }
   .gstep .b{ font-size:.86rem; color:var(--body); }
-  .gnote{ margin-top:14px; padding:11px 14px; background:var(--warn-soft); border:1px solid var(--warn); border-radius:11px; font-size:.88rem; color:var(--ink); font-weight:600; }
+  .gnote{ margin-top:16px; padding:11px 15px; background:var(--track); border:1px solid var(--line2); border-radius:11px; font-size:.88rem; color:var(--body); font-weight:600; }
   @media (max-width:520px){ .gsteps{ grid-template-columns:1fr; } }
 
   /* 신청 패널 */
@@ -297,11 +297,91 @@
 </style>
 </head>
 <body>
+<style>
+  /* ===== 이 행사 전용 스타일 (13 상영관 카드 / 소개 / 현황) ===== */
+  .mvgridhero{ display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; }
+  .scard{ background:var(--surface); border:1px solid var(--line2); border-radius:15px; overflow:hidden; box-shadow:var(--shadow); display:flex; flex-direction:column; transition:.14s; }
+  .scard:hover{ transform:translateY(-2px); box-shadow:0 6px 24px rgba(15,15,20,.10); }
+  .scard.mine{ border-color:var(--ok); }
+  .scard.locked{ opacity:.62; }
+  .sposter{ width:100%; aspect-ratio:16/9; background:var(--track); }
+  .sposter img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .sbody{ padding:13px 15px 15px; display:flex; flex-direction:column; flex:1; }
+  .stoprow{ display:flex; align-items:center; gap:6px; margin-bottom:7px; }
+  .roomchip{ font-size:.74rem; font-weight:800; letter-spacing:.02em; background:var(--ink); color:var(--surface); border-radius:7px; padding:2px 9px; font-variant-numeric:tabular-nums; }
+  .hallchip{ font-size:.72rem; font-weight:700; border:1.5px solid var(--line2); color:var(--body); border-radius:7px; padding:1px 8px; }
+  .scard .st{ font-weight:800; color:var(--ink); font-size:1.1rem; line-height:1.2; }
+  .scard .ssum{ font-size:.83rem; color:var(--body); margin-top:6px; line-height:1.5; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; min-height:2.5em; }
+  .scard .sfoot{ margin-top:auto; padding-top:12px; display:flex; gap:6px; align-items:stretch; }
+  .applybtn{ flex:1; border:none; background:var(--yellow); color:var(--on-yellow); border-radius:10px; padding:11px 8px; font-weight:700; font-size:.9rem; cursor:pointer; }
+  .applybtn:disabled{ background:var(--track); color:var(--muted); cursor:not-allowed; }
+  .infobtn{ flex:none; border:1.5px solid var(--line2); background:var(--surface); color:var(--body); border-radius:10px; padding:10px 13px; font-weight:700; font-size:.84rem; cursor:pointer; }
+  .infobtn:hover{ border-color:var(--ink); }
+  .minebadge{ flex:1; background:var(--ok-soft); color:var(--ok); border:1.5px solid var(--ok); border-radius:10px; padding:10px 11px; font-weight:700; font-size:.86rem; text-align:center; }
+  .cancelmini{ flex:none; border:1.5px solid var(--danger); background:var(--surface); color:var(--danger); border-radius:10px; padding:10px 13px; font-weight:700; font-size:.84rem; cursor:pointer; }
+  .lockednote{ flex:1; font-size:.82rem; color:var(--muted); font-weight:600; align-self:center; }
+  .seatline{ font-size:.78rem; font-weight:700; margin-top:8px; color:var(--body); }
+  .seatline.full{ color:var(--danger); }
+  @media (max-width:560px){ .mvgridhero{ grid-template-columns:1fr 1fr; gap:10px; } .scard .st{ font-size:.98rem; } .sbody{ padding:11px 12px 12px; } .infobtn{ padding:10px; } }
+  @media (max-width:360px){ .mvgridhero{ grid-template-columns:1fr; } }
+
+  /* 소개 모달 */
+  .imodal .box{ width:520px; max-width:100%; padding:24px 24px 22px; }
+  .imodal h3{ font-family:"Fraunces","Nanum Myeongjo",serif; font-weight:700; font-size:1.55rem; margin:0 0 3px; color:var(--ink); letter-spacing:-.01em; }
+  .imodal .ihall{ font-size:.78rem; font-weight:700; color:var(--body); background:var(--yellow-soft); display:inline-block; padding:3px 10px; border-radius:999px; margin-bottom:12px; }
+  .imodal .isum{ font-size:.92rem; color:var(--body); line-height:1.65; }
+  .imodal h4{ font-size:.82rem; font-weight:800; color:var(--ink); margin:16px 0 5px; }
+  .imodal .isum2{ margin:0; font-size:.9rem; color:var(--body); line-height:1.6; }
+  .imodal .majors{ display:flex; flex-wrap:wrap; gap:6px; }
+  .imodal .majors span{ font-size:.8rem; font-weight:600; color:var(--ink); background:var(--track); border-radius:8px; padding:3px 10px; }
+  .imodal .iact{ margin-top:18px; }
+
+  /* 현황 (공통) */
+  .statwrap{ display:flex; flex-direction:column; gap:12px; }
+  .stathead{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; }
+  .stathead .big{ font-family:"Fraunces","Nanum Myeongjo",serif; font-weight:700; font-size:1.6rem; color:var(--ink); }
+  .stathead .mut{ font-size:.86rem; color:var(--muted); font-weight:600; }
+  .progwrap{ background:var(--surface); border:1px solid var(--line2); border-radius:14px; padding:15px 17px; box-shadow:var(--shadow); }
+  .progbar{ height:9px; background:var(--track); border-radius:6px; overflow:hidden; margin-top:8px; }
+  .progbar > i{ display:block; height:100%; background:var(--ink); border-radius:6px; transition:width .4s; }
+  .srow{ padding:9px 0; border-bottom:1px solid var(--line); }
+  .srow:last-child{ border:none; }
+  .srow .top{ display:flex; align-items:center; justify-content:space-between; gap:8px; }
+  .srow .lft{ display:flex; align-items:center; gap:7px; min-width:0; }
+  .srow .rm{ font-size:.72rem; font-weight:800; background:var(--track); color:var(--body); border-radius:6px; padding:1px 7px; flex:none; font-variant-numeric:tabular-nums; }
+  .srow .nm{ font-weight:600; color:var(--ink); font-size:.9rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .srow .nm .hl{ color:var(--muted); font-weight:600; }
+  .srow .cnt{ font-size:.82rem; font-weight:700; color:var(--body); white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .srow .cnt.full{ color:var(--danger); }
+  .srow.me .nm{ color:var(--ok); }
+  .srow .track{ height:5px; background:var(--track); border-radius:5px; overflow:hidden; margin-top:5px; }
+  .srow .track > i{ display:block; height:100%; background:var(--ink); border-radius:5px; transition:width .4s; }
+  .srow.me .track > i{ background:var(--ok); }
+
+  .mysummary{ background:var(--ok-soft); border:1px solid var(--ok); border-radius:14px; padding:15px 18px; margin:6px 0 20px; }
+  .mysummary .l1{ font-weight:800; color:var(--ok); font-size:1.08rem; }
+  .mysummary .l2{ color:var(--body); font-size:.92rem; margin-top:4px; line-height:1.5; }
+  .flowlist{ margin-top:8px; }
+  .frow{ display:flex; gap:18px; padding:16px 2px; border-top:1px solid var(--line); align-items:baseline; }
+  .frow:first-child{ border-top:none; }
+  .fnum{ font-family:"Fraunces","Nanum Myeongjo",serif; font-weight:700; font-size:1.7rem; color:var(--ink); width:30px; flex:none; line-height:1; letter-spacing:-.02em; }
+  .fmeta{ min-width:0; }
+  .fmeta .h{ font-weight:800; color:var(--ink); font-size:1rem; }
+  .fmeta .h .when{ font-weight:600; color:var(--muted); font-size:.86rem; margin-left:6px; }
+  .fmeta .b{ font-size:.9rem; color:var(--body); line-height:1.55; margin-top:2px; }
+  @media (max-width:520px){ .frow{ gap:13px; } .fnum{ font-size:1.4rem; width:24px; } }
+
+  .fieldrow{ display:flex; gap:10px; } .fieldrow > div{ flex:1; }
+
+  /* 상영관 명단 (교사) */
+  .grpgrid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:12px; }
+</style>
+
 <!-- 게이트 -->
 <div class="gatewrap" id="gate">
-  <span class="gbadge">🎬 천안오성고등학교 1학년</span>
-  <h1 class="gtitle display">영화 속 직업, 진로를 찾다</h1>
-  <div class="gsub">7/15(화) · 영화 진로탐색</div>
+  <span class="gbadge">천안오성고등학교 1학년</span>
+  <h1 class="gtitle display">영화 속 진로를<br>탐색하다</h1>
+  <div class="gsub">7/15(화) 1~3교시 · 진로 영화 감상</div>
   <button class="ginfo" id="gateGuideBtn">📅 오늘 일정 보기</button>
   <div class="gcard">
     <div class="seg">
@@ -330,7 +410,7 @@
 <div id="app" style="display:none;">
   <div class="apphead">
     <div class="in">
-      <div class="ttl display"><span class="tt-main">🎬 영화 진로탐색</span> <span class="hsub"><span class="who" id="who"></span><span class="appsub">7/15(화)</span></span></div>
+      <div class="ttl display"><span class="tt-main">🎬 진로 영화</span> <span class="hsub"><span class="who" id="who"></span><span class="appsub">7/15(화)</span></span></div>
       <div class="headright">
         <span id="seatBadge"></span>
         <span class="live"><span class="dotpulse"></span> 실시간</span>
@@ -349,11 +429,12 @@
       <div class="hellorow"><div class="hello" id="hello"></div></div>
       <div class="gatebanner" id="gateBanner" style="display:none;"></div>
       <p class="lead" id="applyLead"></p>
-      <div class="grid" id="grid"><div class="empty">영화 목록 불러오는 중…</div></div>
-      <button id="applyBtn" class="bigbtn" disabled style="display:none;">신청하기</button>
+      <div class="mvgridhero" id="grid"><div class="empty">상영 목록 불러오는 중…</div></div>
       <div class="msg" id="mainMsg"></div>
-      <button id="cancelBtn" class="bigbtn danger" style="display:none; margin-top:10px;">신청 취소하고 다시 선택</button>
     </div>
+
+    <!-- 현황 (학생) -->
+    <div class="panel" id="panelStat"></div>
 
     <!-- 현황판 (교사) -->
     <div class="panel" id="panelDash">
@@ -377,18 +458,14 @@
       <div class="board">
         <div class="col">
           <div class="card">
-            <div class="ch"><span class="t">🎬 영화별 총 신청</span><span class="meta" id="mvMeta"></span></div>
-            <div class="cb" id="mvList"></div>
+            <div class="ch"><span class="t">🚪 상영관별 신청 현황</span><span class="meta" id="scrMeta"></span></div>
+            <div class="cb" id="scrList"></div>
           </div>
         </div>
         <div class="col">
           <div class="card">
-            <div class="ch"><span class="t">🏫 반별 신청률</span><span class="meta" id="classMeta"></span></div>
-            <div class="cb"><div class="cgrid" id="classList"></div></div>
-          </div>
-          <div class="card">
-            <div class="ch"><span class="t">⚠️ 점검 필요 (0~1명 조)</span><span class="meta" id="warnMeta"></span></div>
-            <div class="cb" id="warnList"></div>
+            <div class="ch"><span class="t">🏫 반별 신청 현황</span><span class="meta" id="classMeta"></span></div>
+            <div class="cb" id="classList"></div>
           </div>
         </div>
       </div>
@@ -398,39 +475,32 @@
     <div class="panel" id="panelManage">
       <div class="mgbar">
         <div class="tabs">
-          <div class="tab active" id="tabMovies">🎬 영화 설정</div>
-          <div class="tab" id="tabGroups">🧩 반별 조편성</div>
+          <div class="tab active" id="tabGroups">🚪 상영관 명단</div>
           <div class="tab" id="tabAll">📋 전교생</div>
         </div>
         <div class="spacer"></div>
         <button class="ghost" id="csvBtn">⬇ 다운로드</button>
       </div>
+      <div class="bar">
+        <button id="seedBtn">🎬 상영 13개 세팅</button>
+        <button class="ghost" id="recalcBtn">정원 재계산</button>
+        <button class="ghost" id="importBtn">학생 명단 가져오기</button>
+        <button class="ghost" id="addStuBtn">＋ 학생 추가</button>
+        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" />
+      </div>
       <div id="status"></div>
 
-      <!-- 영화 설정 -->
-      <div id="moviesView">
-        <div class="bar">
-          <button id="addMvBtn">＋ 영화 추가</button>
-          <button class="ghost" id="seed13Btn">📋 조사된 영화 13편(반당 3명)</button>
-          <button class="ghost" id="seed7Btn">샘플 7편(반당 6명)</button>
-          <button class="ghost" id="importBtn">학생 명단 가져오기</button>
-          <button class="ghost" id="recalcBtn">정원 재계산</button>
-          <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" />
-        </div>
+      <!-- 상영관 명단 -->
+      <div id="groupsView">
         <div class="summary" id="mvSummary"></div>
-        <div class="mvgrid" id="mvGrid"></div>
-      </div>
-
-      <!-- 반별 조편성 -->
-      <div id="groupsView" style="display:none;">
-        <div class="chips" id="classChips"></div>
+        <div class="chips" id="movieChips"></div>
         <div id="groupsBody"></div>
       </div>
 
       <!-- 전교생 -->
       <div id="allView" style="display:none;">
         <div class="toolbar">
-          <label for="allFilter" style="margin:0;font-size:.85rem;font-weight:600;">영화 필터</label>
+          <label for="allFilter" style="margin:0;font-size:.85rem;font-weight:600;">상영관 필터</label>
           <select id="allFilter"></select>
         </div>
         <div class="mgrid" id="allBody"></div>
@@ -455,38 +525,41 @@
 
 <!-- 일정 모달(게이트) -->
 <div class="modal" id="guideModal"><div class="box" id="guideModalBox"></div></div>
+<!-- 영화 소개 모달 -->
+<div class="modal imodal" id="introModal"><div class="box" id="introBox"></div></div>
 
 <!-- 학생 행 메뉴 -->
 <div class="modal" id="rowModal">
   <div class="box">
     <h3 id="rowTitle">학생</h3>
-    <button class="full" id="rowAssign">🎬 영화 배정/이동</button>
+    <button class="full" id="rowAssign">🎬 상영관 배정/이동 (대리 신청)</button>
     <button class="full" id="rowEditName">✏️ 이름 수정</button>
     <button class="full" id="rowCancelSeat">신청 취소</button>
+    <button class="full" id="rowDelete" style="background:var(--danger);color:#fff">🗑 학생 삭제</button>
     <button class="full x" id="rowClose">닫기</button>
   </div>
 </div>
 
-<!-- 영화 배정 모달 -->
+<!-- 상영관 배정 모달 -->
 <div class="modal" id="assignModal">
   <div class="box">
-    <h3 id="assignTitle">영화 배정</h3>
+    <h3 id="assignTitle">상영관 배정</h3>
     <div class="mvselect" id="assignList"></div>
     <div class="mmsg" id="assignMsg"></div>
     <button class="full x" id="assignClose">닫기</button>
   </div>
 </div>
 
-<!-- 영화 추가/수정 모달 -->
-<div class="modal" id="mvModal">
+<!-- 학생 추가 모달 -->
+<div class="modal" id="stuModal">
   <div class="box">
-    <h3 id="mvModalTitle">영화 추가</h3>
-    <label>영화 제목</label><input id="mvName" placeholder="예) 인턴" />
-    <label>설명 (관련 직업·줄거리 등)</label><textarea id="mvDetail" rows="2" placeholder="예) 70세 인턴이 보여주는 직업윤리와 일의 의미"></textarea>
-    <label>반당 정원 (한 반에서 이 영화를 볼 인원)</label><input id="mvCap" inputmode="numeric" placeholder="예) 3" />
-    <div class="mmsg" id="mvMsg"></div>
-    <button class="full" id="mvSave">저장</button>
-    <button class="full x" id="mvCancel">닫기</button>
+    <h3>학생 추가</h3>
+    <label>학번 (5자리)</label><input id="nsSid" inputmode="numeric" maxlength="5" placeholder="예) 10101" />
+    <label>이름</label><input id="nsName" placeholder="예) 홍길동" />
+    <label>생년월일 6자리</label><input id="nsBirth" inputmode="numeric" maxlength="6" placeholder="예) 100101" />
+    <div class="mmsg" id="nsMsg"></div>
+    <button class="full" id="nsSave">추가</button>
+    <button class="full x" id="nsCancel">닫기</button>
   </div>
 </div>
 
@@ -508,60 +581,39 @@ const firebaseConfig = {
   measurementId: "G-FTNE1QRPN7",
 };
 const TEACHER_EMAIL = "hn9193@gmail.com";
-const EV = "movie-2026";   // 이 행사 전용 네임스페이스 (전공체험과 분리). students 컬렉션은 공유.
+const EV = "movie-2026";
+const CAP = 36;
 
-const SCHEDULE = [
-  { p:"1교시", t:"담임 자율 시간", who:"담임 임장" },
-  { p:"2~3교시", t:"진로 영화 감상 (직소 모형)", who:"부담임 임장" },
-  { p:"4교시", t:"조별 발표자료 제작", who:"부담임 임장" },
-  { p:"5교시", t:"조별 발표자료 제작", who:"담임 임장" },
-  { p:"6교시", t:"조별 발표", who:"담임 임장" },
-  { p:"7교시", t:"시상 🎁", who:"담임 임장" },
-];
+const SCHEDULE_NOTE = "7월 15일(화) · 1학년 진로탐색 (1~3교시)";
 
-/* 조사된 영화 13편 (12편 + 샘플 1편) · 반당 정원 3명 권장
-   detail = 학생용(이야기거리 + 관련학과) / where = 교사 소싱용(볼 수 있는 곳, 학생에겐 안 보임) */
-const MOVIE_SEED = [
-  { name:"아이, 로봇", perClass:3,
-    detail:"AI 개발에는 어떤 윤리와 책임이 함께 따라야 할까? 인간과 인공지능의 공존을 생각해보는 SF. · 관련학과: 컴퓨터공학, AI·로봇공학, 철학(윤리학), 법학",
-    where:"웨이브, 애플TV, 쿠팡플레이, 디즈니플러스, U+ TV" },
-  { name:"아바타 1", perClass:3,
-    detail:"개발과 환경 보호, 원주민 문화 보존은 어떻게 공존할 수 있을까? 성장과 보전의 갈등을 다룬다. · 관련학과: 환경공학, 문화인류학, 생태학, 정치외교학",
-    where:"디즈니플러스" },
-  { name:"가타카", perClass:3,
-    detail:"유전병을 막기 위한 배아 유전자 편집, 어디까지 허용해야 할까? 유전자가 한 사람의 운명을 결정할까? · 관련학과: 생명공학, 의학·생명윤리, 법학, 철학",
-    where:"쿠팡플레이, 웨이브, 왓챠, U+ TV, 유튜브" },
-  { name:"세 얼간이", perClass:3,
-    detail:"성공을 좇으면 행복이 따라올까, 아니면 좋아하는 일을 좇아야 성공도 따라올까? · 관련학과: 공학계열(기계공학 등), 교육학, 교육공학",
-    where:"왓챠" },
-  { name:"소울 (Soul)", perClass:3,
-    detail:"삶의 목적은 반드시 있어야 할까? 꿈을 이루는 것과 행복하게 사는 것, 무엇이 더 중요할까? · 관련학과: 심리학, 철학, 교육학, 상담학",
-    where:"디즈니플러스, 웨이브" },
-  { name:"프리덤 라이터스", perClass:3,
-    detail:"교육은 한 사람의 삶을, 그리고 사회의 불평등을 얼마나 바꿀 수 있을까? 차별과 편견은 어떻게 넘어설까? · 관련학과: 교육학, 영어영문학, 사회복지학, 상담학",
-    where:"유튜브" },
-  { name:"블라인드 사이드", perClass:3,
-    detail:"성공은 노력일까 환경일까? 한 사람의 선의가 사회를 바꿀 수 있을까? 약자를 돕는 건 개인의 책임일까, 사회의 책임일까? · 관련학과: 사회복지학, 교육학, 체육학, 심리학",
-    where:"웨이브, 유튜브, 구글플레이" },
-  { name:"위대한 쇼맨", perClass:3,
-    detail:"편견을 넘어서는 길은 무엇일까? 성공을 위해 타인을 이용하는 건 정당할까? 다양성을 존중하는 사회란 어떤 모습일까? · 관련학과: 경영학, 사회학, 공연예술학, 교육학",
-    where:"디즈니플러스, 웨이브, 유튜브" },
-  { name:"레미제라블", perClass:3,
-    detail:"법은 언제나 정의로울까? 과거의 잘못으로 평생 평가받아야 할까? 용서와 처벌 중 무엇이 사회를 더 낫게 만들까? · 관련학과: 법학, 정치외교학, 사회학, 역사학, 영어영문학",
-    where:"넷플릭스, 쿠팡플레이, 구글플레이, 왓챠, 애플TV" },
-  { name:"트루먼 쇼", perClass:3,
-    detail:"개인의 사생활은 어디까지 보호받아야 할까? 타인의 시선과 SNS 속 삶은 진짜 나일까? 진실을 아는 것이 늘 행복일까? · 관련학과: 언론정보학, 미디어커뮤니케이션학, 심리학, 사회학",
-    where:"넷플릭스, 쿠팡플레이, 구글플레이, 웨이브" },
-  { name:"댓글부대", perClass:3,
-    detail:"온라인 여론은 나의 주체적 판단일까, 알고리즘과 조작의 결과일까? 가짜뉴스·바이럴 마케팅과 플랫폼의 책임, 디지털 미디어 리터러시를 토론해보자. · 관련학과: 미디어커뮤니케이션학, 신문방송학, 사회학, 정보보호학, 컴퓨터공학 (한국·1시간 49분)",
-    where:"유튜브, 넷플릭스, 쿠팡플레이, 구글플레이, 웨이브" },
-  { name:"헬프 (The Help)", perClass:3,
-    detail:"인종차별은 여전히 우리 곁의 문제다. 혐오와 차별을 우리는 어떻게 풀어갈 수 있을까? · 관련학과: 사회학, 사회복지학, 역사학, 심리학",
-    where:"쿠팡플레이" },
-  { name:"샘플 영화 (수정 필요)", perClass:3,
-    detail:"예비 슬롯이에요. '✏️ 수정'에서 제목·설명을 채우거나, 12편으로 진행하려면 '🗑 삭제'하세요.",
-    where:"" },
+/* 영화 정보 (8편) */
+const MOVIE_INFO = {
+  "가타카":   { summary:"유전자로 계급이 나뉜 미래. '부적격자'로 태어난 빈센트가 타인의 신분을 빌려 우주비행사의 꿈에 도전한다.", talk:"유전병을 막기 위한 배아 유전자 편집, 어디까지 허용해야 할까? 유전자가 한 사람의 운명을 결정할까?", majors:"생명공학, 의학·생명윤리, 법학, 철학", poster:"" },
+  "트루먼쇼": { summary:"태어날 때부터 거대한 세트장에서 24시간 생중계되는 삶을 살아온 트루먼이, 자신의 세계가 가짜임을 깨닫는 이야기.", talk:"개인의 사생활은 어디까지 보호받아야 할까? 타인의 시선과 SNS 속 삶은 진짜 나일까? 진실을 아는 것은 늘 행복일까?", majors:"언론정보학, 미디어커뮤니케이션학, 심리학, 사회학", poster:"" },
+  "1987":     { summary:"1987년, 한 대학생의 죽음을 은폐하려는 권력에 맞서 진실을 밝히려는 사람들의 실화. 6월 민주항쟁으로 이어진 그날의 기록.", talk:"개인의 용기가 사회를 바꿀 수 있을까? 진실을 밝히는 데 언론과 시민은 어떤 역할을 할까? 민주주의는 어떻게 지켜지는가?", majors:"정치외교학, 법학, 사회학, 역사학, 신문방송학", poster:"" },
+  "아이로봇": { summary:"2035년, 로봇이 일상이 된 미래. 로봇을 불신하는 형사가 한 과학자의 죽음을 파헤치며 AI를 둘러싼 음모와 마주한다.", talk:"AI 개발에는 어떤 윤리와 책임이 따라야 할까? 인간과 인공지능은 공존할 수 있을까?", majors:"컴퓨터공학, AI·로봇공학, 철학(윤리학), 법학", poster:"" },
+  "소울":     { summary:"재즈 피아니스트를 꿈꾸던 조가 사고로 영혼이 되어, 태어나기 전 영혼 '22'와 함께 삶의 의미를 찾아가는 픽사 애니메이션.", talk:"삶의 목적은 반드시 있어야 할까? 꿈을 이루는 것과 행복하게 사는 것 중 무엇이 더 중요할까?", majors:"심리학, 철학, 교육학, 상담학", poster:"" },
+  "위대한쇼맨":{ summary:"무일푼에서 쇼 비즈니스를 일군 P.T. 바넘이 남들과 '다른' 사람들과 함께 세상의 편견에 맞서는 뮤지컬.", talk:"편견을 넘어서는 길은 무엇일까? 성공을 위해 타인을 이용하는 건 정당할까? 다양성을 존중하는 사회란?", majors:"경영학, 사회학, 공연예술학, 교육학", poster:"" },
+  "댓글부대": { summary:"온라인 여론 조작 조직의 실체를 쫓는 기자를 통해, 디지털 시대 진실과 조작의 경계를 그린 한국 영화.", talk:"온라인 여론은 나의 판단일까, 조작의 결과일까? 가짜뉴스와 디지털 미디어 리터러시를 어떻게 갖춰야 할까?", majors:"미디어커뮤니케이션학, 신문방송학, 사회학, 정보보호학, 컴퓨터공학", poster:"" },
+  "블라인드사이드":{ summary:"갈 곳 없던 소년 마이클이 한 가정에 입양되어 가족의 사랑 속에 미식축구 선수로 성장하는 실화.", talk:"성공은 노력일까 환경일까? 한 사람의 선의가 사회를 바꿀 수 있을까? 약자를 돕는 건 개인의 책임일까, 사회의 책임일까?", majors:"사회복지학, 교육학, 체육학, 심리학", poster:"" },
+};
+/* 상영관 13개 (교실=카드) · hall 0=단독, 1/2=분반 */
+const SCREENINGS = [
+  { room:"1-1",  key:"가타카",   hall:0 },
+  { room:"1-2",  key:"트루먼쇼", hall:0 },
+  { room:"1-3",  key:"1987",     hall:0 },
+  { room:"1-4",  key:"아이로봇", hall:1 },
+  { room:"1-5",  key:"아이로봇", hall:2 },
+  { room:"1-6",  key:"소울",     hall:1 },
+  { room:"1-7",  key:"소울",     hall:2 },
+  { room:"1-8",  key:"위대한쇼맨", hall:1 },
+  { room:"1-9",  key:"위대한쇼맨", hall:2 },
+  { room:"1-10", key:"댓글부대", hall:1 },
+  { room:"1-11", key:"댓글부대", hall:2 },
+  { room:"1-12", key:"블라인드사이드", hall:1 },
+  { room:"1-13", key:"블라인드사이드", hall:2 },
 ];
+const DISPLAY_NAME = { "아이로봇":"아이, 로봇", "트루먼쇼":"트루먼 쇼", "소울":"소울 (Soul)", "위대한쇼맨":"위대한 쇼맨", "블라인드사이드":"블라인드 사이드", "가타카":"가타카", "1987":"1987", "댓글부대":"댓글부대" };
 
 /* ===== 초기화 ===== */
 const app = initializeApp(firebaseConfig);
@@ -570,35 +622,37 @@ const auth = getAuth(app);
 setPersistence(auth, browserLocalPersistence).catch(()=>{});
 const $=(id)=>document.getElementById(id);
 
-/* 경로 헬퍼 */
 const evDoc=(...p)=>doc(db,"events",EV,...p);
 const evCol=(...p)=>collection(db,"events",EV,...p);
 const itemsCol=()=>evCol("items");
 const seatsCol=()=>evCol("seats");
 const questionsCol=()=>evCol("questions");
 const gateRef=()=>evDoc("config","gate");
-const cntDoc=(cls,mid)=>doc(db,"events",EV,"counts",String(cls),"movies",mid);
-const cntCol=(cls)=>collection(db,"events",EV,"counts",String(cls),"movies");
+const scrDoc=(sid)=>evDoc("screenings",sid);
+const scrCol=()=>evCol("screenings");
 
 /* ===== 상태 ===== */
-let role=null, me=null, seat=null, selectedId=null;
+let role=null, me=null, seat=null;
 let items=[], seats=[], students=[], questions=[];
-let myCounts={};            // 학생: {movieId:n} (우리 반)
+let scrMap={};   // itemId -> n
 let gate={open:false, openAt:null}, gateTimer=null;
-let unsub=[], unsubSeat=null, unsubCounts=null, pollTimer=null, curTab=null;
-let mgTab="movies", classPick="all", allFilter="all";
+let unsub=[], unsubSeat=null, unsubScr=null, pollTimer=null, curTab=null;
+let mgTab="groups", moviePick="all", allFilter="all";
 let qnaPick=null, qnaUserPicked=false, editId=null;
-let mvEditId=null, rowVhash=null, assignVhash=null;
+let rowVhash=null, assignVhash=null;
 
-const esc=(s)=>String(s).replace(/[&<>]/g,(c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;" }[c]));
+const esc=(s)=>String(s==null?"":s).replace(/[&<>"]/g,(c)=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
 const parseSid=(sid)=>{ const s=String(sid); return { classNo:+s.slice(1,3), studentNo:+s.slice(3,5) }; };
 async function sha256Hex(str){ const b=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(str)); return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(""); }
 const normBirth=(s)=>String(s).replace(/\D/g,"").padStart(6,"0").slice(-6);
 const vhashOf=(sid,birth)=>sha256Hex(`${String(sid).trim()}|${normBirth(birth)}`);
-const itemName=(id)=>{ const m=items.find(x=>x.id===id); return m?m.name:""; };
+const findItem=(id)=>items.find(x=>x.id===id);
+const hallLabel=(it)=> (it&&it.halls>1&&(it.hall===1||it.hall===2)) ? `${it.hall}분반` : "";
+const remain=(id)=>CAP-(scrMap[id]||0);
 function showMsg(el,t,type){ el.textContent=t; el.className="msg show "+type; }
 function clearMsg(el){ el.className="msg"; }
 function setStatus(t,cls=""){ const e=$("status"); if(e){ e.textContent=t; e.className=cls; } }
+function uniqueMovies(){ const seen={}, out=[]; items.forEach(it=>{ if(!seen[it.movieKey]){ seen[it.movieKey]=1; out.push(it); } }); return out; }
 
 /* ===== 게이트 입력 ===== */
 $("segStu").addEventListener("click", ()=>{ $("segStu").classList.add("on"); $("segTea").classList.remove("on"); $("stuForm").style.display="block"; $("teaForm").style.display="none"; $("gateErr").textContent=""; });
@@ -647,17 +701,17 @@ onEnter("sid","stuGo"); onEnter("birth","stuGo"); onEnter("email","teaGo"); onEn
 $("outBtn").addEventListener("click", ()=>{
   try{ localStorage.removeItem("ses_movie"); }catch(e){}
   if(role==="teacher"){ signOut(auth).then(()=>signInAnonymously(auth)); }
-  teardown(); role=null; me=null; seat=null; selectedId=null; myCounts={};
+  teardown(); role=null; me=null; seat=null; scrMap={};
   $("sid").value=""; $("birth").value=""; $("email").value=""; $("pw").value="";
   $("app").style.display="none"; $("gate").style.display="flex";
 });
-function teardown(){ unsub.forEach(fn=>fn()); unsub=[]; if(unsubSeat){unsubSeat();unsubSeat=null;} if(unsubCounts){unsubCounts();unsubCounts=null;} if(pollTimer){clearInterval(pollTimer);pollTimer=null;} if(gateTimer){clearInterval(gateTimer);gateTimer=null;} }
+function teardown(){ unsub.forEach(fn=>fn()); unsub=[]; if(unsubSeat){unsubSeat();unsubSeat=null;} if(unsubScr){unsubScr();unsubScr=null;} if(pollTimer){clearInterval(pollTimer);pollTimer=null;} if(gateTimer){clearInterval(gateTimer);gateTimer=null;} }
 
 /* ===== 입장 ===== */
 function enterStudent(){
   role="student"; $("who").textContent=`· ${me.name} (${me.studentId})`;
   $("hello").textContent=`${me.name} 학생, 환영합니다`;
-  buildTabs([{id:"guide",label:"📅 안내"},{id:"apply",label:"🎬 영화 신청"},{id:"qna",label:"💬 Q&A"}]);
+  buildTabs([{id:"guide",label:"📅 안내"},{id:"apply",label:"🎬 영화 신청"},{id:"stat",label:"📊 현황"},{id:"qna",label:"💬 Q&A"}]);
   $("gate").style.display="none"; $("app").style.display="block";
   subscribe(); showTab("guide");
 }
@@ -674,13 +728,12 @@ function buildTabs(tabs){
 function showTab(id){
   curTab=id;
   $("tabbar").querySelectorAll(".tabbtn").forEach(b=>b.classList.toggle("on", b.dataset.tab===id));
-  $("panelGuide").classList.toggle("on", id==="guide");
-  $("panelApply").classList.toggle("on", id==="apply");
-  $("panelDash").classList.toggle("on", id==="dash");
-  $("panelManage").classList.toggle("on", id==="manage");
-  $("panelQna").classList.toggle("on", id==="qna");
+  ["Guide","Apply","Stat","Dash","Manage","Qna"].forEach(P=>{ const el=$("panel"+P); if(el) el.classList.remove("on"); });
+  const map={guide:"Guide",apply:"Apply",stat:"Stat",dash:"Dash",manage:"Manage",qna:"Qna"};
+  const el=$("panel"+map[id]); if(el) el.classList.add("on");
   if(id==="guide") renderGuide();
   if(id==="apply") renderApply();
+  if(id==="stat") renderStat();
   if(id==="dash") renderDash();
   if(id==="manage"){ renderManage(); mgSwitch(mgTab); }
   if(id==="qna") renderQna();
@@ -692,12 +745,12 @@ function subscribe(){
   if(!gateTimer) gateTimer=setInterval(renderGate, 1000);
   unsub.push(onSnapshot(query(itemsCol(),orderBy("ord")), s=>{
     items=s.docs.map(d=>({id:d.id,...d.data()}));
-    if(!qnaPick && items.length) qnaPick=items[0].id;
-    renderApply(); renderDash(); renderManage(); renderQna(); renderGuide();
+    if(!qnaPick && items.length) qnaPick=items[0].movieKey;
+    renderApply(); renderStat(); renderDash(); renderManage(); renderQna(); renderGuide();
   }, e=>console.error(e)));
+  unsubScr=onSnapshot(scrCol(), s=>{ scrMap={}; s.docs.forEach(d=>scrMap[d.id]=d.data().n||0); renderApply(); renderStat(); renderDash(); }, e=>console.error(e));
   if(role==="student"){
-    unsubSeat=onSnapshot(evDoc("seats",me.vhash), s=>{ seat=s.exists()?s.data():null; if(seat) selectedId=null; renderApply(); renderGuide(); });
-    unsubCounts=onSnapshot(cntCol(me.classNo), s=>{ myCounts={}; s.docs.forEach(d=>myCounts[d.id]=d.data().n||0); renderApply(); });
+    unsubSeat=onSnapshot(evDoc("seats",me.vhash), s=>{ seat=s.exists()?s.data():null; renderApply(); renderGuide(); renderStat(); });
   }
   if(role==="teacher"){
     unsub.push(onSnapshot(seatsCol(), s=>{ seats=s.docs.map(d=>({vhash:d.id,...d.data()})); renderDash(); renderManage(); }, e=>console.error(e)));
@@ -708,105 +761,147 @@ function subscribe(){
 }
 async function pollOnce(){
   try{
-    const res=await Promise.all([ getDocs(query(itemsCol(),orderBy("ord"))), getDocs(seatsCol()), getDocs(collection(db,"students")) ]);
+    const res=await Promise.all([ getDocs(query(itemsCol(),orderBy("ord"))), getDocs(seatsCol()), getDocs(collection(db,"students")), getDocs(scrCol()) ]);
     items=res[0].docs.map(d=>({id:d.id,...d.data()}));
     seats=res[1].docs.map(d=>({vhash:d.id,...d.data()}));
     students=res[2].docs.map(d=>({vhash:d.id,...d.data()}));
+    scrMap={}; res[3].docs.forEach(d=>scrMap[d.id]=d.data().n||0);
     renderDash(); renderManage();
   }catch(e){}
 }
 
 /* ===== 안내 ===== */
 function guideHTML(personal){
-  const rows = SCHEDULE.map(s=>`<tr><td class="per">${s.p}</td><td class="act">${s.t}</td><td><span class="who2">${s.who}</span></td></tr>`).join("");
   let my="";
   if(personal && personal.seat){
-    my = `<div class="mybox"><div class="ttl2">🎬 내 영화 : ${esc(personal.seat.movieName)}</div>
-      <div class="sub2">${personal.classNo}반에서 같은 영화를 고른 친구들과 한 모둠이에요. 4~5교시에 함께 발표자료를 만들고, 6교시에 발표해요!</div></div>`;
+    const it=findItem(personal.seat.itemId); const hl=it?hallLabel(it):(personal.seat.hall>1?`${personal.seat.hall}분반`:"");
+    const room=personal.seat.room||(it?it.room:"");
+    my = `<div class="mysummary"><div class="l1">🎬 내 영화 : ${esc(personal.seat.movieName)}${hl?` · ${hl}`:""}</div>
+      <div class="l2">1~2교시 <b>${esc(room)} 교실</b>로 바로 가서 관람하고, 3교시에 소감문을 작성해요.</div></div>`;
   } else if(personal){
-    my = `<div class="gnote">아직 영화를 신청하지 않았어요. <b>🎬 영화 신청</b> 탭에서 보고 싶은 영화를 1편 골라주세요!</div>`;
+    my = `<div class="gnote">아직 영화를 신청하지 않았어요. <b>🎬 영화 신청</b> 탭에서 보고 싶은 영화를 1편 골라주세요.</div>`;
   }
-  return `<h2 class="display">🎬 영화 속 직업, 진로를 찾다</h2>
-    <p class="gd-sub">7월 15일(화) · 1학년 진로탐색 프로그램</p>
+  return `<h2 class="display">영화 속 진로를 탐색하다</h2>
+    <p class="gd-sub">${SCHEDULE_NOTE}</p>
     ${my}
-    <table class="sched"><thead><tr><th>교시</th><th>활동</th><th>임장</th></tr></thead><tbody>${rows}</tbody></table>
-    <div class="gsteps">
-      <div class="gstep"><div class="h">🍿 2~3교시 · 영화 감상 (직소)</div><div class="b">우리 반 안에서 서로 다른 영화를 나눠 봐요. <b>같은 영화를 고른 친구들이 한 모둠</b>이 됩니다.</div></div>
-      <div class="gstep"><div class="h">📝 4~5교시 · 발표자료 만들기</div><div class="b">같은 영화를 본 모둠끼리, 영화 속 <b>직업·진로</b> 이야기를 담은 발표자료를 만들어요.</div></div>
-      <div class="gstep"><div class="h">🎤 6교시 · 조별 발표</div><div class="b">모둠별로 학급 친구들에게 영화와 진로 이야기를 발표해요.</div></div>
-      <div class="gstep"><div class="h">🏆 7교시 · 시상</div><div class="b">발표를 잘한 모둠에게 시상! (간식 준비 중 🎁)</div></div>
-    </div>
-    <div class="gnote">영화는 <b>우리 반 정원 안에서 선착순</b>이에요. 마음에 드는 영화가 마감되기 전에 신청하세요.</div>`;
+    <div class="flowlist">
+      <div class="frow"><div class="fnum">1</div><div class="fmeta"><div class="h">미리보기</div><div class="b">각 영화 카드의 <b>자세히</b>에서 줄거리·관련 학과·생각해볼 질문을 살펴봐요.</div></div></div>
+      <div class="frow"><div class="fnum">2</div><div class="fmeta"><div class="h">영화 신청</div><div class="b">13개 상영관 중 보고 싶은 <b>1편을 선착순</b>으로 신청해요. 한 상영관 정원은 36명이에요.</div></div></div>
+      <div class="frow"><div class="fnum">3</div><div class="fmeta"><div class="h">관람 <span class="when">· 1~2교시</span></div><div class="b">신청한 영화의 <b>배정 교실로 바로 이동</b>해서 함께 관람해요.</div></div></div>
+      <div class="frow"><div class="fnum">4</div><div class="fmeta"><div class="h">소감문 <span class="when">· 3교시</span></div><div class="b">영화 속 직업·진로에 대한 나의 생각을 <b>소감문</b>으로 정리해요.</div></div></div>
+    </div>`;
 }
 function renderGuide(){
   const p=$("panelGuide"); if(!p.classList.contains("on")&&curTab!=="guide") return;
-  const personal = role==="student" ? { seat, classNo: me?.classNo } : null;
+  const personal = role==="student" ? { seat } : null;
   p.innerHTML = `<div class="guide">${guideHTML(personal)}</div>`;
 }
 
-/* ===== 신청 ===== */
+/* ===== 신청 (학생) ===== */
 function renderApply(){
   if(role!=="student") return;
-  $("applyLead").textContent = `🎬 우리 반(${me.classNo}반)에서 볼 영화를 1편 신청하세요. 같은 영화를 고른 친구들이 한 모둠이 됩니다. 자리가 남아 있으면 취소 후 다시 신청할 수 있어요.`;
-  const locked=!!seat;
-  if(!items.length){ $("grid").innerHTML=`<div class="empty">아직 영화 목록이 준비되지 않았어요. 잠시만 기다려 주세요.</div>`; }
-  else $("grid").innerHTML = items.map(d=>{
-    const n=myCounts[d.id]||0, cap=d.perClass||0, rem=cap-n, full=rem<=0, pct=cap?Math.round(n/cap*100):0;
-    const isMine=seat&&seat.movieId===d.id, isSel=!locked&&selectedId===d.id;
-    let cls="blk"; if(isMine) cls+=" mine locked"; else if(locked) cls+=" locked"; else if(full) cls+=" full"; else if(isSel) cls+=" selected";
-    return `<div class="${cls}" data-id="${d.id}" ${(!locked&&!full)?'role="button"':''}>
-      <div class="nm" title="${esc(d.name)}">${esc(d.name)}</div><div class="dt">${esc(d.detail||"")}</div>
-      <div class="bartrack"><div class="barfill" style="width:${pct}%"></div></div>
-      <div class="seat">${full&&!isMine?`마감 · ${n}/${cap}`:`${n}/${cap} · 잔여 ${rem}석`}</div></div>`;
+  $("applyLead").textContent = `🎬 13개 상영관 중 보고 싶은 영화를 1편 신청하세요. 같은 영화가 두 교실(분반)에서 상영되기도 해요. 자리가 남아 있으면 취소 후 다시 선택할 수 있어요.`;
+  const open=isOpen();
+  if(!items.length){ $("grid").innerHTML=`<div class="empty">아직 상영 목록이 준비되지 않았어요. 잠시만 기다려 주세요.</div>`; }
+  else $("grid").innerHTML = items.map(it=>{
+    const isMine = seat && seat.itemId===it.id;
+    const locked = !!seat && !isMine;
+    const rem=remain(it.id), full=rem<=0;
+    const hl=hallLabel(it);
+    const poster = it.poster ? `<div class="sposter"><img src="${esc(it.poster)}" alt="" onerror="this.parentElement.style.display='none'"></div>` : "";
+    let foot;
+    if(isMine){ foot=`<div class="minebadge">✓ 신청함</div><button class="cancelmini" data-cancel="1">취소</button>`; }
+    else if(locked){ foot=`<div class="lockednote">다른 영화 신청 중</div><button class="infobtn" data-info="${it.movieKey}">자세히</button>`; }
+    else { foot=`<button class="applybtn" data-apply="${it.id}" ${(!open||full)?'disabled':''}>${full?'마감됨':'신청하기'}</button><button class="infobtn" data-info="${it.movieKey}">자세히</button>`; }
+    return `<div class="scard ${isMine?'mine':''} ${locked?'locked':''}">${poster}
+      <div class="sbody">
+        <div class="stoprow">${it.room?`<span class="roomchip">${esc(it.room)}</span>`:''}${hl?`<span class="hallchip">${hl}</span>`:''}</div>
+        <div class="st">${esc(it.movieName||it.name||"제목 미정")}</div>
+        <div class="ssum">${esc(it.summary||"")}</div>
+        <div class="seatline ${full&&!isMine?'full':''}">${isMine?'내가 신청한 상영관':(full?`마감 · ${CAP}/${CAP}`:`잔여 ${rem} / ${CAP}석`)}</div>
+        <div class="sfoot">${foot}</div>
+      </div></div>`;
   }).join("");
-  if(!locked) $("grid").querySelectorAll(".blk:not(.full)").forEach(el=>el.addEventListener("click", ()=>{ selectedId=el.dataset.id; renderApply(); }));
-  if(seat){
-    $("seatBadge").innerHTML=`<span class="curbadge-h">🎬 ${esc(seat.movieName)}</span>`;
-    $("applyBtn").style.display="none"; $("cancelBtn").style.display="block";
-  }else{
-    $("seatBadge").innerHTML="";
-    $("applyBtn").style.display="block"; $("cancelBtn").style.display="none";
-  }
-  syncApplyLock(isOpen());
+  $("grid").querySelectorAll("[data-info]").forEach(b=>b.addEventListener("click", ()=>openIntro(b.dataset.info)));
+  $("grid").querySelectorAll("[data-apply]").forEach(b=>b.addEventListener("click", ()=>applyScreening(b.dataset.apply)));
+  $("grid").querySelectorAll("[data-cancel]").forEach(b=>b.addEventListener("click", cancelSeat));
+  if(seat){ const hl=seat.hall>1?` ${seat.hall}분반`:""; $("seatBadge").innerHTML=`<span class="curbadge-h">🎬 ${esc(seat.movieName)}${hl} · ${esc(seat.room)}</span>`; }
+  else $("seatBadge").innerHTML="";
 }
-$("applyBtn").addEventListener("click", async ()=>{
+async function applyScreening(itemId){
   clearMsg($("mainMsg"));
   if(!isOpen()) return showMsg($("mainMsg"),"아직 신청이 열리지 않았습니다.","error");
-  if(!selectedId) return showMsg($("mainMsg"),"신청할 영화를 선택해 주세요.","error");
-  $("applyBtn").disabled=true; $("applyBtn").textContent="신청 중…";
+  const it=findItem(itemId); if(!it) return;
   try{
     const r=await runTransaction(db, async (tx)=>{
-      const seatRef=evDoc("seats",me.vhash), itemRef=evDoc("items",selectedId), cRef=cntDoc(me.classNo,selectedId);
+      const seatRef=evDoc("seats",me.vhash), sRef=scrDoc(itemId);
       const ss=await tx.get(seatRef); if(ss.exists()) return {s:"HAS",n:ss.data().movieName};
-      const is=await tx.get(itemRef); if(!is.exists()) return {s:"ERR"};
-      const cap=is.data().perClass||0;
-      const cs=await tx.get(cRef); const n=cs.exists()?(cs.data().n||0):0;
-      if(n>=cap) return {s:"FULL",n:is.data().name};
-      tx.set(seatRef,{ studentId:me.studentId, name:me.name, classNo:me.classNo, studentNo:me.studentNo, movieId:selectedId, movieName:is.data().name, createdAt:serverTimestamp() });
-      tx.set(cRef,{ n:n+1 });
-      return {s:"OK",n:is.data().name};
+      const cs=await tx.get(sRef); const n=cs.exists()?(cs.data().n||0):0;
+      if(n>=CAP) return {s:"FULL",n:it.movieName};
+      tx.set(seatRef,{ studentId:me.studentId, name:me.name, classNo:me.classNo, studentNo:me.studentNo, movieId:itemId, itemId, movieName:it.movieName, movieKey:it.movieKey, hall:it.hall||0, room:it.room, createdAt:serverTimestamp() });
+      tx.set(sRef,{ n:n+1 });
+      return {s:"OK",n:it.movieName};
     });
-    if(r.s==="OK") showMsg($("mainMsg"),`🎉 '${r.n}' 신청이 완료되었습니다!`,"success");
-    else if(r.s==="FULL") showMsg($("mainMsg"),`방금 '${r.n}'가 우리 반에서 마감되었습니다. 다른 영화를 선택해 주세요.`,"error");
-    else if(r.s==="HAS") showMsg($("mainMsg"),`이미 '${r.n}'에 신청되어 있습니다.`,"info");
-    else showMsg($("mainMsg"),"영화 정보를 찾을 수 없습니다.","error");
+    if(r.s==="OK") showMsg($("mainMsg"),`🎉 '${r.n}' (${it.room} 교실) 신청 완료!`,"success");
+    else if(r.s==="FULL") showMsg($("mainMsg"),`방금 '${r.n}' (${it.room})가 마감되었습니다. 다른 자리를 선택해 주세요.`,"error");
+    else if(r.s==="HAS") showMsg($("mainMsg"),`이미 '${r.n}'에 신청되어 있습니다. 바꾸려면 먼저 취소해 주세요.`,"info");
   }catch(e){ console.error(e); showMsg($("mainMsg"),"신청 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.","error"); }
-  finally{ $("applyBtn").textContent="신청하기"; syncApplyLock(isOpen()); }
-});
-$("cancelBtn").addEventListener("click", async ()=>{
+}
+async function cancelSeat(){
   if(!confirm("신청을 취소할까요? 취소 후 다른 영화를 다시 선택할 수 있습니다.")) return;
   clearMsg($("mainMsg"));
   try{
     await runTransaction(db, async (tx)=>{
       const seatRef=evDoc("seats",me.vhash); const ss=await tx.get(seatRef); if(!ss.exists()) return;
-      const mid=ss.data().movieId, cNo=ss.data().classNo;
-      const cRef=cntDoc(cNo,mid); const cs=await tx.get(cRef);
-      if(cs.exists()){ const n=cs.data().n||0; tx.set(cRef,{ n:Math.max(0,n-1) }); }
+      const sRef=scrDoc(ss.data().itemId); const cs=await tx.get(sRef);
+      if(cs.exists()){ const n=cs.data().n||0; tx.set(sRef,{ n:Math.max(0,n-1) }); }
       tx.delete(seatRef);
     });
     showMsg($("mainMsg"),"신청이 취소되었습니다. 원하는 영화를 다시 선택해 주세요.","info");
   }catch(e){ console.error(e); showMsg($("mainMsg"),"취소 중 오류가 발생했습니다.","error"); }
-});
+}
+
+/* 영화 소개 모달 (movieKey 기준) */
+function openIntro(mvKey){
+  const it=items.find(x=>x.movieKey===mvKey); if(!it) return;
+  const rooms=items.filter(x=>x.movieKey===mvKey);
+  const hallTxt = rooms.length>1 ? `두 교실 상영 · ${rooms.map(r=>`${r.room}(${r.hall}분반)`).join(" · ")}` : `${rooms[0].room} 교실 상영 · 36명`;
+  const majors=(it.majors||"").split(/[,·]/).map(x=>x.trim()).filter(Boolean);
+  $("introBox").innerHTML = `
+    <h3>${esc(it.movieName)}</h3>
+    <span class="ihall">${esc(hallTxt)}</span>
+    <div class="isum">${esc(it.summary||"")}</div>
+    ${it.talk?`<h4>💬 이야기해볼거리</h4><p class="isum2">${esc(it.talk)}</p>`:""}
+    ${majors.length?`<h4>🎓 관련 학과</h4><div class="majors">${majors.map(x=>`<span>${esc(x)}</span>`).join("")}</div>`:""}
+    <div class="iact"><button class="full x" id="iClose" style="margin:0">닫기</button></div>`;
+  $("introModal").classList.add("show");
+  $("iClose").addEventListener("click",()=>$("introModal").classList.remove("show"));
+}
+$("introModal").addEventListener("click",(e)=>{ if(e.target.id==="introModal") $("introModal").classList.remove("show"); });
+
+/* ===== 현황 (학생) ===== */
+function renderStat(){
+  if(role!=="student") return; const p=$("panelStat"); if(!p) return;
+  const totN=items.reduce((a,it)=>a+(scrMap[it.id]||0),0), totCap=items.length*CAP;
+  const pct=totCap?Math.round(totN/totCap*100):0, left=Math.max(0,totCap-totN);
+  const openCnt=items.filter(it=>(scrMap[it.id]||0)<CAP).length;
+  const bars = items.length ? items.map(it=>{
+    const n=scrMap[it.id]||0, rem=CAP-n, full=rem<=0, mine=seat&&seat.itemId===it.id, hl=hallLabel(it);
+    const nm=esc(it.movieName||it.name||"제목 미정");
+    return `<div class="ditem"><div class="dtop"><span class="nm">${it.room?`<b style="color:var(--ink)">${esc(it.room)}</b> `:""}${nm}${hl?` <span style="color:var(--muted)">${hl}</span>`:''}${mine?' <span style="color:var(--ok);font-weight:700">· 내 신청</span>':''}</span>
+      <span class="num ${full?'':''}" style="${full?'color:var(--danger)':''}">${full?'마감':`잔여 ${rem}`} · ${n}/${CAP}</span></div>
+      <div class="track"><i style="width:${Math.round(n/CAP*100)}%;${mine?'background:var(--ok)':''}"></i></div></div>`;
+  }).join("") : `<div class="empty">상영 목록이 아직 없어요.</div>`;
+  p.innerHTML = `
+    <div class="kpis" style="margin-bottom:16px">
+      <div class="kpi"><div class="ic">🎟</div><div><div class="v">${totN}</div><div class="l">신청 완료</div></div></div>
+      <div class="kpi"><div class="ic">💺</div><div><div class="v">${left}</div><div class="l">남은 자리</div></div></div>
+      <div class="kpi"><div class="ic">📈</div><div><div class="v">${pct}<span style="font-size:.9rem">%</span></div><div class="l">신청률</div></div></div>
+      <div class="kpi"><div class="ic">🚪</div><div><div class="v">${openCnt}</div><div class="l">신청 가능 상영관</div></div></div>
+    </div>
+    <div class="card"><div class="ch"><span class="t">🚪 상영관별 잔여석</span><span class="meta">${items.length}개 상영관</span></div>
+      <div class="cb">${bars}</div></div>`;
+}
 
 /* ===== 게이트 표시 ===== */
 function openAtMs(){ const v=gate.openAt; if(!v) return null; if(typeof v?.toDate==="function") return v.toDate().getTime(); if(v instanceof Date) return v.getTime(); const n=new Date(v).getTime(); return isNaN(n)?null:n; }
@@ -825,7 +920,7 @@ function _renderGate(){
       else { b.className="gatebanner closed"; b.textContent="🔴 아직 신청이 열리지 않았습니다. 잠시만 기다려 주세요."; }
     } else b.style.display="none";
   }
-  if(role==="student") syncApplyLock(open);
+  if(role==="student") renderApply();
   const ga=$("gateAdmin");
   if(ga){
     if(role==="teacher"){
@@ -839,11 +934,6 @@ function _renderGate(){
     } else ga.style.display="none";
   }
 }
-function syncApplyLock(open){
-  const a=$("applyBtn"), c=$("cancelBtn"); if(!a||!c) return;
-  if(seat){ a.style.display="none"; c.style.display="block"; c.disabled=false; c.textContent="신청 취소하고 다시 선택"; }
-  else { c.style.display="none"; a.style.display="block"; a.disabled=!open||!selectedId; a.textContent=open?"신청하기":"🔒 신청 대기 중"; }
-}
 async function setGate(patch){ try{ await setDoc(gateRef(), patch, {merge:true}); }catch(e){ console.error(e); alert("상태 변경 중 오류가 발생했습니다. 권한(규칙)을 확인해 주세요."); } }
 $("gateSchedToggle")?.addEventListener("click", ()=>{ const r=$("gateSchedRow"); r.style.display=(r.style.display==="none"||!r.style.display)?"flex":"none"; });
 $("gateOpenBtn")?.addEventListener("click", ()=>{ if(confirm("지금 신청을 열까요? 모든 학생이 바로 신청할 수 있습니다.")) setGate({open:true}); });
@@ -852,220 +942,136 @@ $("gateSchedBtn")?.addEventListener("click", ()=>{ const v=$("gateAtInput").valu
 $("gateSchedClear")?.addEventListener("click", ()=>{ setGate({ openAt:null }); });
 
 /* ===== 현황판 (교사) ===== */
-function classGroups(){
-  const byV={}; seats.forEach(s=>byV[s.vhash]=s);
-  const classes={};
-  students.forEach(st=>{ const p=parseSid(st.studentId); (classes[p.classNo] ||= []).push({ ...st, ...p, seat:byV[st.vhash]||null }); });
-  return classes;
-}
 function renderDash(){ if(role!=="teacher") return; try{ _renderDash(); }catch(e){ console.error("dash:",e); } }
 function _renderDash(){
-  const classes=classGroups();
-  const classNos=Object.keys(classes).map(Number).sort((a,b)=>a-b);
+  const byV={}; seats.forEach(s=>byV[s.vhash]=s);
   const stuN=students.length, filled=seats.length, na=Math.max(0,stuN-filled);
   const rate=stuN?Math.round(filled/stuN*100):0;
-  // 점검: (반,영화) 0~1명 조
-  let smallGroups=[];
-  classNos.forEach(c=>{
-    const cnt={}; classes[c].forEach(x=>{ if(x.seat) cnt[x.seat.movieId]=(cnt[x.seat.movieId]||0)+1; });
-    items.forEach(m=>{ const n=cnt[m.id]||0; if(n>0 && n<2) smallGroups.push({c, name:m.name, n}); });
-  });
-  const emptyGroups=(()=>{ let z=0; classNos.forEach(c=>{ const used=new Set(classes[c].filter(x=>x.seat).map(x=>x.seat.movieId)); items.forEach(m=>{ if(!used.has(m.id)) {} }); }); return z; })();
-
+  const totCap=items.length*CAP;
   $("kpis").innerHTML=`
     <div class="kpi"><div class="ic">🙋</div><div><div class="v">${filled}</div><div class="l">신청 완료</div></div></div>
     <div class="kpi"><div class="ic">⏳</div><div><div class="v">${na}</div><div class="l">미신청</div></div></div>
     <div class="kpi"><div class="ic">👥</div><div><div class="v">${stuN||"–"}</div><div class="l">전교생</div></div></div>
     <div class="kpi"><div class="ic">📈</div><div><div class="v">${stuN?rate+'<span style="font-size:.9rem">%</span>':"–"}</div><div class="l">신청률</div></div></div>
-    <div class="kpi ${smallGroups.length?"warn":""}"><div class="ic">⚠️</div><div><div class="v">${smallGroups.length}</div><div class="l">점검 필요</div></div></div>`;
+    <div class="kpi"><div class="ic">🚪</div><div><div class="v">${items.length||"–"}</div><div class="l">상영관</div></div></div>`;
 
-  // 영화별 총 신청
-  const totByMv={}; seats.forEach(s=>totByMv[s.movieId]=(totByMv[s.movieId]||0)+1);
-  const totalCap = items.reduce((s,m)=>s+(m.perClass||0)*classNos.length,0);
-  $("mvMeta").textContent = items.length?`${items.length}편`:"";
-  $("mvList").innerHTML = items.length ? items.map(m=>{
-    const n=totByMv[m.id]||0, cap=(m.perClass||0)*classNos.length, pct=cap?Math.round(n/cap*100):0;
-    return `<div class="ditem"><div class="dtop"><span class="nm">${esc(m.name)}</span><span class="num">${n}${cap?` / ${cap}`:""}명</span></div>
+  // 상영관별
+  $("scrMeta").textContent = items.length?`${items.length}관 · 정원 ${totCap}`:"";
+  $("scrList").innerHTML = items.length ? items.map(it=>{
+    const n=scrMap[it.id]||0, pct=Math.round(n/CAP*100), full=n>=CAP, hl=hallLabel(it);
+    return `<div class="srow"><div class="top"><div class="lft"><span class="rm">${esc(it.room)}</span><span class="nm">${esc(it.movieName)}${hl?` <span class="hl">${hl}</span>`:''}</span></div><span class="cnt ${full?'full':''}">${n}/${CAP}</span></div>
       <div class="track"><i style="width:${pct}%"></i></div></div>`;
-  }).join("") : `<div class="empty">영화를 먼저 등록해 주세요. (관리 → 영화 설정)</div>`;
+  }).join("") : `<div class="empty">상영관을 먼저 세팅해 주세요. (관리 → 🎬 상영 13개 세팅)</div>`;
 
-  // 반별 신청률
+  // 반별 신청현황
+  const classes={};
+  students.forEach(st=>{ const p=parseSid(st.studentId); (classes[p.classNo] ||= {tot:0,done:0}); classes[p.classNo].tot++; if(byV[st.vhash]) classes[p.classNo].done++; });
+  const classNos=Object.keys(classes).map(Number).sort((a,b)=>a-b);
   $("classMeta").textContent = classNos.length?`${classNos.length}개 반`:"";
   $("classList").innerHTML = classNos.length ? classNos.map(c=>{
-    const t=classes[c].length, dn=classes[c].filter(x=>x.seat).length, pct=t?Math.round(dn/t*100):0;
-    return `<div class="citem ${dn===0?"zero":""}" data-goclass="${c}"><span class="cn">${c}반</span><span class="cf">${dn}/${t}</span><span class="pc">${pct}%</span></div>`;
-  }).join("") : `<div class="empty">학생 명단이 없습니다.</div>`;
-  $("classList").querySelectorAll("[data-goclass]").forEach(el=>el.addEventListener("click", ()=>{ classPick=el.dataset.goclass; showTab("manage"); mgSwitch("groups"); document.querySelector("#panelManage")?.scrollIntoView({behavior:"smooth",block:"start"}); }));
-
-  // 점검 필요
-  $("warnMeta").textContent = smallGroups.length?`${smallGroups.length}건`:"";
-  $("warnList").innerHTML = smallGroups.length ? smallGroups.sort((a,b)=>a.c-b.c).map(g=>`
-    <div class="warnrow"><span class="wc">${g.c}반</span><span class="wm">${esc(g.name)}</span><span class="wn ${g.n===0?"z":"o"}">${g.n}명</span></div>`).join("")
-    : `<div class="empty">2명 미만 조가 없어요. 👍</div>`;
+    const o=classes[c], pct=o.tot?Math.round(o.done/o.tot*100):0, done=o.done===o.tot&&o.tot>0;
+    return `<div class="srow"><div class="top"><div class="lft"><span class="nm">${c}반</span></div><span class="cnt ${done?'':''}" style="${done?'color:var(--ok)':''}">${o.done}/${o.tot} · ${pct}%</span></div>
+      <div class="track"><i style="width:${pct}%;${done?'background:var(--ok)':''}"></i></div></div>`;
+  }).join("") : `<div class="empty">학생 명단이 없습니다. (관리 → 학생 명단 가져오기)</div>`;
 }
 
 /* ===== 관리 (교사) ===== */
-["Movies","Groups","All"].forEach(k=>$("tab"+k).addEventListener("click", ()=>mgSwitch(k.toLowerCase())));
+["Groups","All"].forEach(k=>$("tab"+k).addEventListener("click", ()=>mgSwitch(k.toLowerCase())));
 function mgSwitch(t){ mgTab=t;
-  $("tabMovies").classList.toggle("active",t==="movies");
   $("tabGroups").classList.toggle("active",t==="groups");
   $("tabAll").classList.toggle("active",t==="all");
-  $("moviesView").style.display = t==="movies"?"block":"none";
   $("groupsView").style.display = t==="groups"?"block":"none";
   $("allView").style.display = t==="all"?"block":"none";
-  $("csvBtn").textContent = t==="groups"?"⬇ 반별 조편성 명단":t==="all"?"⬇ 전교생 명단":"⬇ 영화별 명단";
+  $("addStuBtn").style.display = t==="all"?"inline-block":"none";
+  $("csvBtn").textContent = t==="all"?"⬇ 전교생 명단":"⬇ 상영관별 명단";
   renderManage();
 }
 function buildFilters(){
   const af=$("allFilter"), pf=af.value||"all";
-  af.innerHTML = `<option value="all">전체</option><option value="none">미신청만</option>` + items.map(m=>`<option value="${m.id}">${esc(m.name)}</option>`).join("");
+  af.innerHTML = `<option value="all">전체</option><option value="none">미신청만</option>` + items.map(it=>`<option value="${it.id}">${esc(it.room)} ${esc(it.movieName)}${hallLabel(it)?` ${hallLabel(it)}`:""}</option>`).join("");
   af.value=[...af.options].some(o=>o.value===pf)?pf:"all";
 }
 $("allFilter").addEventListener("change", e=>{ allFilter=e.target.value; renderManage(); });
 function renderManage(){ if(role!=="teacher") return; try{ _renderManage(); }catch(e){ console.error("manage:",e); } }
 function _renderManage(){
   buildFilters();
-  // 영화 설정
-  const classNos=[...new Set(students.map(st=>parseSid(st.studentId).classNo))].sort((a,b)=>a-b);
-  const totByMv={}; seats.forEach(s=>totByMv[s.movieId]=(totByMv[s.movieId]||0)+1);
   $("mvSummary").innerHTML = items.length
-    ? `현재 <b>영화 ${items.length}편</b> · 반당 정원 합계 <b>${items.reduce((s,m)=>s+(m.perClass||0),0)}명</b>${classNos.length?` · 한 학급 정원 약 35~36명 기준`:""}. 영화 수가 정해지면 각 영화의 <b>반당 정원</b>만 조정하세요.`
-    : `<span style="color:var(--danger)">아직 영화가 없습니다.</span> 아래에서 영화를 추가하거나 샘플 세팅 버튼을 눌러보세요. (학생 명단이 없다면 <b>학생 명단 가져오기</b>부터)`;
-  $("mvGrid").innerHTML = items.length ? items.map(m=>{
-    const tot=totByMv[m.id]||0, cap=(m.perClass||0)*(classNos.length||1);
-    return `<div class="mvcard"><div class="mh"><span class="mn">${esc(m.name)}</span><span class="mcap">반당 ${m.perClass||0}명 · 총 ${tot}${cap?`/${cap}`:""}</span></div>
-      <div class="md">${esc(m.detail||"")}</div>
-      ${m.where?`<div class="md" style="color:var(--ok);font-weight:600">📺 ${esc(m.where)}</div>`:""}
-      <div class="macts"><button class="me" data-edit="${m.id}">✏️ 수정</button><button class="mr" data-del="${m.id}">🗑 삭제</button></div></div>`;
-  }).join("") : `<div class="mempty">등록된 영화가 없습니다.</div>`;
-  $("mvGrid").querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click",()=>openMvModal(b.dataset.edit)));
-  $("mvGrid").querySelectorAll("[data-del]").forEach(b=>b.addEventListener("click",()=>deleteMovie(b.dataset.del)));
+    ? `상영관 <b>${items.length}개</b> · 정원 각 ${CAP}명 · 총 <b>${items.length*CAP}명</b>. 아래 칩으로 상영관을 골라 명단을 볼 수 있어요. 영화 정보는 <b>자세히</b>에서 확인돼요.`
+    : `<span style="color:var(--danger)">아직 상영관이 없습니다.</span> 위 <b>🎬 상영 13개 세팅</b>을 누르면 확정된 13개 상영관이 자동으로 들어가요. (학생 명단이 없다면 <b>학생 명단 가져오기</b>부터)`;
+  // 칩 (영화 소개 자세히 포함)
+  $("movieChips").innerHTML = `<button class="chip ${moviePick==="all"?"active":""}" data-mv="all">전체</button>`
+    + items.map(it=>`<button class="chip ${moviePick===it.id?"active":""}" data-mv="${it.id}">${esc(it.room)} ${esc(it.movieName)}${hallLabel(it)?` ${hallLabel(it)}`:""}</button>`).join("");
+  $("movieChips").querySelectorAll("[data-mv]").forEach(b=>b.addEventListener("click",()=>{ moviePick=b.dataset.mv; renderManage(); }));
 
-  renderGroups();
+  if(!items.length){ $("groupsBody").innerHTML=`<div class="mempty">상영관을 먼저 세팅하면 표시됩니다.</div>`; }
+  else {
+    const byV={}; const show = moviePick==="all"?items:items.filter(x=>x.id===moviePick);
+    $("groupsBody").innerHTML = `<div class="grpgrid">` + show.map(it=>{
+      const list=seats.filter(s=>s.itemId===it.id).sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
+      const over=list.length>CAP, hl=hallLabel(it);
+      const tags=list.length?list.map(x=>`<span class="mtag">${x.classNo}-${x.studentNo} ${esc(x.name)}<button class="gear" data-menu="${x.vhash}" title="설정">⚙</button></span>`).join(""):`<span class="gmuted">아직 신청자 없음</span>`;
+      return `<div class="grpcard ${list.length===0?'none':(over?'thin':'')}">
+        <div class="gh"><span class="gn">${esc(it.room)} · ${esc(it.movieName)}${hl?` ${hl}`:''}</span><span class="gc ${over?'warn':''}">${list.length}/${CAP}</span></div>
+        <div style="margin-bottom:6px"><button class="infobtn" data-tinfo="${it.movieKey}" style="padding:5px 11px;font-size:.8rem">🎬 영화 소개</button></div>
+        <div>${tags}</div></div>`;
+    }).join("") + `</div>`;
+    $("groupsBody").querySelectorAll("[data-menu]").forEach(b=>b.addEventListener("click",()=>openRowMenu(b.dataset.menu)));
+    $("groupsBody").querySelectorAll("[data-tinfo]").forEach(b=>b.addEventListener("click",()=>openIntro(b.dataset.tinfo)));
+  }
   renderAll();
 }
-function renderGroups(){
-  const classes=classGroups();
-  const classNos=Object.keys(classes).map(Number).sort((a,b)=>a-b);
-  $("classChips").innerHTML = `<button class="chip ${classPick==="all"?"active":""}" data-cls="all">전체</button>`
-    + classNos.map(c=>`<button class="chip ${String(classPick)===String(c)?"active":""}" data-cls="${c}">${c}반</button>`).join("");
-  $("classChips").querySelectorAll("[data-cls]").forEach(b=>b.addEventListener("click",()=>{ classPick=b.dataset.cls; renderManage(); }));
-  if(!classNos.length){ $("groupsBody").innerHTML=`<div class="mempty">학생 명단을 먼저 가져오면 표시됩니다. (영화 설정 → 학생 명단 가져오기)</div>`; return; }
-  const show = classPick==="all"?classNos:classNos.filter(c=>c===+classPick);
-  $("groupsBody").innerHTML = show.map(c=>{
-    const arr=classes[c];
-    const byMv={}; arr.forEach(x=>{ if(x.seat) (byMv[x.seat.movieId] ||= []).push(x); });
-    const noneArr=arr.filter(x=>!x.seat).sort((a,b)=>a.studentNo-b.studentNo);
-    const done=arr.filter(x=>x.seat).length;
-    const cards=items.map(m=>{
-      const list=(byMv[m.id]||[]).sort((a,b)=>a.studentNo-b.studentNo);
-      const warn=list.length>0&&list.length<2;
-      const tags=list.length?list.map(x=>tagHTML(x)).join(""):`<span class="gmuted">—</span>`;
-      return `<div class="grpcard ${list.length===0?"none":(warn?"thin":"")}"><div class="gh"><span class="gn" title="${esc(m.name)}">${esc(m.name)}</span><span class="gc ${warn?"warn":""}">${list.length}명</span></div><div>${tags}</div></div>`;
-    }).join("");
-    const noneCard=`<div class="grpcard none"><div class="gh"><span class="gn">미신청</span><span class="gc">${noneArr.length}명</span></div><div>${noneArr.length?noneArr.map(x=>tagHTML(x)).join(""):'<span class="gmuted">—</span>'}</div></div>`;
-    return `<div class="dcard" style="margin-bottom:14px"><div class="head"><span class="nm">🏫 ${c}반 조편성</span><span class="cnt">${done}/${arr.length} 신청</span></div>
-      <div class="grpgrid">${cards}${noneCard}</div></div>`;
-  }).join("");
-  $("groupsBody").querySelectorAll("[data-menu]").forEach(b=>b.addEventListener("click",()=>openRowMenu(b.dataset.menu)));
-}
-function tagHTML(x){ return `<span class="mtag">${x.studentNo} ${esc(x.name)}<button class="gear" data-menu="${x.vhash}" title="설정">⚙</button></span>`; }
 function renderAll(){
-  const classes=classGroups();
+  const byV={}; seats.forEach(s=>byV[s.vhash]=s);
+  const classes={};
+  students.forEach(st=>{ const p=parseSid(st.studentId); (classes[p.classNo] ||= []).push({ ...st, ...p, seat:byV[st.vhash]||null }); });
   const classNos=Object.keys(classes).map(Number).sort((a,b)=>a-b);
-  if(!classNos.length){ $("allBody").innerHTML=`<div class="mempty">학생 명단을 먼저 가져오면 표시됩니다.</div>`; return; }
+  if(!classNos.length){ $("allBody").innerHTML=`<div class="mempty">학생 명단이 없습니다. <b>학생 명단 가져오기</b> 또는 <b>＋ 학생 추가</b>로 등록하세요.</div>`; return; }
   $("allBody").innerHTML = classNos.map(c=>{
     const all=classes[c].slice().sort((a,b)=>a.studentNo-b.studentNo);
     const done=all.filter(x=>x.seat).length;
     let list=all;
     if(allFilter==="none") list=all.filter(x=>!x.seat);
-    else if(allFilter!=="all") list=all.filter(x=>x.seat&&x.seat.movieId===allFilter);
+    else if(allFilter!=="all") list=all.filter(x=>x.seat&&x.seat.itemId===allFilter);
     const note = allFilter==="all"?`${done}/${all.length} 신청`:`${list.length}명`;
-    const rows = list.length ? list.map(x=>`<tr><td class="no">${x.studentNo}</td><td class="nm">${esc(x.name)}</td>
-      <td>${x.seat?`<span class="dpill" title="${esc(x.seat.movieName)}">${esc(x.seat.movieName)}</span>`:'<span class="npill">미신청</span>'}</td>
-      <td class="gearcol"><button class="gear" data-menu="${x.vhash}">⚙</button></td></tr>`).join()
-      : `<tr><td colspan="4" class="mempty">해당 학생 없음</td></tr>`;
+    const rows = list.length ? list.map(x=>{
+      let pill='<span class="npill">미신청</span>';
+      if(x.seat){ const hl=x.seat.hall>1?` ${x.seat.hall}분반`:""; pill=`<span class="dpill" title="${esc(x.seat.movieName)}">${esc(x.seat.room)} ${esc(x.seat.movieName)}${hl}</span>`; }
+      return `<tr><td class="no">${x.studentNo}</td><td class="nm">${esc(x.name)}</td><td>${pill}</td><td class="gearcol"><button class="gear" data-menu="${x.vhash}">⚙</button></td></tr>`;
+    }).join("") : `<tr><td colspan="4" class="mempty">해당 학생 없음</td></tr>`;
     return `<div class="dcard"><div class="head"><span class="nm">${c}반</span><span class="cnt">${note}</span></div>
-      <table><thead><tr><th class="no">번호</th><th>이름</th><th>신청 영화</th><th class="gearcol"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+      <table><thead><tr><th class="no">번호</th><th>이름</th><th>신청</th><th class="gearcol"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }).join("");
   $("allBody").querySelectorAll("[data-menu]").forEach(b=>b.addEventListener("click",()=>openRowMenu(b.dataset.menu)));
 }
 
-/* 영화 추가/수정 */
-$("addMvBtn").addEventListener("click", ()=>openMvModal(null));
-function openMvModal(id){
-  mvEditId=id; $("mvMsg").textContent="";
-  if(id){ const m=items.find(x=>x.id===id); $("mvModalTitle").textContent="영화 수정"; $("mvName").value=m.name||""; $("mvDetail").value=m.detail||""; $("mvCap").value=m.perClass||""; }
-  else { $("mvModalTitle").textContent="영화 추가"; $("mvName").value=""; $("mvDetail").value=""; $("mvCap").value="3"; }
-  $("mvModal").classList.add("show");
-}
-$("mvCancel").addEventListener("click", ()=>$("mvModal").classList.remove("show"));
-$("mvSave").addEventListener("click", async ()=>{
-  const name=$("mvName").value.trim(), detail=$("mvDetail").value.trim(), cap=parseInt($("mvCap").value,10);
-  $("mvMsg").style.color="var(--danger)";
-  if(!name) return $("mvMsg").textContent="영화 제목을 입력해 주세요.";
-  if(!(cap>=1)) return $("mvMsg").textContent="반당 정원을 1 이상으로 입력해 주세요.";
+/* 세팅 / 재계산 */
+$("seedBtn").addEventListener("click", async ()=>{
+  if(!confirm(`확정된 상영관 ${SCREENINGS.length}개로 세팅할까요? 기존 상영 목록은 지워집니다.`)) return;
   try{
-    if(mvEditId){ await setDoc(evDoc("items",mvEditId), { name, detail, perClass:cap }, { merge:true }); }
-    else { const ord=(items.reduce((m,x)=>Math.max(m,x.ord||0),0))+1; const id="m"+Date.now().toString(36); await setDoc(evDoc("items",id), { name, detail, perClass:cap, ord }); }
-    $("mvModal").classList.remove("show");
-  }catch(e){ console.error(e); $("mvMsg").textContent="저장 중 오류가 발생했습니다."; }
+    const ex=await getDocs(itemsCol()); const batch=writeBatch(db); ex.docs.forEach(d=>batch.delete(d.ref)); await batch.commit();
+    const hallsCount={}; SCREENINGS.forEach(s=>hallsCount[s.key]=(hallsCount[s.key]||0)+1);
+    for(let i=0;i<SCREENINGS.length;i++){ const s=SCREENINGS[i]; const info=MOVIE_INFO[s.key]||{};
+      await setDoc(evDoc("items","s"+String(i+1).padStart(2,"0")), {
+        room:s.room, movieKey:s.key, movieName:DISPLAY_NAME[s.key]||s.key, hall:s.hall, halls:hallsCount[s.key],
+        summary:info.summary||"", talk:info.talk||"", majors:info.majors||"", poster:info.poster||"", ord:i+1 }); }
+    setStatus(`상영관 ${SCREENINGS.length}개 세팅 완료 🎬`,"ok");
+  }catch(e){ console.error(e); setStatus("세팅 중 오류가 발생했습니다.","err"); }
 });
-async function deleteMovie(id){
-  const m=items.find(x=>x.id===id); if(!m) return;
-  const cnt=seats.filter(s=>s.movieId===id).length;
-  if(!confirm(`'${m.name}' 영화를 삭제할까요?`+(cnt?` 현재 ${cnt}명이 신청한 상태이며, 그 학생들의 신청도 함께 취소됩니다.`:""))) return;
-  try{
-    if(cnt){ const batch=writeBatch(db); seats.filter(s=>s.movieId===id).forEach(s=>batch.delete(evDoc("seats",s.vhash))); await batch.commit(); }
-    // 카운터 정리
-    const classNos=[...new Set(students.map(st=>parseSid(st.studentId).classNo))];
-    for(const c of classNos){ try{ await deleteDoc(cntDoc(c,id)); }catch(e){} }
-    await deleteDoc(evDoc("items",id));
-    setStatus(`'${m.name}' 삭제 완료`,"ok");
-  }catch(e){ console.error(e); setStatus("삭제 중 오류가 발생했습니다.","err"); }
-}
-
-/* 샘플 세팅 */
-async function seedMovies(count, perClass){
-  if(!confirm(`기존 영화 목록을 지우고, 샘플 ${count}편(반당 ${perClass}명)으로 새로 만들까요? 제목은 나중에 '수정'에서 바꾸면 돼요.`)) return;
-  try{
-    const ex=await getDocs(itemsCol());
-    const batch=writeBatch(db); ex.docs.forEach(d=>batch.delete(d.ref)); await batch.commit();
-    for(let i=1;i<=count;i++) await setDoc(evDoc("items","m"+String(i).padStart(2,"0")), { name:`영화 ${i}`, detail:"", perClass, ord:i });
-    setStatus(`샘플 ${count}편 세팅 완료 — 제목/설명을 수정해 주세요.`,"ok");
-  }catch(e){ console.error(e); setStatus("세팅 중 오류가 발생했습니다.","err"); }
-}
-$("seed13Btn").addEventListener("click", seedRealMovies);
-$("seed7Btn").addEventListener("click", ()=>seedMovies(7,6));
-async function seedRealMovies(){
-  if(!confirm(`조사된 영화 ${MOVIE_SEED.length}편(반당 3명)으로 세팅할까요? 기존 영화 목록은 지워집니다. 제목·설명은 나중에 '수정'에서 바꿀 수 있어요.`)) return;
-  try{
-    const ex=await getDocs(itemsCol());
-    const batch=writeBatch(db); ex.docs.forEach(d=>batch.delete(d.ref)); await batch.commit();
-    for(let i=0;i<MOVIE_SEED.length;i++){
-      const m=MOVIE_SEED[i];
-      await setDoc(evDoc("items","m"+String(i+1).padStart(2,"0")), { name:m.name, detail:m.detail||"", where:m.where||"", perClass:m.perClass||3, ord:i+1 });
-    }
-    setStatus(`조사된 영화 ${MOVIE_SEED.length}편 세팅 완료 🎬`,"ok");
-  }catch(e){ console.error(e); setStatus("세팅 중 오류가 발생했습니다.","err"); }
-}
 $("recalcBtn").addEventListener("click", async ()=>{
-  if(!confirm("실제 신청 내역을 기준으로 반×영화 카운터를 다시 계산합니다. (숫자 어긋남 복구용) 진행할까요?")) return;
+  if(!confirm("실제 신청 내역 기준으로 상영관 정원 카운터를 다시 계산합니다. 진행할까요?")) return;
   try{
-    const cnt={}; seats.forEach(s=>{ const k=s.classNo+"|"+s.movieId; cnt[k]=(cnt[k]||0)+1; });
-    const classNos=[...new Set(students.map(st=>parseSid(st.studentId).classNo))];
+    const cnt={}; seats.forEach(s=>{ cnt[s.itemId]=(cnt[s.itemId]||0)+1; });
     let batch=writeBatch(db), ops=0;
-    for(const c of classNos){ for(const m of items){ batch.set(cntDoc(c,m.id), { n: cnt[c+"|"+m.id]||0 }); if(++ops>=400){ await batch.commit(); batch=writeBatch(db); ops=0; } } }
+    for(const it of items){ batch.set(scrDoc(it.id), { n: cnt[it.id]||0 }); if(++ops>=400){ await batch.commit(); batch=writeBatch(db); ops=0; } }
     if(ops) await batch.commit();
     setStatus("정원 재계산 완료","ok");
   }catch(e){ console.error(e); setStatus("재계산 중 오류가 발생했습니다.","err"); }
 });
 
-/* 학생 명단 가져오기 (전공체험과 동일 형식) */
+/* 학생 명단 가져오기 */
 $("importBtn").addEventListener("click", ()=>$("fileInput").click());
 $("fileInput").addEventListener("change", async (e)=>{
-  const file=e.target.files[0]; if(!file) return;
-  setStatus("엑셀을 읽는 중…");
+  const file=e.target.files[0]; if(!file) return; setStatus("엑셀을 읽는 중…");
   try{
     const buf=await file.arrayBuffer(); const wb=XLSX.read(buf,{type:"array"}); const ws=wb.Sheets[wb.SheetNames[0]];
     const rows=XLSX.utils.sheet_to_json(ws,{defval:""});
@@ -1088,13 +1094,32 @@ $("fileInput").addEventListener("change", async (e)=>{
   finally{ e.target.value=""; }
 });
 
-/* 행 메뉴 / 배정·이동 / 취소 / 이름수정 */
+/* 학생 추가 */
+$("addStuBtn").addEventListener("click", ()=>{ $("nsSid").value=""; $("nsName").value=""; $("nsBirth").value=""; $("nsMsg").textContent=""; $("stuModal").classList.add("show"); });
+$("nsCancel").addEventListener("click", ()=>$("stuModal").classList.remove("show"));
+$("nsSave").addEventListener("click", async ()=>{
+  const sid=$("nsSid").value.trim(), name=$("nsName").value.trim(), birth=$("nsBirth").value.trim();
+  $("nsMsg").style.color="var(--danger)";
+  if(!/^\d{5}$/.test(sid)) return $("nsMsg").textContent="학번은 5자리 숫자로 입력해 주세요.";
+  if(!name) return $("nsMsg").textContent="이름을 입력해 주세요.";
+  if(!/^\d{6}$/.test(birth)) return $("nsMsg").textContent="생년월일은 6자리 숫자로 입력해 주세요.";
+  try{
+    const vh=await vhashOf(sid,birth);
+    const ex=await getDoc(doc(db,"students",vh));
+    if(ex.exists() && !confirm("이미 등록된 학생(같은 학번·생일)이에요. 이름을 덮어쓸까요?")) return;
+    await setDoc(doc(db,"students",vh), { name, studentId:sid });
+    $("nsMsg").style.color="var(--ok)"; $("nsMsg").textContent=`${name} 학생 추가 완료`;
+    setTimeout(()=>$("stuModal").classList.remove("show"), 700);
+  }catch(e){ console.error(e); $("nsMsg").textContent="추가 중 오류가 발생했습니다."; }
+});
+
+/* 행 메뉴 / 배정·이동 / 취소 / 이름수정 / 삭제 */
 function openRowMenu(vhash){
   const st=students.find(x=>x.vhash===vhash); if(!st) return; rowVhash=vhash;
   const p=parseSid(st.studentId), hasSeat=seats.find(x=>x.vhash===vhash);
   $("rowTitle").textContent=`${st.name} (${p.classNo}반 ${p.studentNo}번)`;
   const cs=$("rowCancelSeat");
-  if(hasSeat){ cs.disabled=false; cs.style.opacity="1"; cs.textContent=`신청 취소 (${hasSeat.movieName})`; }
+  if(hasSeat){ cs.disabled=false; cs.style.opacity="1"; cs.textContent=`신청 취소 (${hasSeat.room} ${hasSeat.movieName})`; }
   else { cs.disabled=true; cs.style.opacity=".45"; cs.textContent="신청 취소 (신청 내역 없음)"; }
   $("rowModal").classList.add("show");
 }
@@ -1102,47 +1127,44 @@ $("rowClose").addEventListener("click", ()=>$("rowModal").classList.remove("show
 $("rowEditName").addEventListener("click", ()=>{ $("rowModal").classList.remove("show"); if(rowVhash) editStudentName(rowVhash); });
 $("rowCancelSeat").addEventListener("click", ()=>{ if($("rowCancelSeat").disabled) return; $("rowModal").classList.remove("show"); if(rowVhash) teacherCancel(rowVhash); });
 $("rowAssign").addEventListener("click", ()=>{ $("rowModal").classList.remove("show"); if(rowVhash) openAssign(rowVhash); });
+$("rowDelete").addEventListener("click", ()=>{ $("rowModal").classList.remove("show"); if(rowVhash) deleteStudent(rowVhash); });
 
 function openAssign(vhash){
   const st=students.find(x=>x.vhash===vhash); if(!st) return; assignVhash=vhash;
   const p=parseSid(st.studentId), cur=seats.find(x=>x.vhash===vhash);
-  $("assignTitle").textContent=`${st.name} (${p.classNo}반) · 영화 배정`;
+  $("assignTitle").textContent=`${st.name} (${p.classNo}반) · 상영관 배정`;
   $("assignMsg").textContent="";
-  const cnt={}; seats.filter(s=>s.classNo===p.classNo).forEach(s=>cnt[s.movieId]=(cnt[s.movieId]||0)+1);
-  $("assignList").innerHTML = items.map(m=>{
-    const n=cnt[m.id]||0, cap=m.perClass||0, rem=cap-n, full=rem<=0&&!(cur&&cur.movieId===m.id);
-    return `<button class="mvopt ${cur&&cur.movieId===m.id?"cur":""}" data-mv="${m.id}">${esc(m.name)}
-      <span class="rem ${full?"full":""}">${cur&&cur.movieId===m.id?"현재":`${n}/${cap}`}</span></button>`;
-  }).join("") + (cur?`<button class="mvopt" data-mv="__none" style="border-color:var(--danger);color:var(--danger)">신청 취소(미배정)</button>`:"");
-  $("assignList").querySelectorAll("[data-mv]").forEach(b=>b.addEventListener("click", ()=>doAssign(assignVhash, b.dataset.mv)));
+  const opts=items.map(it=>{ const n=scrMap[it.id]||0, isCur=cur&&cur.itemId===it.id, full=n>=CAP&&!isCur, hl=hallLabel(it);
+    return `<button class="mvopt ${isCur?"cur":""}" data-item="${it.id}"><span>${esc(it.room)} · ${esc(it.movieName)}${hl?` ${hl}`:""}</span><span class="rem ${full?"full":""}">${isCur?"현재":`${n}/${CAP}`}</span></button>`;
+  });
+  $("assignList").innerHTML = opts.join("") + (cur?`<button class="mvopt" data-item="__none" style="border-color:var(--danger);color:var(--danger)">신청 취소(미배정)</button>`:"");
+  $("assignList").querySelectorAll("[data-item]").forEach(b=>b.addEventListener("click", ()=>doAssign(assignVhash, b.dataset.item)));
   $("assignModal").classList.add("show");
 }
 $("assignClose").addEventListener("click", ()=>$("assignModal").classList.remove("show"));
-async function doAssign(vhash, movieId){
-  const st=students.find(x=>x.vhash===vhash); if(!st) return;
-  const p=parseSid(st.studentId);
-  if(movieId==="__none"){ await teacherCancel(vhash, true); $("assignModal").classList.remove("show"); return; }
-  const m=items.find(x=>x.id===movieId); if(!m) return;
+async function doAssign(vhash, itemId){
+  const st=students.find(x=>x.vhash===vhash); if(!st) return; const p=parseSid(st.studentId);
+  if(itemId==="__none"){ await teacherCancel(vhash, true); $("assignModal").classList.remove("show"); return; }
+  const it=findItem(itemId); if(!it) return;
   try{
     await runTransaction(db, async (tx)=>{
-      const seatRef=evDoc("seats",vhash);
-      const ss=await tx.get(seatRef);
-      const newCntRef=cntDoc(p.classNo,movieId); const ncs=await tx.get(newCntRef); const nn=ncs.exists()?(ncs.data().n||0):0;
-      let oldCntRef=null, oldN=0, oldMid=null;
-      if(ss.exists()){ oldMid=ss.data().movieId; if(oldMid===movieId) return; oldCntRef=cntDoc(p.classNo,oldMid); const ocs=await tx.get(oldCntRef); oldN=ocs.exists()?(ocs.data().n||0):0; }
-      if(oldCntRef) tx.set(oldCntRef,{ n:Math.max(0,oldN-1) });
-      tx.set(newCntRef,{ n:nn+1 });
-      tx.set(seatRef,{ studentId:st.studentId, name:st.name, classNo:p.classNo, studentNo:p.studentNo, movieId, movieName:m.name, createdAt:serverTimestamp() });
+      const seatRef=evDoc("seats",vhash); const ss=await tx.get(seatRef);
+      const newRef=scrDoc(itemId); const ncs=await tx.get(newRef); const nn=ncs.exists()?(ncs.data().n||0):0;
+      let oldRef=null, oldN=0;
+      if(ss.exists()){ const oi=ss.data().itemId; if(oi===itemId) return; oldRef=scrDoc(oi); const ocs=await tx.get(oldRef); oldN=ocs.exists()?(ocs.data().n||0):0; }
+      if(oldRef) tx.set(oldRef,{ n:Math.max(0,oldN-1) });
+      tx.set(newRef,{ n:nn+1 });
+      tx.set(seatRef,{ studentId:st.studentId, name:st.name, classNo:p.classNo, studentNo:p.studentNo, movieId:itemId, itemId, movieName:it.movieName, movieKey:it.movieKey, hall:it.hall||0, room:it.room, createdAt:serverTimestamp() });
     });
-    $("assignMsg").style.color="var(--ok)"; $("assignMsg").textContent=`'${m.name}'로 배정했습니다.`;
+    $("assignMsg").style.color="var(--ok)"; $("assignMsg").textContent=`'${it.room} ${it.movieName}'로 배정했습니다.`;
     setTimeout(()=>$("assignModal").classList.remove("show"),700);
   }catch(e){ console.error(e); $("assignMsg").style.color="var(--danger)"; $("assignMsg").textContent="배정 중 오류가 발생했습니다."; }
 }
 async function teacherCancel(vhash, silent){
   const s=seats.find(x=>x.vhash===vhash); if(!s) return;
-  if(!silent && !confirm(`${s.name}(${s.classNo}반 ${s.studentNo}번) 학생의 '${s.movieName}' 신청을 취소할까요?`)) return;
+  if(!silent && !confirm(`${s.name}(${s.classNo}반 ${s.studentNo}번) 학생의 '${s.room} ${s.movieName}' 신청을 취소할까요?`)) return;
   try{ await runTransaction(db, async (tx)=>{
-      const cRef=cntDoc(s.classNo,s.movieId); const cs=await tx.get(cRef); if(cs.exists()){ const n=cs.data().n||0; tx.set(cRef,{n:Math.max(0,n-1)}); }
+      const sRef=scrDoc(s.itemId); const cs=await tx.get(sRef); if(cs.exists()){ const n=cs.data().n||0; tx.set(sRef,{n:Math.max(0,n-1)}); }
       tx.delete(evDoc("seats",vhash));
     }); }catch(e){ console.error(e); alert("취소 중 오류가 발생했습니다."); }
 }
@@ -1156,23 +1178,34 @@ async function editStudentName(vhash){
     setStatus(`이름을 '${name}'(으)로 수정했습니다.`,"ok");
   }catch(e){ console.error(e); alert("이름 수정 중 오류가 발생했습니다."); }
 }
+async function deleteStudent(vhash){
+  const st=students.find(x=>x.vhash===vhash); if(!st) return; const p=parseSid(st.studentId);
+  if(!confirm(`${st.name}(${p.classNo}반 ${p.studentNo}번) 학생을 명단에서 삭제할까요? 신청 내역도 함께 삭제됩니다.`)) return;
+  try{
+    const s=seats.find(x=>x.vhash===vhash);
+    if(s){ await runTransaction(db, async (tx)=>{ const sRef=scrDoc(s.itemId); const cs=await tx.get(sRef); if(cs.exists()){ const n=cs.data().n||0; tx.set(sRef,{n:Math.max(0,n-1)}); } tx.delete(evDoc("seats",vhash)); }); }
+    await deleteDoc(doc(db,"students",vhash));
+    setStatus(`${st.name} 학생을 삭제했습니다.`,"ok");
+  }catch(e){ console.error(e); alert("삭제 중 오류가 발생했습니다."); }
+}
 
-/* ===== Q&A ===== */
+/* ===== Q&A (영화 단위) ===== */
 function qnaTimeStr(ts){ try{ const d=ts?.toDate?ts.toDate():null; if(!d) return ""; const p=n=>String(n).padStart(2,"0"); return `${d.getMonth()+1}/${d.getDate()} ${p(d.getHours())}:${p(d.getMinutes())}`; }catch(e){ return ""; } }
 function renderQna(){ if(!role) return; try{ _renderQna(); }catch(e){ console.error("qna:",e); } }
 function _renderQna(){
   $("qnaCsvBtn").style.display = role==="teacher"?"inline-block":"none";
-  const myMovie=(seat&&seat.movieId)||selectedId;
-  if(role==="student" && !qnaUserPicked && myMovie) qnaPick=myMovie;
-  else if(!qnaPick && items.length) qnaPick=items[0].id;
+  const movies=uniqueMovies();
+  const myKey=(seat&&seat.movieKey);
+  if(role==="student" && !qnaUserPicked && myKey) qnaPick=myKey;
+  else if(!qnaPick && movies.length) qnaPick=movies[0].movieKey;
   const cntOf={}; questions.forEach(q=>cntOf[q.movieId]=(cntOf[q.movieId]||0)+1);
-  $("qnaChips").innerHTML = items.map(m=>{
-    const c=cntOf[m.id]||0;
-    return `<button class="chip ${m.id===qnaPick?"active":""}" data-qna="${m.id}"><span title="${esc(m.name)}">${esc(m.name)}</span>${c?`<span class="qcount">${c}</span>`:""}</button>`;
-  }).join("") || `<div class="empty" style="grid-column:1/-1">영화를 먼저 등록해 주세요.</div>`;
+  $("qnaChips").innerHTML = movies.map(it=>{
+    const c=cntOf[it.movieKey]||0;
+    return `<button class="chip ${it.movieKey===qnaPick?"active":""}" data-qna="${it.movieKey}"><span title="${esc(it.movieName)}">${esc(it.movieName)}</span>${c?`<span class="qcount">${c}</span>`:""}</button>`;
+  }).join("") || `<div class="empty" style="grid-column:1/-1">상영관을 먼저 세팅해 주세요.</div>`;
   $("qnaChips").querySelectorAll("[data-qna]").forEach(b=>b.addEventListener("click", ()=>{ if(b.dataset.qna!==qnaPick) cancelEdit(); qnaUserPicked=true; qnaPick=b.dataset.qna; renderQna(); }));
-  const m=items.find(x=>x.id===qnaPick);
-  $("qnaTitle").innerHTML = m?`💬 ${esc(m.name)} Q&amp;A`:"💬 영화 Q&amp;A";
+  const it=movies.find(x=>x.movieKey===qnaPick);
+  $("qnaTitle").innerHTML = it?`💬 ${esc(it.movieName)} Q&amp;A`:"💬 영화 Q&amp;A";
   const list=questions.filter(q=>q.movieId===qnaPick);
   $("qnaMeta").textContent = list.length?`질문 ${list.length}개`:"";
   $("qnaList").innerHTML = list.length ? list.map(q=>{
@@ -1198,8 +1231,8 @@ $("qnaPost").addEventListener("click", async ()=>{
     if(editId){ await setDoc(evDoc("questions",editId), { text:t, editedAt:serverTimestamp() }, { merge:true }); cancelEdit(); msg.classList.add("ok"); msg.textContent="질문이 수정되었어요!"; }
     else {
       if(!qnaPick){ msg.classList.add("err"); msg.textContent="영화를 먼저 선택해 주세요."; return; }
-      const m=items.find(x=>x.id===qnaPick);
-      await setDoc(doc(questionsCol()), { movieId:qnaPick, movieName:m?m.name:"", text:t, name:me.name, vhash:me.vhash, studentId:me.studentId, classNo:me.classNo, createdAt:serverTimestamp() });
+      const it=uniqueMovies().find(x=>x.movieKey===qnaPick);
+      await setDoc(doc(questionsCol()), { movieId:qnaPick, movieName:it?it.movieName:"", text:t, name:me.name, vhash:me.vhash, studentId:me.studentId, classNo:me.classNo, createdAt:serverTimestamp() });
       $("qnaText").value=""; msg.classList.add("ok"); msg.textContent="질문이 등록되었어요!";
     }
     setTimeout(()=>{ if(!editId){ msg.textContent=""; msg.className="qnamsg"; } }, 2500);
@@ -1208,7 +1241,7 @@ $("qnaPost").addEventListener("click", async ()=>{
 });
 async function deleteQuestion(id){ const q=questions.find(x=>x.id===id); if(!q) return; if(!confirm(`${q.name||""} 학생의 질문을 삭제할까요?`)) return; try{ if(editId===id) cancelEdit(); await deleteDoc(evDoc("questions",id)); }catch(e){ console.error(e); alert("삭제 중 오류가 발생했습니다."); } }
 
-/* ===== 엑셀 다운로드 ===== */
+/* ===== 엑셀 ===== */
 function ymd(){ return new Date().toISOString().slice(0,10); }
 function aoaSheet(aoa){ return XLSX.utils.aoa_to_sheet(aoa); }
 function safeName(s){ return String(s||"시트").replace(/[\\/?*\[\]:]/g,"·").slice(0,31); }
@@ -1218,65 +1251,46 @@ function classRecords(){
   return students.map(st=>{ const p=parseSid(st.studentId); return {studentId:st.studentId||"", classNo:p.classNo, studentNo:p.studentNo, name:st.name, seat:byV[st.vhash]||null}; })
     .sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
 }
-// 반별 조편성: 통합 + 반별(영화 그룹) 시트
-function downloadGroups(){
-  const wb=XLSX.utils.book_new(); const recs=classRecords();
-  const all=[["반","영화(모둠)","번호","학번","이름"]];
-  recs.slice().sort((a,b)=>(a.classNo-b.classNo)||((a.seat?a.seat.movieName:"힣").localeCompare(b.seat?b.seat.movieName:"힣"))||(a.studentNo-b.studentNo))
-    .forEach(r=>all.push([r.classNo, r.seat?r.seat.movieName:"(미신청)", r.studentNo, r.studentId, r.name||""]));
-  XLSX.utils.book_append_sheet(wb, aoaSheet(all), "전체조편성통합");
-  const classNos=[...new Set(recs.map(r=>r.classNo))].sort((a,b)=>a-b);
-  classNos.forEach(c=>{
-    const aoa=[["영화(모둠)","번호","학번","이름"]];
-    items.forEach(m=>{ const list=recs.filter(r=>r.classNo===c && r.seat && r.seat.movieId===m.id).sort((a,b)=>a.studentNo-b.studentNo);
-      if(list.length) list.forEach(r=>aoa.push([m.name, r.studentNo, r.studentId, r.name||""])); });
-    const none=recs.filter(r=>r.classNo===c && !r.seat); none.forEach(r=>aoa.push(["(미신청)", r.studentNo, r.studentId, r.name||""]));
-    if(aoa.length===1) aoa.push(["(신청 없음)","","",""]);
-    XLSX.utils.book_append_sheet(wb, aoaSheet(aoa), safeName(`${c}반`));
-  });
-  XLSX.writeFile(wb, `영화진로_반별조편성_${ymd()}.xlsx`);
-}
-// 영화별: 통합 + 영화별 시트
-function downloadByMovie(){
+function downloadScreenings(){
   const wb=XLSX.utils.book_new();
-  const all=[["영화","반","번호","학번","이름","신청시각"]];
-  seats.slice().sort((a,b)=>(itemName(a.movieId)||"").localeCompare(itemName(b.movieId)||"")||(a.classNo-b.classNo)||(a.studentNo-b.studentNo))
-    .forEach(r=>all.push([r.movieName, r.classNo, r.studentNo, r.studentId||"", r.name||"", timeStr(r.createdAt)]));
-  XLSX.utils.book_append_sheet(wb, aoaSheet(all), "전체영화통합");
-  items.forEach(m=>{
-    const list=seats.filter(s=>s.movieId===m.id).sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
-    const aoa=[["반","번호","학번","이름","신청시각"]];
-    list.forEach(r=>aoa.push([r.classNo, r.studentNo, r.studentId||"", r.name||"", timeStr(r.createdAt)]));
-    if(!list.length) aoa.push(["(신청자 없음)","","","",""]);
-    XLSX.utils.book_append_sheet(wb, aoaSheet(aoa), safeName(`${m.ord}.${m.name}`));
+  const all=[["교실","영화","분반","반","번호","학번","이름"]];
+  seats.slice().sort((a,b)=>((findItem(a.itemId)?.ord||0)-(findItem(b.itemId)?.ord||0))||(a.classNo-b.classNo)||(a.studentNo-b.studentNo))
+    .forEach(s=>{ const it=findItem(s.itemId); all.push([s.room, s.movieName, (it&&it.halls>1)?`${s.hall}분반`:"단독", s.classNo, s.studentNo, s.studentId||"", s.name||""]); });
+  XLSX.utils.book_append_sheet(wb, aoaSheet(all), "상영관통합");
+  items.forEach(it=>{
+    const list=seats.filter(s=>s.itemId===it.id).sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
+    const hl=it.halls>1?` ${it.hall}분반`:""; const aoa=[[`${it.room} 교실 · ${it.movieName}${hl}`],["반","번호","학번","이름"]];
+    list.forEach(s=>aoa.push([s.classNo, s.studentNo, s.studentId||"", s.name||""]));
+    if(!list.length) aoa.push(["(신청자 없음)","","",""]);
+    XLSX.utils.book_append_sheet(wb, aoaSheet(aoa), safeName(`${it.room} ${it.movieName}`));
   });
-  XLSX.writeFile(wb, `영화진로_영화별명단_${ymd()}.xlsx`);
+  XLSX.writeFile(wb, `영화진로_상영관별명단_${ymd()}.xlsx`);
 }
-// 전교생
 function downloadAll(){
   const wb=XLSX.utils.book_new(); const recs=classRecords();
-  const all=[["반","번호","학번","이름","신청영화","상태"]];
-  recs.forEach(r=>all.push([r.classNo, r.studentNo, r.studentId, r.name||"", r.seat?r.seat.movieName:"", r.seat?"신청완료":"미신청"]));
+  const all=[["반","번호","학번","이름","교실","영화","분반","상태"]];
+  recs.forEach(r=>{ const it=r.seat?findItem(r.seat.itemId):null;
+    all.push([r.classNo, r.studentNo, r.studentId, r.name||"", r.seat?r.seat.room:"", r.seat?r.seat.movieName:"", (it&&it.halls>1&&r.seat)?`${r.seat.hall}분반`:"", r.seat?"신청완료":"미신청"]); });
   XLSX.utils.book_append_sheet(wb, aoaSheet(all), "전교생통합");
   const classNos=[...new Set(recs.map(r=>r.classNo))].sort((a,b)=>a-b);
-  classNos.forEach(c=>{ const aoa=[["번호","학번","이름","신청영화","상태"]];
-    recs.filter(r=>r.classNo===c).forEach(r=>aoa.push([r.studentNo, r.studentId, r.name||"", r.seat?r.seat.movieName:"", r.seat?"신청완료":"미신청"]));
+  classNos.forEach(c=>{ const aoa=[["번호","학번","이름","교실","영화","분반","상태"]];
+    recs.filter(r=>r.classNo===c).forEach(r=>{ const it=r.seat?findItem(r.seat.itemId):null;
+      aoa.push([r.studentNo, r.studentId, r.name||"", r.seat?r.seat.room:"", r.seat?r.seat.movieName:"", (it&&it.halls>1&&r.seat)?`${r.seat.hall}분반`:"", r.seat?"신청완료":"미신청"]); });
     XLSX.utils.book_append_sheet(wb, aoaSheet(aoa), safeName(`${c}반`)); });
   XLSX.writeFile(wb, `영화진로_전교생명단_${ymd()}.xlsx`);
 }
 function downloadQna(){
-  const wb=XLSX.utils.book_new();
-  const ordOf={}; items.forEach(m=>ordOf[m.id]=m.ord);
-  const sorted=questions.slice().sort((a,b)=>((ordOf[a.movieId]||0)-(ordOf[b.movieId]||0))||((a.createdAt?.seconds||0)-(b.createdAt?.seconds||0)));
+  const wb=XLSX.utils.book_new(); const movies=uniqueMovies(); const ordOf={}; movies.forEach((it,i)=>ordOf[it.movieKey]=i);
+  const sorted=questions.slice().sort((a,b)=>((ordOf[a.movieId]??99)-(ordOf[b.movieId]??99))||((a.createdAt?.seconds||0)-(b.createdAt?.seconds||0)));
   const all=[["영화","학번","이름","질문","작성시각","수정됨"]];
   sorted.forEach(q=>all.push([q.movieName||"", q.studentId||"", q.name||"", q.text||"", timeStr(q.createdAt), q.editedAt?"수정됨":""]));
   XLSX.utils.book_append_sheet(wb, aoaSheet(all), "모든영화질문");
-  items.forEach(m=>{ const list=sorted.filter(q=>q.movieId===m.id); const aoa=[["학번","이름","질문","작성시각","수정됨"]];
+  movies.forEach(it=>{ const list=sorted.filter(q=>q.movieId===it.movieKey); const aoa=[["학번","이름","질문","작성시각","수정됨"]];
     list.forEach(q=>aoa.push([q.studentId||"", q.name||"", q.text||"", timeStr(q.createdAt), q.editedAt?"수정됨":""]));
-    if(!list.length) aoa.push(["(질문 없음)","","","",""]); XLSX.utils.book_append_sheet(wb, aoaSheet(aoa), safeName(`${m.ord}.${m.name}`)); });
+    if(!list.length) aoa.push(["(질문 없음)","","","",""]); XLSX.utils.book_append_sheet(wb, aoaSheet(aoa), safeName(it.movieName)); });
   XLSX.writeFile(wb, `영화진로_QnA_${ymd()}.xlsx`);
 }
-$("csvBtn").addEventListener("click", ()=>{ if(mgTab==="groups") downloadGroups(); else if(mgTab==="all") downloadAll(); else downloadByMovie(); });
+$("csvBtn").addEventListener("click", ()=>{ if(mgTab==="all") downloadAll(); else downloadScreenings(); });
 $("qnaCsvBtn")?.addEventListener("click", downloadQna);
 </script>
 </body>
