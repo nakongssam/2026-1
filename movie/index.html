@@ -304,8 +304,8 @@
   .scard:hover{ transform:translateY(-2px); box-shadow:0 6px 24px rgba(15,15,20,.10); }
   .scard.mine{ border-color:var(--ok); }
   .scard.locked{ opacity:.62; }
-  .sposter{ width:100%; aspect-ratio:16/9; background:var(--track); }
-  .sposter img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .sposter{ width:100%; aspect-ratio:3/4; background:var(--track); }
+  .sposter img{ width:100%; height:100%; object-fit:cover; object-position:center top; display:block; }
   .sbody{ padding:13px 15px 15px; display:flex; flex-direction:column; flex:1; }
   .stoprow{ display:flex; align-items:center; gap:6px; margin-bottom:7px; }
   .roomchip{ font-size:.74rem; font-weight:800; letter-spacing:.02em; background:var(--ink); color:var(--surface); border-radius:7px; padding:2px 9px; font-variant-numeric:tabular-nums; }
@@ -335,6 +335,12 @@
   .imodal .majors{ display:flex; flex-wrap:wrap; gap:6px; }
   .imodal .majors span{ font-size:.8rem; font-weight:600; color:var(--ink); background:var(--track); border-radius:8px; padding:3px 10px; }
   .imodal .iact{ margin-top:18px; }
+  .imodal .ihero{ display:flex; gap:16px; align-items:flex-start; margin-bottom:2px; }
+  .imodal .iposter{ width:120px; flex:none; border-radius:10px; overflow:hidden; background:var(--track); aspect-ratio:2/3; box-shadow:var(--shadow); }
+  .imodal .iposter img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .imodal .imeta{ min-width:0; flex:1; }
+  .imodal .imeta h3{ margin-top:2px; }
+  @media (max-width:480px){ .imodal .ihero{ flex-direction:column; } .imodal .iposter{ width:100%; max-width:180px; margin:0 auto; } .imodal .imeta{ text-align:left; } }
 
   /* 현황 (공통) */
   .statwrap{ display:flex; flex-direction:column; gap:12px; }
@@ -614,6 +620,18 @@ const SCREENINGS = [
   { room:"1-13", key:"블라인드사이드", hall:2 },
 ];
 const DISPLAY_NAME = { "아이로봇":"아이, 로봇", "트루먼쇼":"트루먼 쇼", "소울":"소울 (Soul)", "위대한쇼맨":"위대한 쇼맨", "블라인드사이드":"블라인드 사이드", "가타카":"가타카", "1987":"1987", "댓글부대":"댓글부대" };
+/* 포스터 이미지 (movieKey 기준) · 파일만 교체하면 바로 반영 (재세팅 불필요) */
+const POSTER = {
+  "가타카":"https://i.namu.wiki/i/dU9rk1dk4NjLLlHyyXj4BHWftoz8n5WoA6Ww_palyQG6zrAPa2DjEPER8JULCeuEk3kq-AG7YngqFipj_IuBL54zGNMKWKMxZW8FeP6jGZTqdxKybpTE5Q8v5hRPoxzBTfdfYrBINzRAidzJBM5Nxw.webp",
+  "트루먼쇼":"https://i.namu.wiki/i/RZ7hQWTkjXnMCONZJIyzlLmZtl5REYs2RyH9MxE6YdDAO4EG6epVW99Fo-hvRtcaM8tcUGIzXfSBGYYNFqu692xzivbKcBtNxCwl7h0n5LcB1gk6t0809I_3IBYx9qXvchZd094G_kNVCwsAubXV4Q.webp",
+  "1987":"https://i.namu.wiki/i/a8ArqUvU8H8DibnjeZjJ6crXtYVgQ3PFfRv5xQ25ody2YsGPAeYQC_U7a4nCx9Ye2kHHfjp3usXNLY1Fx4yzob4ZGhyfxEMfNSieWoDXwJCLpnXHjT3Vrz9Itps1Cz4WMD-MmYRiHCMeLDcpxqM0LA.webp",
+  "아이로봇":"https://i.namu.wiki/i/GCQkVTKhyy7xF67NToZ-HpKQwys2umrt-LSLOKzF0LZEf_XGE9Ca_PDyX9MPymZQywpa-wEWHfHfq9IxsXC1Pn2l4L25f06YoIrxQPRNAcdmd0lAT1OLhZoeXyVbMCIfmEDHPuvG-T1YuIdyvSOkgg.webp",
+  "소울":"https://i.namu.wiki/i/UbHO4XMT2ITTNnYz7dqwCz5lJFPZ-YPS8HOZwH_fxvWo9YbzmTI-oBY-1Qk3hfUEu7kBgG93u3xOTU4p1-lArk_rdQWEJDusuTRnixpu5WMagieZ17Ha7FYFoPgP-FymyEhtQP-s839T1Lrjf4lNJQ.webp",
+  "위대한쇼맨":"https://i.namu.wiki/i/hbZy8_71JHbfen184Lpu9fOkZlYE3zhnqUiBHJATkpa_GKyQs-lnaxy5pEKU6i5t-jvlJCUO_Ro1hFhzm-nveWflm1HLIRf5EDCrTjJarJa_UPh2LeC1zNV_7_SqzQStDAi_pRE55Wh7tq1NK_MMOw.webp",
+  "댓글부대":"https://i.namu.wiki/i/cHX5ca7BUB3OizZNS2JG6-7i2VbWQOZ5do5iJx6KporaNLbX0KoISF9Etltq8BV1T7zfRgeHLs625_YNPACV8UAoK6gYpgrsXiJ2dxjbjUHgZ0cMPVvDpeQvj9aKIvKR3dYTbqfZ27r2-nP7f2ut0g.webp",
+  "블라인드사이드":"https://i.namu.wiki/i/CXJTi1itLjDH8Ktly6sXMNVjU6Yt-T7z0Q2anmaqspOVwBKuDhdq3lDtSyZUtz8LiMIe5r4KgKszNIDhYsGSmmBRtuaPZbkv3CM2SOW9PXPHtq0OUJIGH0XZbU_RxrOx5m4VTrWn1vhxWgMDgXtR4g.webp",
+};
+const posterOf=(it)=> (it && (it.poster || POSTER[it.movieKey])) || "";
 
 /* ===== 초기화 ===== */
 const app = initializeApp(firebaseConfig);
@@ -808,7 +826,7 @@ function renderApply(){
     const locked = !!seat && !isMine;
     const rem=remain(it.id), full=rem<=0;
     const hl=hallLabel(it);
-    const poster = it.poster ? `<div class="sposter"><img src="${esc(it.poster)}" alt="" onerror="this.parentElement.style.display='none'"></div>` : "";
+    const pu=posterOf(it); const poster = pu ? `<div class="sposter"><img src="${esc(pu)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.style.display='none'"></div>` : "";
     let foot;
     if(isMine){ foot=`<div class="minebadge">✓ 신청함</div><button class="cancelmini" data-cancel="1">취소</button>`; }
     else if(locked){ foot=`<div class="lockednote">다른 영화 신청 중</div><button class="infobtn" data-info="${it.movieKey}">자세히</button>`; }
@@ -867,10 +885,16 @@ function openIntro(mvKey){
   const rooms=items.filter(x=>x.movieKey===mvKey);
   const hallTxt = rooms.length>1 ? `두 교실 상영 · ${rooms.map(r=>`${r.room}(${r.hall}분반)`).join(" · ")}` : `${rooms[0].room} 교실 상영 · 36명`;
   const majors=(it.majors||"").split(/[,·]/).map(x=>x.trim()).filter(Boolean);
+  const pu=posterOf(it);
+  const posterHTML = pu ? `<div class="iposter"><img src="${esc(pu)}" alt="" referrerpolicy="no-referrer" onerror="this.parentElement.style.display='none'"></div>` : "";
   $("introBox").innerHTML = `
-    <h3>${esc(it.movieName)}</h3>
-    <span class="ihall">${esc(hallTxt)}</span>
-    <div class="isum">${esc(it.summary||"")}</div>
+    <div class="ihero">${posterHTML}
+      <div class="imeta">
+        <h3>${esc(it.movieName)}</h3>
+        <span class="ihall">${esc(hallTxt)}</span>
+        <div class="isum">${esc(it.summary||"")}</div>
+      </div>
+    </div>
     ${it.talk?`<h4>💬 이야기해볼거리</h4><p class="isum2">${esc(it.talk)}</p>`:""}
     ${majors.length?`<h4>🎓 관련 학과</h4><div class="majors">${majors.map(x=>`<span>${esc(x)}</span>`).join("")}</div>`:""}
     <div class="iact"><button class="full x" id="iClose" style="margin:0">닫기</button></div>`;
