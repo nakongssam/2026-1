@@ -375,7 +375,9 @@
   .topitem .tn{ flex:1; font-weight:600; color:var(--ink); font-size:.92rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .topitem .tc{ font-weight:800; color:var(--ink); font-size:.9rem; white-space:nowrap; }
   /* 상영관별 2열 + 좌우 컬럼 바닥 정렬 */
-  .scr2{ display:block; }
+  .scr2{ column-count:2; column-gap:24px; }
+  .scr2 > .ditem{ break-inside:avoid; }
+  @media (max-width:560px){ .scr2{ column-count:1; } }
   .board .col{ display:flex; flex-direction:column; gap:14px; }
   .board .col > .card{ display:flex; flex-direction:column; }
   .board .col > .card:last-child{ flex:1 1 auto; }
