@@ -148,7 +148,7 @@
   .kpi .v{ font-size:1.45rem; font-weight:800; color:var(--ink); line-height:1.05; letter-spacing:-.02em; }
   .kpi .l{ font-size:.76rem; color:var(--muted); margin-top:1px; font-weight:600; }
   .kpi.warn .ic{ background:var(--warn-soft); } .kpi.warn .v{ color:var(--warn); }
-  .board{ display:grid; grid-template-columns:1.25fr 1fr; gap:14px; align-items:start; }
+  .board{ display:grid; grid-template-columns:1.25fr 1fr; gap:14px; align-items:stretch; }
   .col{ display:flex; flex-direction:column; gap:14px; }
   .card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--r); box-shadow:var(--shadow); overflow:hidden; }
   .card .ch{ display:flex; align-items:center; justify-content:space-between; gap:8px; padding:14px 16px 10px; }
@@ -341,6 +341,7 @@
   .imodal .iposter img{ width:100%; height:100%; object-fit:cover; display:block; }
   .imodal .imeta{ min-width:0; flex:1; }
   .imodal .imeta h3{ margin-top:2px; }
+  .imodal .iyear{ font-size:.82rem; color:var(--muted); font-weight:700; margin:2px 0 8px; }
   @media (max-width:480px){ .imodal .ihero{ flex-direction:column; } .imodal .iposter{ width:100%; max-width:180px; margin:0 auto; } .imodal .imeta{ text-align:left; } }
 
   /* 현황 (공통) */
@@ -374,8 +375,7 @@
   .topitem .tn{ flex:1; font-weight:600; color:var(--ink); font-size:.92rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .topitem .tc{ font-weight:800; color:var(--ink); font-size:.9rem; white-space:nowrap; }
   /* 상영관별 2열 + 좌우 컬럼 바닥 정렬 */
-  .scr2{ display:grid; grid-template-columns:1fr 1fr; gap:0 24px; }
-  @media (max-width:560px){ .scr2{ grid-template-columns:1fr; } }
+  .scr2{ display:block; }
   .board .col{ display:flex; flex-direction:column; gap:14px; }
   .board .col > .card{ display:flex; flex-direction:column; }
   .board .col > .card:last-child{ flex:1 1 auto; }
@@ -602,15 +602,17 @@ const SCHEDULE_NOTE = "7월 15일(수) · 1학년 진로탐색 (1~3교시)";
 
 /* 영화 정보 (8편) */
 const MOVIE_INFO = {
-  "가타카":   { summary:"유전자로 계급이 나뉜 미래. '부적격자'로 태어난 빈센트가 타인의 신분을 빌려 우주비행사의 꿈에 도전한다.", talk:"유전병을 막기 위한 배아 유전자 편집, 어디까지 허용해야 할까? 유전자가 한 사람의 운명을 결정할까?", majors:"생명공학, 의학·생명윤리, 법학, 철학", poster:"" },
-  "트루먼쇼": { summary:"태어날 때부터 거대한 세트장에서 24시간 생중계되는 삶을 살아온 트루먼이, 자신의 세계가 가짜임을 깨닫는 이야기.", talk:"개인의 사생활은 어디까지 보호받아야 할까? 타인의 시선과 SNS 속 삶은 진짜 나일까? 진실을 아는 것은 늘 행복일까?", majors:"언론정보학, 미디어커뮤니케이션학, 심리학, 사회학", poster:"" },
-  "1987":     { summary:"1987년, 한 대학생의 죽음을 은폐하려는 권력에 맞서 진실을 밝히려는 사람들의 실화. 6월 민주항쟁으로 이어진 그날의 기록.", talk:"개인의 용기가 사회를 바꿀 수 있을까? 진실을 밝히는 데 언론과 시민은 어떤 역할을 할까? 민주주의는 어떻게 지켜지는가?", majors:"정치외교학, 법학, 사회학, 역사학, 신문방송학", poster:"" },
-  "아이로봇": { summary:"2035년, 로봇이 일상이 된 미래. 로봇을 불신하는 형사가 한 과학자의 죽음을 파헤치며 AI를 둘러싼 음모와 마주한다.", talk:"AI 개발에는 어떤 윤리와 책임이 따라야 할까? 인간과 인공지능은 공존할 수 있을까?", majors:"컴퓨터공학, AI·로봇공학, 철학(윤리학), 법학", poster:"" },
-  "소울":     { summary:"재즈 피아니스트를 꿈꾸던 조가 사고로 영혼이 되어, 태어나기 전 영혼 '22'와 함께 삶의 의미를 찾아가는 픽사 애니메이션.", talk:"삶의 목적은 반드시 있어야 할까? 꿈을 이루는 것과 행복하게 사는 것 중 무엇이 더 중요할까?", majors:"심리학, 철학, 교육학, 상담학", poster:"" },
-  "위대한쇼맨":{ summary:"무일푼에서 쇼 비즈니스를 일군 P.T. 바넘이 남들과 '다른' 사람들과 함께 세상의 편견에 맞서는 뮤지컬.", talk:"편견을 넘어서는 길은 무엇일까? 성공을 위해 타인을 이용하는 건 정당할까? 다양성을 존중하는 사회란?", majors:"경영학, 사회학, 공연예술학, 교육학", poster:"" },
-  "댓글부대": { summary:"온라인 여론 조작 조직의 실체를 쫓는 기자를 통해, 디지털 시대 진실과 조작의 경계를 그린 한국 영화.", talk:"온라인 여론은 나의 판단일까, 조작의 결과일까? 가짜뉴스와 디지털 미디어 리터러시를 어떻게 갖춰야 할까?", majors:"미디어커뮤니케이션학, 신문방송학, 사회학, 정보보호학, 컴퓨터공학", poster:"" },
-  "블라인드사이드":{ summary:"갈 곳 없던 소년 마이클이 한 가정에 입양되어 가족의 사랑 속에 미식축구 선수로 성장하는 실화.", talk:"성공은 노력일까 환경일까? 한 사람의 선의가 사회를 바꿀 수 있을까? 약자를 돕는 건 개인의 책임일까, 사회의 책임일까?", majors:"사회복지학, 교육학, 체육학, 심리학", poster:"" },
+  "가타카":   { year:"1997", genre:"SF · 드라마", cast:"이선 호크, 우마 서먼, 주드 로", summary:"유전자로 계급이 나뉜 미래. '부적격자'로 태어난 빈센트가 타인의 신분을 빌려 우주비행사의 꿈에 도전한다.", talk:"유전병을 막기 위한 배아 유전자 편집, 어디까지 허용해야 할까? 유전자가 한 사람의 운명을 결정할까?", majors:"생명공학, 의학·생명윤리, 법학, 철학", poster:"" },
+  "트루먼쇼": { year:"1998", genre:"드라마 · 코미디", cast:"짐 캐리, 에드 해리스, 로라 리니", summary:"태어날 때부터 거대한 세트장에서 24시간 생중계되는 삶을 살아온 트루먼이, 자신의 세계가 가짜임을 깨닫는 이야기.", talk:"개인의 사생활은 어디까지 보호받아야 할까? 타인의 시선과 SNS 속 삶은 진짜 나일까? 진실을 아는 것은 늘 행복일까?", majors:"언론정보학, 미디어커뮤니케이션학, 심리학, 사회학", poster:"" },
+  "1987":     { year:"2017", genre:"드라마 · 시대극", cast:"김윤석, 하정우, 유해진, 김태리", summary:"1987년, 한 대학생의 죽음을 은폐하려는 권력에 맞서 진실을 밝히려는 사람들의 실화. 6월 민주항쟁으로 이어진 그날의 기록.", talk:"개인의 용기가 사회를 바꿀 수 있을까? 진실을 밝히는 데 언론과 시민은 어떤 역할을 할까? 민주주의는 어떻게 지켜지는가?", majors:"정치외교학, 법학, 사회학, 역사학, 신문방송학", poster:"" },
+  "아이로봇": { year:"2004", genre:"SF · 액션", cast:"윌 스미스, 브리짓 모이나핸", summary:"2035년, 로봇이 일상이 된 미래. 로봇을 불신하는 형사가 한 과학자의 죽음을 파헤치며 AI를 둘러싼 음모와 마주한다.", talk:"AI 개발에는 어떤 윤리와 책임이 따라야 할까? 인간과 인공지능은 공존할 수 있을까?", majors:"컴퓨터공학, AI·로봇공학, 철학(윤리학), 법학", poster:"" },
+  "소울":     { year:"2020", genre:"애니메이션 · 판타지", cast:"제이미 폭스, 티나 페이 (목소리)", summary:"재즈 피아니스트를 꿈꾸던 조가 사고로 영혼이 되어, 태어나기 전 영혼 '22'와 함께 삶의 의미를 찾아가는 픽사 애니메이션.", talk:"삶의 목적은 반드시 있어야 할까? 꿈을 이루는 것과 행복하게 사는 것 중 무엇이 더 중요할까?", majors:"심리학, 철학, 교육학, 상담학", poster:"" },
+  "위대한쇼맨":{ year:"2017", genre:"뮤지컬 · 드라마", cast:"휴 잭맨, 잭 에프론, 젠데이아", summary:"무일푼에서 쇼 비즈니스를 일군 P.T. 바넘이 남들과 '다른' 사람들과 함께 세상의 편견에 맞서는 뮤지컬.", talk:"편견을 넘어서는 길은 무엇일까? 성공을 위해 타인을 이용하는 건 정당할까? 다양성을 존중하는 사회란?", majors:"경영학, 사회학, 공연예술학, 교육학", poster:"" },
+  "댓글부대": { year:"2024", genre:"드라마 · 스릴러", cast:"손석구, 김성철, 김동휘, 홍경", summary:"온라인 여론 조작 조직의 실체를 쫓는 기자를 통해, 디지털 시대 진실과 조작의 경계를 그린 한국 영화.", talk:"온라인 여론은 나의 판단일까, 조작의 결과일까? 가짜뉴스와 디지털 미디어 리터러시를 어떻게 갖춰야 할까?", majors:"미디어커뮤니케이션학, 신문방송학, 사회학, 정보보호학, 컴퓨터공학", poster:"" },
+  "블라인드사이드":{ year:"2009", genre:"드라마 · 스포츠", cast:"산드라 블록, 팀 맥그로, 퀸튼 아론", summary:"갈 곳 없던 소년 마이클이 한 가정에 입양되어 가족의 사랑 속에 미식축구 선수로 성장하는 실화.", talk:"성공은 노력일까 환경일까? 한 사람의 선의가 사회를 바꿀 수 있을까? 약자를 돕는 건 개인의 책임일까, 사회의 책임일까?", majors:"사회복지학, 교육학, 체육학, 심리학", poster:"" },
 };
+const MVMETA = { };
+Object.keys(MOVIE_INFO).forEach(k=>{ MVMETA[k]={ year:MOVIE_INFO[k].year||"", genre:MOVIE_INFO[k].genre||"", cast:MOVIE_INFO[k].cast||"" }; });
 /* 상영관 13개 (교실=카드) · hall 0=단독, 1/2=분반 */
 const SCREENINGS = [
   { room:"1-1",  key:"가타카",   hall:0 },
@@ -656,12 +658,14 @@ const questionsCol=()=>evCol("questions");
 const gateRef=()=>evDoc("config","gate");
 const scrDoc=(sid)=>evDoc("screenings",sid);
 const scrCol=()=>evCol("screenings");
+const ccCol=()=>evCol("classcount");
+const ccDoc=(c)=>evDoc("classcount",String(c));
 
 /* ===== 상태 ===== */
 let role=null, me=null, seat=null;
 let items=[], seats=[], students=[], questions=[];
 let scrMap={};   // itemId -> n
-let statsLive=null, lastStatsPush=0, lastOpenState=null;
+let statsLive=null, lastStatsPush=0, lastOpenState=null, classCounts={};
 let gate={open:false, openAt:null}, gateTimer=null;
 let unsub=[], unsubSeat=null, unsubScr=null, pollTimer=null, curTab=null;
 let mgTab="movie", moviePick="all", classPick="all", allFilter="all", adminShown=false, brandClicks=0;
@@ -787,6 +791,7 @@ function subscribe(){
   if(role==="student"){
     unsubSeat=onSnapshot(evDoc("seats",me.vhash), s=>{ seat=s.exists()?s.data():null; renderApply(); renderGuide(); renderStat(); });
     unsub.push(onSnapshot(evDoc("stats","live"), s=>{ statsLive=s.exists()?s.data():null; renderStat(); }, e=>console.error(e)));
+    unsub.push(onSnapshot(ccCol(), s=>{ classCounts={}; s.docs.forEach(d=>classCounts[d.id]=d.data().n||0); renderStat(); }, e=>console.error(e)));
   }
   if(role==="teacher"){
     unsub.push(onSnapshot(seatsCol(), s=>{ seats=s.docs.map(d=>({vhash:d.id,...d.data()})); renderDash(); renderManage(); }, e=>console.error(e)));
@@ -813,7 +818,7 @@ function guideHTML(personal){
     const it=findItem(personal.seat.itemId); const hl=it?hallLabel(it):(personal.seat.hall>1?`${personal.seat.hall}분반`:"");
     const room=personal.seat.room||(it?it.room:"");
     my = `<div class="mysummary"><div class="l1">🎬 내 영화 : ${esc(personal.seat.movieName)}${hl?` · ${hl}`:""}</div>
-      <div class="l2">1~2교시 <b>${esc(room)} 교실</b>로 가서 관람하고, 3교시에 소감문을 작성해요.</div></div>`;
+      <div class="l2">1~2교시에 <b>${esc(room)} 교실</b>로 가서 관람하고, 3교시에 소감문을 작성해요.</div></div>`;
   } else if(personal){
     my = `<div class="gnote">아직 영화를 신청하지 않았어요. <b>🎬 영화 신청</b> 탭에서 보고 싶은 영화를 1편 골라주세요.</div>`;
   }
@@ -887,12 +892,14 @@ async function applyScreening(itemId){
   const it=findItem(itemId); if(!it) return;
   try{
     const r=await runTransaction(db, async (tx)=>{
-      const seatRef=evDoc("seats",me.vhash), sRef=scrDoc(itemId);
+      const seatRef=evDoc("seats",me.vhash), sRef=scrDoc(itemId), ccRef=ccDoc(me.classNo);
       const ss=await tx.get(seatRef); if(ss.exists()) return {s:"HAS",n:ss.data().movieName};
       const cs=await tx.get(sRef); const n=cs.exists()?(cs.data().n||0):0;
+      const ccs=await tx.get(ccRef); const cc=ccs.exists()?(ccs.data().n||0):0;
       if(n>=CAP) return {s:"FULL",n:it.movieName};
       tx.set(seatRef,{ studentId:me.studentId, name:me.name, classNo:me.classNo, studentNo:me.studentNo, movieId:itemId, itemId, movieName:it.movieName, movieKey:it.movieKey, hall:it.hall||0, room:it.room, createdAt:serverTimestamp() });
       tx.set(sRef,{ n:n+1 });
+      tx.set(ccRef,{ n:cc+1 });
       return {s:"OK",n:it.movieName};
     });
     if(r.s==="OK") showMsg($("mainMsg"),`🎉 '${r.n}' (${it.room} 교실) 신청 완료!`,"success");
@@ -906,8 +913,10 @@ async function cancelSeat(){
   try{
     await runTransaction(db, async (tx)=>{
       const seatRef=evDoc("seats",me.vhash); const ss=await tx.get(seatRef); if(!ss.exists()) return;
-      const sRef=scrDoc(ss.data().itemId); const cs=await tx.get(sRef);
+      const seatD=ss.data(); const sRef=scrDoc(seatD.itemId); const cs=await tx.get(sRef);
+      const ccRef=ccDoc(seatD.classNo); const ccs=await tx.get(ccRef);
       if(cs.exists()){ const n=cs.data().n||0; tx.set(sRef,{ n:Math.max(0,n-1) }); }
+      if(ccs.exists()){ const cn=ccs.data().n||0; tx.set(ccRef,{ n:Math.max(0,cn-1) }); }
       tx.delete(seatRef);
     });
     showMsg($("mainMsg"),"신청이 취소되었습니다. 원하는 영화를 다시 선택해 주세요.","info");
@@ -920,16 +929,20 @@ function openIntro(mvKey){
   const rooms=items.filter(x=>x.movieKey===mvKey);
   const hallTxt = rooms.length>1 ? `두 교실 상영 · ${rooms.map(r=>`${r.room}(${r.hall}분반)`).join(" · ")}` : `${rooms[0].room} 교실 상영 · 36명`;
   const majors=(it.majors||"").split(/[,·]/).map(x=>x.trim()).filter(Boolean);
+  const meta=MVMETA[mvKey]||{};
   const pu=posterOf(it);
   const posterHTML = pu ? `<div class="iposter"><img src="${esc(pu)}" alt="" referrerpolicy="no-referrer" onerror="this.parentElement.style.display='none'"></div>` : "";
+  const metaLine=[meta.year, meta.genre].filter(Boolean).join(" · ");
   $("introBox").innerHTML = `
     <div class="ihero">${posterHTML}
       <div class="imeta">
         <h3>${esc(it.movieName)}</h3>
+        ${metaLine?`<div class="iyear">${esc(metaLine)}</div>`:""}
         <span class="ihall">${esc(hallTxt)}</span>
         <div class="isum">${esc(it.summary||"")}</div>
       </div>
     </div>
+    ${meta.cast?`<h4>🎭 출연</h4><p class="isum2">${esc(meta.cast)}</p>`:""}
     ${it.talk?`<h4>💬 이야기해볼거리</h4><p class="isum2">${esc(it.talk)}</p>`:""}
     ${majors.length?`<h4>🎓 관련 학과</h4><div class="majors">${majors.map(x=>`<span>${esc(x)}</span>`).join("")}</div>`:""}
     <div class="iact"><button class="full x" id="iClose" style="margin:0">닫기</button></div>`;
@@ -981,7 +994,12 @@ function renderStat(){
   if(role!=="student") return; const p=$("panelStat"); if(!p) return;
   const filled=items.reduce((a,it)=>a+(scrMap[it.id]||0),0);
   const hasRoster = !!(statsLive && statsLive.total);
-  p.innerHTML = statBoard({ filled, total: hasRoster?statsLive.total:0, hasRoster, byClass: hasRoster?statsLive.byClass:null });
+  let byClass=null;
+  if(hasRoster && statsLive.byClass){
+    byClass={};
+    Object.keys(statsLive.byClass).forEach(c=>{ const rc=statsLive.byClass[c]||{}; byClass[c]={ tot: rc.tot||0, done: classCounts[c]!=null?classCounts[c]:(rc.done||0) }; });
+  }
+  p.innerHTML = statBoard({ filled, total: hasRoster?statsLive.total:0, hasRoster, byClass });
 }
 
 /* ===== 게이트 표시 ===== */
@@ -1157,13 +1175,17 @@ $("seedBtn").addEventListener("click", async ()=>{
   }catch(e){ console.error(e); setStatus("세팅 중 오류가 발생했습니다.","err"); }
 });
 $("recalcBtn").addEventListener("click", async ()=>{
-  if(!confirm("실제 신청 내역 기준으로 상영관 정원 카운터를 다시 계산합니다. 진행할까요?")) return;
+  if(!confirm("실제 신청 내역 기준으로 상영관·반별 카운터를 다시 계산합니다. 진행할까요?")) return;
   try{
     const cnt={}; seats.forEach(s=>{ cnt[s.itemId]=(cnt[s.itemId]||0)+1; });
+    const ccnt={}; seats.forEach(s=>{ ccnt[s.classNo]=(ccnt[s.classNo]||0)+1; });
     let batch=writeBatch(db), ops=0;
     for(const it of items){ batch.set(scrDoc(it.id), { n: cnt[it.id]||0 }); if(++ops>=400){ await batch.commit(); batch=writeBatch(db); ops=0; } }
+    const classSet=new Set([...Object.keys(ccnt), ...students.map(st=>parseSid(st.studentId).classNo)]);
+    for(const c of classSet){ batch.set(ccDoc(c), { n: ccnt[c]||0 }); if(++ops>=400){ await batch.commit(); batch=writeBatch(db); ops=0; } }
     if(ops) await batch.commit();
-    setStatus("정원 재계산 완료","ok");
+    lastStatsPush=0; renderDash();
+    setStatus("상영관·반별 카운터 재계산 완료","ok");
   }catch(e){ console.error(e); setStatus("재계산 중 오류가 발생했습니다.","err"); }
 });
 
@@ -1249,10 +1271,12 @@ async function doAssign(vhash, itemId){
     await runTransaction(db, async (tx)=>{
       const seatRef=evDoc("seats",vhash); const ss=await tx.get(seatRef);
       const newRef=scrDoc(itemId); const ncs=await tx.get(newRef); const nn=ncs.exists()?(ncs.data().n||0):0;
-      let oldRef=null, oldN=0;
-      if(ss.exists()){ const oi=ss.data().itemId; if(oi===itemId) return; oldRef=scrDoc(oi); const ocs=await tx.get(oldRef); oldN=ocs.exists()?(ocs.data().n||0):0; }
+      const ccRef=ccDoc(p.classNo); const ccs=await tx.get(ccRef); const cc=ccs.exists()?(ccs.data().n||0):0;
+      let oldRef=null, oldN=0, wasAssigned=false;
+      if(ss.exists()){ const oi=ss.data().itemId; if(oi===itemId) return; wasAssigned=true; oldRef=scrDoc(oi); const ocs=await tx.get(oldRef); oldN=ocs.exists()?(ocs.data().n||0):0; }
       if(oldRef) tx.set(oldRef,{ n:Math.max(0,oldN-1) });
       tx.set(newRef,{ n:nn+1 });
+      if(!wasAssigned) tx.set(ccRef,{ n:cc+1 });
       tx.set(seatRef,{ studentId:st.studentId, name:st.name, classNo:p.classNo, studentNo:p.studentNo, movieId:itemId, itemId, movieName:it.movieName, movieKey:it.movieKey, hall:it.hall||0, room:it.room, createdAt:serverTimestamp() });
     });
     $("assignMsg").style.color="var(--ok)"; $("assignMsg").textContent=`'${it.room} ${it.movieName}'로 배정했습니다.`;
@@ -1263,7 +1287,10 @@ async function teacherCancel(vhash, silent){
   const s=seats.find(x=>x.vhash===vhash); if(!s) return;
   if(!silent && !confirm(`${s.name}(${s.classNo}반 ${s.studentNo}번) 학생의 '${s.room} ${s.movieName}' 신청을 취소할까요?`)) return;
   try{ await runTransaction(db, async (tx)=>{
-      const sRef=scrDoc(s.itemId); const cs=await tx.get(sRef); if(cs.exists()){ const n=cs.data().n||0; tx.set(sRef,{n:Math.max(0,n-1)}); }
+      const sRef=scrDoc(s.itemId); const cs=await tx.get(sRef);
+      const ccRef=ccDoc(s.classNo); const ccs=await tx.get(ccRef);
+      if(cs.exists()){ const n=cs.data().n||0; tx.set(sRef,{n:Math.max(0,n-1)}); }
+      if(ccs.exists()){ const cn=ccs.data().n||0; tx.set(ccRef,{n:Math.max(0,cn-1)}); }
       tx.delete(evDoc("seats",vhash));
     }); }catch(e){ console.error(e); alert("취소 중 오류가 발생했습니다."); }
 }
@@ -1282,7 +1309,7 @@ async function deleteStudent(vhash){
   if(!confirm(`${st.name}(${p.classNo}반 ${p.studentNo}번) 학생을 명단에서 삭제할까요? 신청 내역도 함께 삭제됩니다.`)) return;
   try{
     const s=seats.find(x=>x.vhash===vhash);
-    if(s){ await runTransaction(db, async (tx)=>{ const sRef=scrDoc(s.itemId); const cs=await tx.get(sRef); if(cs.exists()){ const n=cs.data().n||0; tx.set(sRef,{n:Math.max(0,n-1)}); } tx.delete(evDoc("seats",vhash)); }); }
+    if(s){ await runTransaction(db, async (tx)=>{ const sRef=scrDoc(s.itemId); const cs=await tx.get(sRef); const ccRef=ccDoc(s.classNo); const ccs=await tx.get(ccRef); if(cs.exists()){ const n=cs.data().n||0; tx.set(sRef,{n:Math.max(0,n-1)}); } if(ccs.exists()){ const cn=ccs.data().n||0; tx.set(ccRef,{n:Math.max(0,cn-1)}); } tx.delete(evDoc("seats",vhash)); }); }
     await deleteDoc(doc(db,"students",vhash));
     setStatus(`${st.name} 학생을 삭제했습니다.`,"ok");
   }catch(e){ console.error(e); alert("삭제 중 오류가 발생했습니다."); }
