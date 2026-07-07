@@ -304,7 +304,8 @@
   .scard:hover{ transform:translateY(-2px); box-shadow:0 6px 24px rgba(15,15,20,.10); }
   .scard.mine{ border-color:var(--ok); }
   .scard.locked{ opacity:.62; }
-  .sposter{ width:100%; aspect-ratio:3/4; background:var(--track); }
+  .sposter{ width:100%; aspect-ratio:3/4; background:var(--track); position:relative; }
+  .sposter.noimg::after{ content:"🎬"; position:absolute; inset:0; display:grid; place-items:center; font-size:2rem; color:var(--muted); }
   .sposter img{ width:100%; height:100%; object-fit:cover; object-position:center top; display:block; }
   .sbody{ padding:13px 15px 15px; display:flex; flex-direction:column; flex:1; }
   .stoprow{ display:flex; align-items:center; gap:6px; margin-bottom:7px; }
@@ -363,6 +364,15 @@
   .srow .track{ height:5px; background:var(--track); border-radius:5px; overflow:hidden; margin-top:5px; }
   .srow .track > i{ display:block; height:100%; background:var(--ink); border-radius:5px; transition:width .4s; }
   .srow.me .track > i{ background:var(--ok); }
+  /* 상영관 라벨 가독성: 교실은 어두운 배지, 영화는 일반 텍스트 */
+  .roombadge{ display:inline-block; background:var(--ink); color:var(--surface); font-size:.7rem; font-weight:800; padding:1px 7px; border-radius:5px; margin-right:6px; font-variant-numeric:tabular-nums; vertical-align:middle; letter-spacing:.01em; }
+  .chip .cmv{ font-weight:500; opacity:.82; }
+  .topitem{ display:flex; align-items:center; gap:11px; padding:9px 0; border-bottom:1px solid var(--line); }
+  .topitem:last-child{ border:none; }
+  .topitem .rk{ width:23px; height:23px; flex:none; display:grid; place-items:center; border-radius:7px; background:var(--track); color:var(--ink); font-weight:800; font-size:.82rem; }
+  .topitem .rk.g1{ background:var(--ink); color:var(--surface); }
+  .topitem .tn{ flex:1; font-weight:600; color:var(--ink); font-size:.92rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .topitem .tc{ font-weight:800; color:var(--ink); font-size:.9rem; white-space:nowrap; }
 
   .mysummary{ background:var(--ok-soft); border:1px solid var(--ok); border-radius:14px; padding:15px 18px; margin:6px 0 20px; }
   .mysummary .l1{ font-weight:800; color:var(--ok); font-size:1.08rem; }
@@ -387,7 +397,7 @@
 <div class="gatewrap" id="gate">
   <span class="gbadge">천안오성고등학교 1학년</span>
   <h1 class="gtitle display">영화 속 진로를<br>탐색하다</h1>
-  <div class="gsub">7/15(화) 1~3교시 · 진로 영화 감상</div>
+  <div class="gsub">7/15(수) 1~3교시 · 진로 영화 감상</div>
   <button class="ginfo" id="gateGuideBtn">📅 오늘 일정 보기</button>
   <div class="gcard">
     <div class="seg">
@@ -416,7 +426,7 @@
 <div id="app" style="display:none;">
   <div class="apphead">
     <div class="in">
-      <div class="ttl display"><span class="tt-main">🎬 진로 영화</span> <span class="hsub"><span class="who" id="who"></span><span class="appsub">7/15(화)</span></span></div>
+      <div class="ttl display"><span class="tt-main" id="brandTitle">🎬 진로 영화</span> <span class="hsub"><span class="who" id="who"></span><span class="appsub">7/15(수)</span></span></div>
       <div class="headright">
         <span id="seatBadge"></span>
         <span class="live"><span class="dotpulse"></span> 실시간</span>
@@ -470,8 +480,12 @@
         </div>
         <div class="col">
           <div class="card">
-            <div class="ch"><span class="t">🏫 반별 신청 현황</span><span class="meta" id="classMeta"></span></div>
-            <div class="cb" id="classList"></div>
+            <div class="ch"><span class="t">🏆 인기 영화 TOP 5</span></div>
+            <div class="cb" id="topList"></div>
+          </div>
+          <div class="card">
+            <div class="ch"><span class="t">🏫 반별 신청률</span><span class="meta" id="classMeta"></span></div>
+            <div class="cb"><div class="cgrid" id="classList"></div></div>
           </div>
         </div>
       </div>
@@ -481,32 +495,38 @@
     <div class="panel" id="panelManage">
       <div class="mgbar">
         <div class="tabs">
-          <div class="tab active" id="tabGroups">🚪 상영관 명단</div>
-          <div class="tab" id="tabAll">📋 전교생</div>
+          <div class="tab active" id="tabMovie">🎬 영화별 명단</div>
+          <div class="tab" id="tabClass">🏫 반별 명단</div>
+          <div class="tab" id="tabAll">📋 전체 명단</div>
         </div>
         <div class="spacer"></div>
+        <button class="ghost" id="addStuBtn">＋ 학생 추가</button>
         <button class="ghost" id="csvBtn">⬇ 다운로드</button>
       </div>
-      <div class="bar">
+      <div class="bar" id="adminBar" style="display:none;">
         <button id="seedBtn">🎬 상영 13개 세팅</button>
         <button class="ghost" id="recalcBtn">정원 재계산</button>
         <button class="ghost" id="importBtn">학생 명단 가져오기</button>
-        <button class="ghost" id="addStuBtn">＋ 학생 추가</button>
         <input type="file" id="fileInput" accept=".xlsx,.xls" style="display:none" />
       </div>
       <div id="status"></div>
 
-      <!-- 상영관 명단 -->
-      <div id="groupsView">
-        <div class="summary" id="mvSummary"></div>
+      <!-- 영화별 명단 -->
+      <div id="movieView">
         <div class="chips" id="movieChips"></div>
-        <div id="groupsBody"></div>
+        <div id="movieBody"></div>
       </div>
 
-      <!-- 전교생 -->
+      <!-- 반별 명단 -->
+      <div id="classView" style="display:none;">
+        <div class="chips" id="classChips"></div>
+        <div id="classBody"></div>
+      </div>
+
+      <!-- 전체 명단 -->
       <div id="allView" style="display:none;">
         <div class="toolbar">
-          <label for="allFilter" style="margin:0;font-size:.85rem;font-weight:600;">상영관 필터</label>
+          <label for="allFilter" style="margin:0;font-size:.85rem;font-weight:600;">필터</label>
           <select id="allFilter"></select>
         </div>
         <div class="mgrid" id="allBody"></div>
@@ -590,7 +610,7 @@ const TEACHER_EMAIL = "hn9193@gmail.com";
 const EV = "movie-2026";
 const CAP = 36;
 
-const SCHEDULE_NOTE = "7월 15일(화) · 1학년 진로탐색 (1~3교시)";
+const SCHEDULE_NOTE = "7월 15일(수) · 1학년 진로탐색 (1~3교시)";
 
 /* 영화 정보 (8편) */
 const MOVIE_INFO = {
@@ -655,7 +675,7 @@ let items=[], seats=[], students=[], questions=[];
 let scrMap={};   // itemId -> n
 let gate={open:false, openAt:null}, gateTimer=null;
 let unsub=[], unsubSeat=null, unsubScr=null, pollTimer=null, curTab=null;
-let mgTab="groups", moviePick="all", allFilter="all";
+let mgTab="movie", moviePick="all", classPick="all", allFilter="all", adminShown=false, brandClicks=0;
 let qnaPick=null, qnaUserPicked=false, editId=null;
 let rowVhash=null, assignVhash=null;
 
@@ -666,6 +686,14 @@ const normBirth=(s)=>String(s).replace(/\D/g,"").padStart(6,"0").slice(-6);
 const vhashOf=(sid,birth)=>sha256Hex(`${String(sid).trim()}|${normBirth(birth)}`);
 const findItem=(id)=>items.find(x=>x.id===id);
 const hallLabel=(it)=> (it&&it.halls>1&&(it.hall===1||it.hall===2)) ? `${it.hall}분반` : "";
+const mvName=(it)=> esc(it&&(it.movieName||it.name)||"제목 미정");
+const roomTag=(room)=> room?`<span class="roombadge">${esc(room)}</span>`:"";
+const chipLabel=(it)=>`<b>${esc(it.room||"")}</b> <span class="cmv">${mvName(it)}${hallLabel(it)?` ${hallLabel(it)}`:""}</span>`;
+function popularMovies(){
+  const agg={};
+  items.forEach(it=>{ const k=it.movieKey||it.id; (agg[k] ||= {key:k, name:it.movieName||it.name||k, n:0, halls:it.halls||1}); agg[k].n+=(scrMap[it.id]||0); });
+  return Object.values(agg).sort((a,b)=>b.n-a.n);
+}
 const remain=(id)=>CAP-(scrMap[id]||0);
 function showMsg(el,t,type){ el.textContent=t; el.className="msg show "+type; }
 function clearMsg(el){ el.className="msg"; }
@@ -803,7 +831,7 @@ function guideHTML(personal){
     <p class="gd-sub">${SCHEDULE_NOTE}</p>
     ${my}
     <div class="flowlist">
-      <div class="frow"><div class="fnum">1</div><div class="fmeta"><div class="h">미리보기</div><div class="b">각 영화 카드의 <b>자세히</b>에서 줄거리·관련 학과·생각해볼 질문을 살펴봐요.</div></div></div>
+      <div class="frow"><div class="fnum">1</div><div class="fmeta"><div class="h">살펴보기</div><div class="b">각 영화 카드의 <b>자세히</b>에서 줄거리·관련 학과·생각해볼 질문을 살펴봐요.</div></div></div>
       <div class="frow"><div class="fnum">2</div><div class="fmeta"><div class="h">영화 신청</div><div class="b">13개 상영관 중 보고 싶은 <b>1편을 선착순</b>으로 신청해요. 한 상영관 정원은 36명이에요.</div></div></div>
       <div class="frow"><div class="fnum">3</div><div class="fmeta"><div class="h">관람 <span class="when">· 1~2교시</span></div><div class="b">신청한 영화의 <b>배정 교실로 바로 이동</b>해서 함께 관람해요.</div></div></div>
       <div class="frow"><div class="fnum">4</div><div class="fmeta"><div class="h">소감문 <span class="when">· 3교시</span></div><div class="b">영화 속 직업·진로에 대한 나의 생각을 <b>소감문</b>으로 정리해요.</div></div></div>
@@ -826,7 +854,10 @@ function renderApply(){
     const locked = !!seat && !isMine;
     const rem=remain(it.id), full=rem<=0;
     const hl=hallLabel(it);
-    const pu=posterOf(it); const poster = pu ? `<div class="sposter"><img src="${esc(pu)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentElement.style.display='none'"></div>` : "";
+    const pu=posterOf(it);
+    const poster = pu
+      ? `<div class="sposter"><img src="${esc(pu)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.remove();this.parentElement.classList.add('noimg')"></div>`
+      : `<div class="sposter noimg"></div>`;
     let foot;
     if(isMine){ foot=`<div class="minebadge">✓ 신청함</div><button class="cancelmini" data-cancel="1">취소</button>`; }
     else if(locked){ foot=`<div class="lockednote">다른 영화 신청 중</div><button class="infobtn" data-info="${it.movieKey}">자세히</button>`; }
@@ -911,20 +942,24 @@ function renderStat(){
   const openCnt=items.filter(it=>(scrMap[it.id]||0)<CAP).length;
   const bars = items.length ? items.map(it=>{
     const n=scrMap[it.id]||0, rem=CAP-n, full=rem<=0, mine=seat&&seat.itemId===it.id, hl=hallLabel(it);
-    const nm=esc(it.movieName||it.name||"제목 미정");
-    return `<div class="ditem"><div class="dtop"><span class="nm">${it.room?`<b style="color:var(--ink)">${esc(it.room)}</b> `:""}${nm}${hl?` <span style="color:var(--muted)">${hl}</span>`:''}${mine?' <span style="color:var(--ok);font-weight:700">· 내 신청</span>':''}</span>
-      <span class="num ${full?'':''}" style="${full?'color:var(--danger)':''}">${full?'마감':`잔여 ${rem}`} · ${n}/${CAP}</span></div>
+    return `<div class="ditem"><div class="dtop"><span class="nm">${roomTag(it.room)}${mvName(it)}${hl?` <span style="color:var(--muted)">${hl}</span>`:''}${mine?' <span style="color:var(--ok);font-weight:700">· 내 신청</span>':''}</span>
+      <span class="num" style="${full?'color:var(--danger)':''}">${full?'마감':`잔여 ${rem}`} · ${n}/${CAP}</span></div>
       <div class="track"><i style="width:${Math.round(n/CAP*100)}%;${mine?'background:var(--ok)':''}"></i></div></div>`;
   }).join("") : `<div class="empty">상영 목록이 아직 없어요.</div>`;
+  const pop=popularMovies().filter(m=>m.n>0).slice(0,5);
+  const topHTML = pop.length ? pop.map((m,i)=>`<div class="topitem"><span class="rk ${i===0?'g1':''}">${i+1}</span><span class="tn">${esc(m.name)}</span><span class="tc">${m.n}명</span></div>`).join("")
+    : `<div class="empty">아직 신청이 없어요.</div>`;
   p.innerHTML = `
     <div class="kpis" style="margin-bottom:16px">
       <div class="kpi"><div class="ic">🎟</div><div><div class="v">${totN}</div><div class="l">신청 완료</div></div></div>
       <div class="kpi"><div class="ic">💺</div><div><div class="v">${left}</div><div class="l">남은 자리</div></div></div>
       <div class="kpi"><div class="ic">📈</div><div><div class="v">${pct}<span style="font-size:.9rem">%</span></div><div class="l">신청률</div></div></div>
-      <div class="kpi"><div class="ic">🚪</div><div><div class="v">${openCnt}</div><div class="l">신청 가능 상영관</div></div></div>
+      <div class="kpi"><div class="ic">🚪</div><div><div class="v">${openCnt}</div><div class="l">신청 가능</div></div></div>
     </div>
-    <div class="card"><div class="ch"><span class="t">🚪 상영관별 잔여석</span><span class="meta">${items.length}개 상영관</span></div>
-      <div class="cb">${bars}</div></div>`;
+    <div class="board">
+      <div class="col"><div class="card"><div class="ch"><span class="t">🚪 상영관별 잔여석</span><span class="meta">${items.length}개 상영관</span></div><div class="cb">${bars}</div></div></div>
+      <div class="col"><div class="card"><div class="ch"><span class="t">🏆 인기 영화 TOP 5</span></div><div class="cb">${topHTML}</div></div></div>
+    </div>`;
 }
 
 /* ===== 게이트 표시 ===== */
@@ -972,96 +1007,134 @@ function _renderDash(){
   const stuN=students.length, filled=seats.length, na=Math.max(0,stuN-filled);
   const rate=stuN?Math.round(filled/stuN*100):0;
   const totCap=items.length*CAP;
+  const fullCnt=items.filter(it=>(scrMap[it.id]||0)>=CAP).length;
   $("kpis").innerHTML=`
     <div class="kpi"><div class="ic">🙋</div><div><div class="v">${filled}</div><div class="l">신청 완료</div></div></div>
     <div class="kpi"><div class="ic">⏳</div><div><div class="v">${na}</div><div class="l">미신청</div></div></div>
     <div class="kpi"><div class="ic">👥</div><div><div class="v">${stuN||"–"}</div><div class="l">전교생</div></div></div>
     <div class="kpi"><div class="ic">📈</div><div><div class="v">${stuN?rate+'<span style="font-size:.9rem">%</span>':"–"}</div><div class="l">신청률</div></div></div>
-    <div class="kpi"><div class="ic">🚪</div><div><div class="v">${items.length||"–"}</div><div class="l">상영관</div></div></div>`;
+    <div class="kpi"><div class="ic">🚩</div><div><div class="v">${fullCnt}<span style="font-size:.9rem">/${items.length||0}</span></div><div class="l">마감 상영관</div></div></div>`;
 
   // 상영관별
-  $("scrMeta").textContent = items.length?`${items.length}관 · 정원 ${totCap}`:"";
+  $("scrMeta").textContent = items.length?`총 ${filled} / ${totCap}석`:"";
   $("scrList").innerHTML = items.length ? items.map(it=>{
     const n=scrMap[it.id]||0, pct=Math.round(n/CAP*100), full=n>=CAP, hl=hallLabel(it);
-    return `<div class="srow"><div class="top"><div class="lft"><span class="rm">${esc(it.room)}</span><span class="nm">${esc(it.movieName)}${hl?` <span class="hl">${hl}</span>`:''}</span></div><span class="cnt ${full?'full':''}">${n}/${CAP}</span></div>
+    return `<div class="ditem"><div class="dtop"><span class="nm">${roomTag(it.room)}${mvName(it)}${hl?` <span style="color:var(--muted)">${hl}</span>`:''}</span><span class="num" style="${full?'color:var(--danger)':''}">${full?'마감 ':''}${n}/${CAP}</span></div>
       <div class="track"><i style="width:${pct}%"></i></div></div>`;
-  }).join("") : `<div class="empty">상영관을 먼저 세팅해 주세요. (관리 → 🎬 상영 13개 세팅)</div>`;
+  }).join("") : `<div class="empty">상영관이 아직 없어요.</div>`;
 
-  // 반별 신청현황
+  // 인기 영화 TOP 5
+  const pop=popularMovies().filter(m=>m.n>0).slice(0,5);
+  $("topList").innerHTML = pop.length ? pop.map((m,i)=>`<div class="topitem"><span class="rk ${i===0?'g1':''}">${i+1}</span><span class="tn">${esc(m.name)}</span><span class="tc">${m.n}명</span></div>`).join("")
+    : `<div class="empty">아직 신청이 없어요.</div>`;
+
+  // 반별 신청률 (그리드)
   const classes={};
   students.forEach(st=>{ const p=parseSid(st.studentId); (classes[p.classNo] ||= {tot:0,done:0}); classes[p.classNo].tot++; if(byV[st.vhash]) classes[p.classNo].done++; });
   const classNos=Object.keys(classes).map(Number).sort((a,b)=>a-b);
   $("classMeta").textContent = classNos.length?`${classNos.length}개 반`:"";
   $("classList").innerHTML = classNos.length ? classNos.map(c=>{
     const o=classes[c], pct=o.tot?Math.round(o.done/o.tot*100):0, done=o.done===o.tot&&o.tot>0;
-    return `<div class="srow"><div class="top"><div class="lft"><span class="nm">${c}반</span></div><span class="cnt ${done?'':''}" style="${done?'color:var(--ok)':''}">${o.done}/${o.tot} · ${pct}%</span></div>
-      <div class="track"><i style="width:${pct}%;${done?'background:var(--ok)':''}"></i></div></div>`;
-  }).join("") : `<div class="empty">학생 명단이 없습니다. (관리 → 학생 명단 가져오기)</div>`;
+    return `<div class="citem" style="${done?'border-color:var(--ok)':''}"><span class="cn">${c}반</span><span class="cf">${o.done}/${o.tot}</span><span class="pc" style="${done?'color:var(--ok)':''}">${pct}%</span></div>`;
+  }).join("") : `<div class="empty">학생 명단이 없어요.</div>`;
 }
 
 /* ===== 관리 (교사) ===== */
-["Groups","All"].forEach(k=>$("tab"+k).addEventListener("click", ()=>mgSwitch(k.toLowerCase())));
+["Movie","Class","All"].forEach(k=>$("tab"+k).addEventListener("click", ()=>mgSwitch(k.toLowerCase())));
 function mgSwitch(t){ mgTab=t;
-  $("tabGroups").classList.toggle("active",t==="groups");
+  $("tabMovie").classList.toggle("active",t==="movie");
+  $("tabClass").classList.toggle("active",t==="class");
   $("tabAll").classList.toggle("active",t==="all");
-  $("groupsView").style.display = t==="groups"?"block":"none";
-  $("allView").style.display = t==="all"?"block":"none";
-  $("addStuBtn").style.display = t==="all"?"inline-block":"none";
-  $("csvBtn").textContent = t==="all"?"⬇ 전교생 명단":"⬇ 상영관별 명단";
+  $("movieView").style.display=t==="movie"?"block":"none";
+  $("classView").style.display=t==="class"?"block":"none";
+  $("allView").style.display=t==="all"?"block":"none";
+  $("csvBtn").textContent = t==="movie"?"⬇ 영화별 명단":t==="class"?"⬇ 반별 명단":"⬇ 전체 명단";
   renderManage();
 }
+// 숨은 관리 버튼: 상단 제목을 5번 클릭하면 세팅/재계산/가져오기 표시
+$("brandTitle")?.addEventListener("click", ()=>{
+  if(role!=="teacher") return;
+  brandClicks++;
+  if(brandClicks>=5){ adminShown=!adminShown; brandClicks=0; const b=$("adminBar"); if(b) b.style.display=adminShown?"flex":"none"; setStatus(adminShown?"관리 버튼을 열었어요 (세팅·재계산·명단 가져오기)":"", adminShown?"ok":""); }
+  clearTimeout(window.__bt); window.__bt=setTimeout(()=>{ brandClicks=0; }, 1500);
+});
 function buildFilters(){
-  const af=$("allFilter"), pf=af.value||"all";
-  af.innerHTML = `<option value="all">전체</option><option value="none">미신청만</option>` + items.map(it=>`<option value="${it.id}">${esc(it.room)} ${esc(it.movieName)}${hallLabel(it)?` ${hallLabel(it)}`:""}</option>`).join("");
+  const af=$("allFilter"); if(!af) return; const pf=af.value||"all";
+  af.innerHTML = `<option value="all">전체 학생</option><option value="none">미신청만</option>` + items.map(it=>`<option value="${it.id}">${esc(it.room)} ${esc(it.movieName||it.name||"")}${hallLabel(it)?` ${hallLabel(it)}`:""}</option>`).join("");
   af.value=[...af.options].some(o=>o.value===pf)?pf:"all";
 }
 $("allFilter").addEventListener("change", e=>{ allFilter=e.target.value; renderManage(); });
-function renderManage(){ if(role!=="teacher") return; try{ _renderManage(); }catch(e){ console.error("manage:",e); } }
-function _renderManage(){
-  buildFilters();
-  $("mvSummary").innerHTML = items.length
-    ? `상영관 <b>${items.length}개</b> · 정원 각 ${CAP}명 · 총 <b>${items.length*CAP}명</b>. 아래 칩으로 상영관을 골라 명단을 볼 수 있어요. 영화 정보는 <b>자세히</b>에서 확인돼요.`
-    : `<span style="color:var(--danger)">아직 상영관이 없습니다.</span> 위 <b>🎬 상영 13개 세팅</b>을 누르면 확정된 13개 상영관이 자동으로 들어가요. (학생 명단이 없다면 <b>학생 명단 가져오기</b>부터)`;
-  // 칩 (영화 소개 자세히 포함)
-  $("movieChips").innerHTML = `<button class="chip ${moviePick==="all"?"active":""}" data-mv="all">전체</button>`
-    + items.map(it=>`<button class="chip ${moviePick===it.id?"active":""}" data-mv="${it.id}">${esc(it.room)} ${esc(it.movieName)}${hallLabel(it)?` ${hallLabel(it)}`:""}</button>`).join("");
-  $("movieChips").querySelectorAll("[data-mv]").forEach(b=>b.addEventListener("click",()=>{ moviePick=b.dataset.mv; renderManage(); }));
+function renderManage(){ if(role!=="teacher") return; try{ buildFilters(); renderMovieList(); renderClassList(); renderAll(); }catch(e){ console.error("manage:",e); } }
+function studentsWithSeat(){ const byV={}; seats.forEach(s=>byV[s.vhash]=s); return students.map(st=>{ const p=parseSid(st.studentId); return {...st,...p,seat:byV[st.vhash]||null}; }); }
 
-  if(!items.length){ $("groupsBody").innerHTML=`<div class="mempty">상영관을 먼저 세팅하면 표시됩니다.</div>`; }
-  else {
-    const byV={}; const show = moviePick==="all"?items:items.filter(x=>x.id===moviePick);
-    $("groupsBody").innerHTML = `<div class="grpgrid">` + show.map(it=>{
-      const list=seats.filter(s=>s.itemId===it.id).sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
-      const over=list.length>CAP, hl=hallLabel(it);
-      const tags=list.length?list.map(x=>`<span class="mtag">${x.classNo}-${x.studentNo} ${esc(x.name)}<button class="gear" data-menu="${x.vhash}" title="설정">⚙</button></span>`).join(""):`<span class="gmuted">아직 신청자 없음</span>`;
-      return `<div class="grpcard ${list.length===0?'none':(over?'thin':'')}">
-        <div class="gh"><span class="gn">${esc(it.room)} · ${esc(it.movieName)}${hl?` ${hl}`:''}</span><span class="gc ${over?'warn':''}">${list.length}/${CAP}</span></div>
-        <div style="margin-bottom:6px"><button class="infobtn" data-tinfo="${it.movieKey}" style="padding:5px 11px;font-size:.8rem">🎬 영화 소개</button></div>
-        <div>${tags}</div></div>`;
-    }).join("") + `</div>`;
-    $("groupsBody").querySelectorAll("[data-menu]").forEach(b=>b.addEventListener("click",()=>openRowMenu(b.dataset.menu)));
-    $("groupsBody").querySelectorAll("[data-tinfo]").forEach(b=>b.addEventListener("click",()=>openIntro(b.dataset.tinfo)));
-  }
-  renderAll();
+/* 영화별 명단 */
+function renderMovieList(){
+  $("movieChips").innerHTML = `<button class="chip ${moviePick==="all"?"active":""}" data-mv="all">전체</button>`
+    + items.map(it=>`<button class="chip ${moviePick===it.id?"active":""}" data-mv="${it.id}">${chipLabel(it)}</button>`).join("");
+  $("movieChips").querySelectorAll("[data-mv]").forEach(b=>b.addEventListener("click",()=>{ moviePick=b.dataset.mv; renderMovieList(); }));
+  if(!items.length){ $("movieBody").innerHTML=`<div class="mempty">상영관이 없습니다. 상단 제목을 <b>5번</b> 누르면 관리 버튼이 열려요.</div>`; return; }
+  const show = moviePick==="all"?items:items.filter(x=>x.id===moviePick);
+  $("movieBody").innerHTML = `<div class="grpgrid">` + show.map(it=>{
+    const list=seats.filter(s=>s.itemId===it.id).sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
+    const over=list.length>CAP, hl=hallLabel(it);
+    const tags=list.length?list.map(x=>`<span class="mtag">${x.classNo}-${x.studentNo} ${esc(x.name)}<button class="gear" data-menu="${x.vhash}" title="설정">⚙</button></span>`).join(""):`<span class="gmuted">아직 신청자 없음</span>`;
+    return `<div class="grpcard ${list.length===0?'none':(over?'thin':'')}">
+      <div class="gh"><span class="gn">${roomTag(it.room)}${mvName(it)}${hl?` <span style="color:var(--muted);font-weight:600">${hl}</span>`:''}</span><span class="gc ${over?'warn':''}">${list.length}/${CAP}</span></div>
+      <div style="margin-bottom:6px"><button class="infobtn" data-tinfo="${it.movieKey}" style="padding:5px 11px;font-size:.8rem">🎬 영화 소개</button></div>
+      <div>${tags}</div></div>`;
+  }).join("") + `</div>`;
+  $("movieBody").querySelectorAll("[data-menu]").forEach(b=>b.addEventListener("click",()=>openRowMenu(b.dataset.menu)));
+  $("movieBody").querySelectorAll("[data-tinfo]").forEach(b=>b.addEventListener("click",()=>openIntro(b.dataset.tinfo)));
 }
+
+/* 반별 명단 */
+function classRosterRows(arr){
+  return arr.map(x=>{
+    const pill = x.seat?`<span class="dpill" title="${esc(x.seat.movieName)}">${roomTag(x.seat.room)}${esc(x.seat.movieName)}</span>`:'<span class="npill">미신청</span>';
+    return `<tr><td class="no">${x.studentNo}</td><td class="nm">${esc(x.name)}</td><td>${pill}</td><td class="gearcol"><button class="gear" data-menu="${x.vhash}">⚙</button></td></tr>`;
+  }).join("");
+}
+function classCardHTML(arr,c){
+  const done=arr.filter(x=>x.seat).length;
+  return `<div class="dcard"><div class="head"><span class="nm">${c}반</span><span class="cnt">${done}/${arr.length} 신청</span></div>
+    <table><thead><tr><th class="no">번호</th><th>이름</th><th>신청</th><th class="gearcol"></th></tr></thead><tbody>${classRosterRows(arr)}</tbody></table></div>`;
+}
+function renderClassList(){
+  const recs=studentsWithSeat();
+  const classNos=[...new Set(recs.map(r=>r.classNo))].sort((a,b)=>a-b);
+  $("classChips").innerHTML = `<button class="chip ${classPick==="all"?"active":""}" data-cls="all">전체</button>`
+    + classNos.map(c=>`<button class="chip ${String(classPick)===String(c)?"active":""}" data-cls="${c}">${c}반</button>`).join("");
+  $("classChips").querySelectorAll("[data-cls]").forEach(b=>b.addEventListener("click",()=>{ classPick=b.dataset.cls; renderClassList(); }));
+  if(!classNos.length){ $("classBody").innerHTML=`<div class="mempty">학생 명단이 없습니다.</div>`; return; }
+  if(classPick==="all"){
+    $("classBody").innerHTML = `<div class="mgrid">`+classNos.map(c=>classCardHTML(recs.filter(r=>r.classNo===c).sort((a,b)=>a.studentNo-b.studentNo), c)).join("")+`</div>`;
+  } else {
+    const c=+classPick; const arr=recs.filter(r=>r.classNo===c).sort((a,b)=>a.studentNo-b.studentNo);
+    const done=arr.filter(x=>x.seat).length;
+    const dist = items.map(it=>{
+      const mem=arr.filter(x=>x.seat&&x.seat.itemId===it.id);
+      return `<div class="grpcard ${mem.length===0?'none':''}"><div class="gh"><span class="gn">${roomTag(it.room)}${mvName(it)}${hallLabel(it)?` <span style="color:var(--muted);font-weight:600">${hallLabel(it)}</span>`:''}</span><span class="gc">${mem.length}명</span></div><div>${mem.length?mem.map(x=>`<span class="mtag">${x.studentNo} ${esc(x.name)}</span>`).join(""):'<span class="gmuted">—</span>'}</div></div>`;
+    }).join("");
+    $("classBody").innerHTML = `<div class="board"><div class="col"><div class="dcard"><div class="head"><span class="nm">${c}반 명단</span><span class="cnt">${done}/${arr.length} 신청</span></div>
+      <table><thead><tr><th class="no">번호</th><th>이름</th><th>신청</th><th class="gearcol"></th></tr></thead><tbody>${classRosterRows(arr)}</tbody></table></div></div>
+      <div class="col"><div class="card"><div class="ch"><span class="t">🎬 ${c}반 영화별 분포</span></div><div class="cb"><div class="grpgrid">${dist}</div></div></div></div></div>`;
+  }
+  $("classBody").querySelectorAll("[data-menu]").forEach(b=>b.addEventListener("click",()=>openRowMenu(b.dataset.menu)));
+}
+
+/* 전체 명단 */
 function renderAll(){
-  const byV={}; seats.forEach(s=>byV[s.vhash]=s);
-  const classes={};
-  students.forEach(st=>{ const p=parseSid(st.studentId); (classes[p.classNo] ||= []).push({ ...st, ...p, seat:byV[st.vhash]||null }); });
-  const classNos=Object.keys(classes).map(Number).sort((a,b)=>a-b);
-  if(!classNos.length){ $("allBody").innerHTML=`<div class="mempty">학생 명단이 없습니다. <b>학생 명단 가져오기</b> 또는 <b>＋ 학생 추가</b>로 등록하세요.</div>`; return; }
+  const recs=studentsWithSeat();
+  const classNos=[...new Set(recs.map(r=>r.classNo))].sort((a,b)=>a-b);
+  if(!classNos.length){ $("allBody").innerHTML=`<div class="mempty">학생 명단이 없습니다. <b>＋ 학생 추가</b>로 등록하거나, 제목 5번 클릭 후 <b>학생 명단 가져오기</b>를 쓰세요.</div>`; return; }
   $("allBody").innerHTML = classNos.map(c=>{
-    const all=classes[c].slice().sort((a,b)=>a.studentNo-b.studentNo);
+    const all=recs.filter(r=>r.classNo===c).sort((a,b)=>a.studentNo-b.studentNo);
     const done=all.filter(x=>x.seat).length;
     let list=all;
     if(allFilter==="none") list=all.filter(x=>!x.seat);
     else if(allFilter!=="all") list=all.filter(x=>x.seat&&x.seat.itemId===allFilter);
     const note = allFilter==="all"?`${done}/${all.length} 신청`:`${list.length}명`;
-    const rows = list.length ? list.map(x=>{
-      let pill='<span class="npill">미신청</span>';
-      if(x.seat){ const hl=x.seat.hall>1?` ${x.seat.hall}분반`:""; pill=`<span class="dpill" title="${esc(x.seat.movieName)}">${esc(x.seat.room)} ${esc(x.seat.movieName)}${hl}</span>`; }
-      return `<tr><td class="no">${x.studentNo}</td><td class="nm">${esc(x.name)}</td><td>${pill}</td><td class="gearcol"><button class="gear" data-menu="${x.vhash}">⚙</button></td></tr>`;
-    }).join("") : `<tr><td colspan="4" class="mempty">해당 학생 없음</td></tr>`;
+    const rows = list.length ? classRosterRows(list) : `<tr><td colspan="4" class="mempty">해당 학생 없음</td></tr>`;
     return `<div class="dcard"><div class="head"><span class="nm">${c}반</span><span class="cnt">${note}</span></div>
       <table><thead><tr><th class="no">번호</th><th>이름</th><th>신청</th><th class="gearcol"></th></tr></thead><tbody>${rows}</tbody></table></div>`;
   }).join("");
@@ -1275,34 +1348,32 @@ function classRecords(){
   return students.map(st=>{ const p=parseSid(st.studentId); return {studentId:st.studentId||"", classNo:p.classNo, studentNo:p.studentNo, name:st.name, seat:byV[st.vhash]||null}; })
     .sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
 }
-function downloadScreenings(){
-  const wb=XLSX.utils.book_new();
-  const all=[["교실","영화","분반","반","번호","학번","이름"]];
-  seats.slice().sort((a,b)=>((findItem(a.itemId)?.ord||0)-(findItem(b.itemId)?.ord||0))||(a.classNo-b.classNo)||(a.studentNo-b.studentNo))
-    .forEach(s=>{ const it=findItem(s.itemId); all.push([s.room, s.movieName, (it&&it.halls>1)?`${s.hall}분반`:"단독", s.classNo, s.studentNo, s.studentId||"", s.name||""]); });
-  XLSX.utils.book_append_sheet(wb, aoaSheet(all), "상영관통합");
+function totalSheet(wb){
+  const recs=classRecords(); const all=[["반","번호","학번","이름","교실","영화","분반","상태"]];
+  recs.forEach(r=>{ const it=r.seat?findItem(r.seat.itemId):null;
+    all.push([r.classNo, r.studentNo, r.studentId, r.name||"", r.seat?r.seat.room:"", r.seat?r.seat.movieName:"", (it&&it.halls>1&&r.seat)?`${r.seat.hall}분반`:"", r.seat?"신청완료":"미신청"]); });
+  XLSX.utils.book_append_sheet(wb, aoaSheet(all), "전체명단");
+}
+function movieSheets(wb){
   items.forEach(it=>{
     const list=seats.filter(s=>s.itemId===it.id).sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
-    const hl=it.halls>1?` ${it.hall}분반`:""; const aoa=[[`${it.room} 교실 · ${it.movieName}${hl}`],["반","번호","학번","이름"]];
+    const hl=(it.halls>1)?` ${it.hall}분반`:"";
+    const aoa=[[`${it.room} 교실 · ${it.movieName}${hl}`],["반","번호","학번","이름"]];
     list.forEach(s=>aoa.push([s.classNo, s.studentNo, s.studentId||"", s.name||""]));
     if(!list.length) aoa.push(["(신청자 없음)","","",""]);
     XLSX.utils.book_append_sheet(wb, aoaSheet(aoa), safeName(`${it.room} ${it.movieName}`));
   });
-  XLSX.writeFile(wb, `영화진로_상영관별명단_${ymd()}.xlsx`);
 }
-function downloadAll(){
-  const wb=XLSX.utils.book_new(); const recs=classRecords();
-  const all=[["반","번호","학번","이름","교실","영화","분반","상태"]];
-  recs.forEach(r=>{ const it=r.seat?findItem(r.seat.itemId):null;
-    all.push([r.classNo, r.studentNo, r.studentId, r.name||"", r.seat?r.seat.room:"", r.seat?r.seat.movieName:"", (it&&it.halls>1&&r.seat)?`${r.seat.hall}분반`:"", r.seat?"신청완료":"미신청"]); });
-  XLSX.utils.book_append_sheet(wb, aoaSheet(all), "전교생통합");
-  const classNos=[...new Set(recs.map(r=>r.classNo))].sort((a,b)=>a-b);
-  classNos.forEach(c=>{ const aoa=[["번호","학번","이름","교실","영화","분반","상태"]];
+function classSheets(wb){
+  const recs=classRecords(); const classNos=[...new Set(recs.map(r=>r.classNo))].sort((a,b)=>a-b);
+  classNos.forEach(c=>{ const aoa=[[`${c}반`],["번호","학번","이름","교실","영화","분반","상태"]];
     recs.filter(r=>r.classNo===c).forEach(r=>{ const it=r.seat?findItem(r.seat.itemId):null;
       aoa.push([r.studentNo, r.studentId, r.name||"", r.seat?r.seat.room:"", r.seat?r.seat.movieName:"", (it&&it.halls>1&&r.seat)?`${r.seat.hall}분반`:"", r.seat?"신청완료":"미신청"]); });
     XLSX.utils.book_append_sheet(wb, aoaSheet(aoa), safeName(`${c}반`)); });
-  XLSX.writeFile(wb, `영화진로_전교생명단_${ymd()}.xlsx`);
 }
+function downloadMovies(){ if(!items.length){alert("상영관이 없어요.");return;} const wb=XLSX.utils.book_new(); totalSheet(wb); movieSheets(wb); XLSX.writeFile(wb, `영화진로_영화별명단_${ymd()}.xlsx`); }
+function downloadClasses(){ if(!students.length){alert("학생 명단이 없어요.");return;} const wb=XLSX.utils.book_new(); totalSheet(wb); classSheets(wb); XLSX.writeFile(wb, `영화진로_반별명단_${ymd()}.xlsx`); }
+function downloadEverything(){ const wb=XLSX.utils.book_new(); totalSheet(wb); movieSheets(wb); classSheets(wb); XLSX.writeFile(wb, `영화진로_전체명단_${ymd()}.xlsx`); }
 function downloadQna(){
   const wb=XLSX.utils.book_new(); const movies=uniqueMovies(); const ordOf={}; movies.forEach((it,i)=>ordOf[it.movieKey]=i);
   const sorted=questions.slice().sort((a,b)=>((ordOf[a.movieId]??99)-(ordOf[b.movieId]??99))||((a.createdAt?.seconds||0)-(b.createdAt?.seconds||0)));
@@ -1314,7 +1385,7 @@ function downloadQna(){
     if(!list.length) aoa.push(["(질문 없음)","","","",""]); XLSX.utils.book_append_sheet(wb, aoaSheet(aoa), safeName(it.movieName)); });
   XLSX.writeFile(wb, `영화진로_QnA_${ymd()}.xlsx`);
 }
-$("csvBtn").addEventListener("click", ()=>{ if(mgTab==="all") downloadAll(); else downloadScreenings(); });
+$("csvBtn").addEventListener("click", ()=>{ if(mgTab==="class") downloadClasses(); else if(mgTab==="all") downloadEverything(); else downloadMovies(); });
 $("qnaCsvBtn")?.addEventListener("click", downloadQna);
 </script>
 </body>
