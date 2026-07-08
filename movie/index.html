@@ -617,7 +617,7 @@ const firebaseConfig = {
 };
 const TEACHER_EMAIL = "hn9193@gmail.com";
 const EV = "movie-2026";
-const CAP = 36;
+const CAP = 35;
 
 const SCHEDULE_NOTE = "7월 15일(수) · 1학년 진로탐색 (1~3교시)";
 
@@ -848,7 +848,7 @@ function guideHTML(personal){
     ${my}
     <div class="flowlist">
       <div class="frow"><div class="fnum">1</div><div class="fmeta"><div class="h">살펴보기</div><div class="b">각 영화 카드의 <b>자세히</b>에서 줄거리·관련 학과·생각해볼 질문을 살펴봐요.</div></div></div>
-      <div class="frow"><div class="fnum">2</div><div class="fmeta"><div class="h">영화 신청</div><div class="b">13개 상영관 중 보고 싶은 <b>1편을 선착순</b>으로 신청해요. 한 상영관 정원은 36명이에요.</div></div></div>
+      <div class="frow"><div class="fnum">2</div><div class="fmeta"><div class="h">영화 신청</div><div class="b">13개 상영관 중 보고 싶은 <b>1편을 선착순</b>으로 신청해요. 한 상영관 정원은 35명이에요.</div></div></div>
       <div class="frow"><div class="fnum">3</div><div class="fmeta"><div class="h">관람 <span class="when">· 1~2교시</span></div><div class="b">신청한 영화의 <b>배정 교실로 이동</b>해서 함께 관람해요.</div></div></div>
       <div class="frow"><div class="fnum">4</div><div class="fmeta"><div class="h">소감문 작성 <span class="when">· 3교시</span></div><div class="b">영화 속 직업·진로에 대한 나의 생각을 <b>소감문</b>으로 정리해요.</div></div></div>
     </div>`;
@@ -948,7 +948,7 @@ async function cancelSeat(){
 function openIntro(mvKey){
   const it=items.find(x=>x.movieKey===mvKey); if(!it) return;
   const rooms=items.filter(x=>x.movieKey===mvKey);
-  const hallTxt = rooms.length>1 ? `두 교실 상영 · ${rooms.map(r=>`${r.room}(${r.hall}분반)`).join(" · ")}` : `${rooms[0].room} 교실 상영 · 36명`;
+  const hallTxt = rooms.length>1 ? `두 교실 상영 · ${rooms.map(r=>`${r.room}(${r.hall}분반)`).join(" · ")}` : `${rooms[0].room} 교실 상영 · 35명`;
   const majors=(it.majors||"").split(/[,·]/).map(x=>x.trim()).filter(Boolean);
   const meta=MVMETA[mvKey]||{};
   const pu=posterOf(it);
