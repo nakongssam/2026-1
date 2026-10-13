@@ -395,6 +395,46 @@
     .d-green{ --s:100px; right:-35px; bottom:-55px; }
     .gfoot{ padding-right:60px; }
   }
+
+  /* ===== 보고서 ===== */
+  .rpcard{ background:var(--surface); border:1px solid var(--line2); border-radius:6px; padding:18px; }
+  .rphead{ display:flex; align-items:baseline; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:6px; }
+  .rphead .t{ font-weight:900; color:var(--ink); font-size:1.15rem; letter-spacing:-.02em; }
+  .rphead .meta{ font-size:.85rem; color:var(--muted); font-weight:600; }
+  .rpq{ margin-top:16px; }
+  .rpq label{ margin:0 0 4px; font-weight:800; color:var(--ink); font-size:.93rem; }
+  .rpq .qh{ font-size:.8rem; color:var(--muted); margin:0 0 6px; text-align:left; }
+  .rpq textarea, .rpdraft textarea{ width:100%; min-height:72px; resize:vertical; padding:10px 12px; border:1.5px solid var(--line2); border-radius:4px; background:var(--surface); color:var(--ink); font:inherit; font-size:.95rem; line-height:1.55; }
+  .rpq textarea:focus, .rpdraft textarea:focus{ outline:none; border-color:var(--ink); }
+  .rpq textarea:disabled{ background:var(--page); color:var(--body); }
+  .rpq .two{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .rpq .two .sub{ font-size:.8rem; font-weight:700; color:var(--body); margin-bottom:4px; }
+  .rpctl{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:12px; }
+  .rpctl select{ width:auto; padding:8px 12px; border:1.5px solid var(--ink); border-radius:4px; background:var(--surface); color:var(--ink); font-weight:600; font-family:inherit; font-size:.88rem; }
+  .rpctl .spacer{ flex:1; }
+  .rpctl button{ border-radius:4px; }
+  .rpgate{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; background:var(--surface); border:1px solid var(--line2); border-radius:6px; padding:9px 12px; margin-bottom:12px; font-weight:700; font-size:.9rem; }
+  .rpgate .st{ flex:1; min-width:160px; }
+  .rpgate button{ border:none; border-radius:4px; padding:7px 13px; font-weight:800; font-size:.84rem; cursor:pointer; color:#fff; }
+  .rptbl tr.rrow{ cursor:pointer; } .rptbl tr.rrow:hover td{ background:var(--page); }
+  .rptbl tr.open td{ background:var(--yellow-soft); }
+  .rptbl td.st, .rptbl th.st{ width:74px; } .rptbl td.dr, .rptbl th.dr{ width:74px; } .rptbl td.no, .rptbl th.no{ width:62px; color:var(--muted); font-variant-numeric:tabular-nums; } .rptbl td.nm2, .rptbl th.nm2{ width:80px; }
+  .tag{ display:inline-block; font-size:.74rem; font-weight:800; padding:2px 8px; border-radius:4px; white-space:nowrap; }
+  .tag.ok{ background:var(--ok-soft); color:var(--ok); } .tag.no{ background:var(--track); color:var(--muted); } .tag.ai{ background:#e7e6fb; color:var(--c-indigo); } .tag.fin{ background:var(--ink); color:#fff; }
+  .rpdetail td{ padding:0 !important; background:var(--page); }
+  .rpdetail .in{ padding:14px 16px; display:grid; grid-template-columns:1.1fr 1fr; gap:18px; }
+  .rpdetail dl{ margin:0; } .rpdetail dt{ font-weight:800; color:var(--ink); font-size:.84rem; margin-top:10px; } .rpdetail dt:first-child{ margin-top:0; }
+  .rpdetail dd{ margin:3px 0 0; font-size:.9rem; color:var(--body); white-space:pre-wrap; word-break:break-word; }
+  .rpdraft .lab{ margin-bottom:8px; }
+  .rpdraft textarea{ min-height:170px; }
+  .rpdraft .row{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:8px; }
+  .rpdraft .cnt{ font-size:.8rem; color:var(--muted); font-weight:700; font-variant-numeric:tabular-nums; margin-right:auto; }
+  .rpdraft .cnt.over{ color:var(--danger); }
+  .rpdraft button{ border:none; border-radius:4px; padding:8px 13px; font-weight:800; font-size:.84rem; cursor:pointer; }
+  .rpdraft .ai{ background:var(--c-indigo); color:#fff; } .rpdraft .sv{ background:var(--ink); color:#fff; }
+  .rpdraft button:disabled{ opacity:.45; cursor:default; }
+  .rpdraft .note{ font-size:.78rem; color:var(--muted); margin-top:8px; line-height:1.5; }
+  @media (max-width:760px){ .rpdetail .in{ grid-template-columns:1fr; } .rpq .two{ grid-template-columns:1fr; } .rptbl td.dr, .rptbl th.dr{ display:none; } }
   /* 앱 공통 */
   #app{ position:relative; }
   #app > *:not(.dots){ position:relative; z-index:1; }
@@ -471,7 +511,7 @@
     <h1 class="gtitle display">대학방문<br>전공체험<span class="gs">학과 신청</span></h1>
     <div class="gopen">
       <span class="lab">학과 신청 오픈</span>
-      <div class="gdate"><span class="big display">10.14</span><span class="when">(수)<br>오전 9시 정각<small class="arrow">선착순 마감</small></span></div>
+      <div class="gdate"><span class="big display">10.14</span><span class="when">(수)<br>오전 8시 35분<small class="arrow">선착순 마감</small></span></div>
     </div>
   </div>
   <div class="gcard">
@@ -549,7 +589,7 @@
         </div>
         <div class="ga-sched" id="gateSchedRow" style="display:none;">
           <label>오픈 시각</label>
-          <input type="datetime-local" id="gateAtInput" value="2026-10-14T09:00">
+          <input type="datetime-local" id="gateAtInput" value="2026-10-14T08:35">
           <button class="ghost" id="gateSchedBtn">저장</button>
           <button class="ghost" id="gateSchedClear">해제</button>
         </div>
@@ -581,11 +621,47 @@
       <div class="qnacard">
         <div class="qnahead"><span class="t" id="qnaTitle">💬 학과 Q&amp;A</span><span class="meta" id="qnaMeta"></span><button class="ghost qna-dl" id="qnaCsvBtn" style="display:none;">⬇ Q&A 다운로드</button></div>
         <div class="qnaform">
-          <textarea id="qnaText" rows="2" maxlength="500" placeholder="이 학과에 궁금한 점을 남겨보세요. (실명으로 등록돼요)"></textarea>
+          <textarea id="qnaText" rows="2" maxlength="500" placeholder="이 학과에 궁금한 점을 남겨보세요. (익명으로 등록돼요)"></textarea>
           <button id="qnaPost">질문 남기기</button>
         </div>
         <div class="qnamsg" id="qnaMsg"></div>
         <div id="qnaList" class="qnalist"></div>
+      </div>
+    </div>
+
+
+    <!-- 보고서 -->
+    <div class="panel" id="panelReport">
+      <!-- 학생 -->
+      <div id="rpStu" style="display:none;">
+        <div class="gatebanner" id="rpBanner" style="display:block;"></div>
+        <div class="rpcard">
+          <div class="rphead"><span class="t">전공체험 활동 보고서</span><span class="meta" id="rpMeta"></span></div>
+          <div class="rpq"><label for="rq1">1. 이 학과를 선택한 이유</label><p class="qh">관심 분야, 궁금했던 점, 친구 추천 등 솔직하게</p><textarea id="rq1" maxlength="500"></textarea></div>
+          <div class="rpq"><label for="rq2">2. 오늘 체험한 활동 내용</label><p class="qh">어떤 활동을 했는지 2~3줄로</p><textarea id="rq2" maxlength="700"></textarea></div>
+          <div class="rpq"><label for="rq3">3. 가장 인상 깊었던 장면과 그 이유</label><textarea id="rq3" maxlength="700"></textarea></div>
+          <div class="rpq"><label for="rq4">4. 체험하며 새롭게 알게 된 점</label><p class="qh">전공 내용, 대학 수업 방식, 관련 직업 등</p><textarea id="rq4" maxlength="700"></textarea></div>
+          <div class="rpq"><label>5. 이 전공에 필요하다고 느낀 능력이나 태도</label>
+            <div class="two"><div><div class="sub">나에게 있는 것</div><textarea id="rq5a" maxlength="400"></textarea></div><div><div class="sub">더 키우고 싶은 것</div><textarea id="rq5b" maxlength="400"></textarea></div></div></div>
+          <div class="rpq"><label for="rq6">6. 내 관심 분야나 진로와 연결해 볼 수 있는 점</label><p class="qh">희망 진로와 달라도 괜찮아요. 함께 활용할 수 있는 지식, 협업할 수 있는 분야 등</p><textarea id="rq6" maxlength="700"></textarea></div>
+          <div class="rpq"><label for="rq7">7. 한 줄 소감</label><textarea id="rq7" maxlength="200" style="min-height:46px"></textarea></div>
+          <button id="rpSubmit" class="bigbtn">제출하기</button>
+          <div class="msg" id="rpMsg"></div>
+        </div>
+      </div>
+      <!-- 교사 -->
+      <div id="rpTea" style="display:none;">
+        <div class="rpgate"><span class="st" id="rpGateSt">보고서 작성 상태 확인 중…</span><button id="rpOpenBtn" style="background:var(--ok)">🟢 작성 열기</button><button id="rpCloseBtn" style="background:var(--danger)">🔴 작성 마감</button></div>
+        <div class="kpis s3" id="rpKpis"></div>
+        <div class="rpctl">
+          <select id="rpCls"></select><select id="rpDept"></select>
+          <select id="rpSt"><option value="all">전체</option><option value="done">제출</option><option value="none">미제출</option><option value="nodraft">제출·초안 없음</option></select>
+          <span class="spacer"></span>
+          <button class="ghost" id="rpBatch">🤖 초안 일괄 생성</button>
+          <button class="ghost" id="rpXls">⬇ 엑셀 다운로드</button>
+        </div>
+        <div class="card"><div class="cb" style="padding:4px 12px 10px"><table class="rptbl"><thead><tr><th class="no">학번</th><th class="nm2">이름</th><th>학과</th><th class="st">보고서</th><th class="dr">생기부</th></tr></thead><tbody id="rpBody"></tbody></table></div></div>
+        <div class="hint" id="rpHint"></div>
       </div>
     </div>
 
@@ -647,6 +723,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInAnonymously, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
 import { getFirestore, initializeFirestore, collection, doc, getDoc, getDocs, setDoc, deleteDoc, writeBatch, query, orderBy, onSnapshot, runTransaction, serverTimestamp, increment, Timestamp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
@@ -663,7 +740,7 @@ const TEACHER_EMAIL = "hn9193@gmail.com";
 const DCOLORS = ["#2e2aad","#0f8fa8","#ec6a4f","#d99a00","#1450c0","#cc48b4","#1e9e4a","#e6481e","#5c2b98","#3b8fd6","#c9001a","#c96a8c","#6b7f1a","#0b6e6e"];
 const colorOf=(ord)=>DCOLORS[((ord||1)-1)%DCOLORS.length];
 const CAP = 33;
-const DEFAULT_OPEN_AT = "2026-10-14T09:00"; // 10/14(수) 09:00 자동 오픈 기본값
+const DEFAULT_OPEN_AT = "2026-10-14T08:35"; // 10/14(수) 08:35 자동 오픈 기본값
 const GROUPS = {
   1:{ label:"1조 · 오전 체험", time:"10:20~12:30" },
   2:{ label:"2조 · 오후 체험", time:"12:30~14:30" },
@@ -773,20 +850,20 @@ $("outBtn").addEventListener("click", ()=>{
   $("sid").value=""; $("birth").value=""; $("email").value=""; $("pw").value="";
   $("app").style.display="none"; $("gate").style.display="flex";
 });
-function teardown(){ unsub.forEach(fn=>fn()); unsub=[]; if(unsubSeat){unsubSeat();unsubSeat=null;} if(pollTimer){clearInterval(pollTimer);pollTimer=null;} if(gateTimer){clearInterval(gateTimer);gateTimer=null;} studentStatsSubbed=false; }
+function teardown(){ unsub.forEach(fn=>fn()); unsub=[]; if(unsubSeat){unsubSeat();unsubSeat=null;} if(pollTimer){clearInterval(pollTimer);pollTimer=null;} if(gateTimer){clearInterval(gateTimer);gateTimer=null;} studentStatsSubbed=false; rpTeardown(); }
 
 /* ===== 입장 ===== */
 function enterStudent(){
   role="student"; $("who").textContent=`· ${me.name} (${me.studentId})`;
   $("hello").innerHTML=`${me.name} 학생, 환영합니다`;
-  buildTabs([{id:"apply",label:"📝 신청하기"},{id:"dash",label:"📊 현황판"},{id:"qna",label:"💬 학과 Q&A"}]);
+  buildTabs([{id:"apply",label:"📝 신청하기"},{id:"dash",label:"📊 현황판"},{id:"qna",label:"💬 Q&A"},{id:"report",label:"✍️ 보고서"}]);
   $("classCard").style.display="block";
   $("gate").style.display="none"; $("app").style.display="block";
   subscribe(); showTab("apply");
 }
 function enterTeacher(){
   role="teacher"; $("who").textContent="· 교사"; $("seatBadge").innerHTML="";
-  buildTabs([{id:"dash",label:"📊 현황판"},{id:"manage",label:"📋 명단 관리"},{id:"qna",label:"💬 학과 Q&A"}]);
+  buildTabs([{id:"dash",label:"📊 현황판"},{id:"manage",label:"📋 명단 관리"},{id:"qna",label:"💬 Q&A"},{id:"report",label:"✍️ 보고서"}]);
   $("classCard").style.display="block";
   $("gate").style.display="none"; $("app").style.display="block";
   subscribe(); showTab("dash");
@@ -803,6 +880,8 @@ function showTab(id){
   $("panelDash").classList.toggle("on", id==="dash");
   $("panelManage").classList.toggle("on", id==="manage");
   $("panelQna").classList.toggle("on", id==="qna");
+  $("panelReport").classList.toggle("on", id==="report");
+  if(id==="report") openReportTab();
   if(id==="manage"){ renderManage(); mgSwitch(mgTab); }
   if(id==="qna") renderQna();
   if(id==="dash"){ if(role==="student") ensureStudentStats(); requestAnimationFrame(syncHeight); }
@@ -1268,7 +1347,7 @@ $("addConfirm").addEventListener("click", async ()=>{
 $("seedBtn").addEventListener("click", async ()=>{
   const ex=await getDocs(evCol("departments"));
   if(!ex.empty && !confirm("이미 학과 데이터가 있습니다. 시드값으로 덮어쓸까요? (신청 수 filled가 0으로 초기화됩니다)")) return;
-  if(ex.empty && !confirm(`${SEED.length}개 학과를 정원 ${CAP}명으로 생성하고, 10/14(수) 09:00 자동 오픈을 예약합니다. 진행할까요?`)) return;
+  if(ex.empty && !confirm(`${SEED.length}개 학과를 정원 ${CAP}명으로 생성하고, 10/14(수) 08:35 자동 오픈을 예약합니다. 진행할까요?`)) return;
   try{ for(const s of SEED) await setDoc(evDoc("departments",s.id),{ name:s.name, ord:s.ord, grp:s.grp, detail:s.detail, capacity:CAP, filled:0 });
     if(ex.empty) await setGate({ open:false, openAt: Timestamp.fromDate(new Date(DEFAULT_OPEN_AT)) });
     setStatus("학과 초기 세팅 완료","ok"); }catch(e){ console.error(e); setStatus("세팅 중 오류가 발생했습니다.","err"); }
@@ -1310,6 +1389,11 @@ $("fileInput").addEventListener("change", async (e)=>{
 /* ===== 학과 Q&A ===== */
 function qnaTimeStr(ts){ try{ const d=ts?.toDate?ts.toDate():null; if(!d) return ""; const mm=String(d.getMonth()+1), dd=String(d.getDate()), hh=String(d.getHours()).padStart(2,"0"), mi=String(d.getMinutes()).padStart(2,"0"); return `${mm}/${dd} ${hh}:${mi}`; }catch(e){ return ""; } }
 function renderQna(){ try{ _renderQna(); }catch(e){ console.error("qna:",e); } }
+// 익명 Q&A: 질문에는 vhash만 저장. 교사 화면에서만 명부로 작성자를 찾아 보여줌
+function qAuthor(q){
+  const st=students.find(x=>x.vhash===q.vhash);
+  return { sid:(st&&st.studentId)||q.studentId||"", name:(st&&st.name)||q.name||"" };
+}
 function _renderQna(){
   if(!role) return;
   $("qnaCsvBtn").style.display = role==="teacher" ? "inline-block" : "none";
@@ -1335,7 +1419,7 @@ function _renderQna(){
     const edited = q.editedAt ? ` <span class="qedited">(수정됨)</span>` : "";
     return `<div class="qitem${editId===q.id?" editing":""}">
       <div class="qtop">
-        <div class="qline"><span class="qsid">${esc(q.studentId||"")}</span><span class="qname">${esc(q.name||"익명")}</span><span class="qq">${esc(q.text||"")}</span></div>
+        <div class="qline">${role==="teacher" ? `<span class="qsid">${esc(qAuthor(q).sid)}</span><span class="qname">${esc(qAuthor(q).name||"알 수 없음")}</span>` : `<span class="qname">${own?"익명 (나)":"익명"}</span>`}<span class="qq">${esc(q.text||"")}</span></div>
         <span class="qtime">${qnaTimeStr(q.createdAt)}${edited}${acts.length?" · "+acts.join(" · "):""}</span>
       </div></div>`;
   }).join("") : `<div class="qempty">아직 질문이 없어요. 첫 질문을 남겨보세요!</div>`;
@@ -1369,7 +1453,7 @@ $("qnaPost").addEventListener("click", async ()=>{
       const d=depts.find(x=>x.id===qnaPick);
       await setDoc(doc(evCol("questions")), {
         deptId:qnaPick, deptName:d?d.name:"", text:t,
-        name:me.name, vhash:me.vhash, studentId:me.studentId, classNo:me.classNo,
+        vhash:me.vhash,
         createdAt:serverTimestamp()
       });
       $("qnaText").value=""; msg.classList.add("ok"); msg.textContent="질문이 등록되었어요!";
@@ -1380,7 +1464,7 @@ $("qnaPost").addEventListener("click", async ()=>{
 });
 async function deleteQuestion(id){
   const q=questions.find(x=>x.id===id); if(!q) return;
-  if(!confirm(`${q.name||""} 학생의 질문을 삭제할까요?`)) return;
+  if(!confirm(role==="teacher" ? `${qAuthor(q).name||""} 학생의 질문을 삭제할까요?` : "내 질문을 삭제할까요?")) return;
   try{ if(editId===id) cancelEdit(); await deleteDoc(evDoc("questions",id)); }
   catch(e){ console.error(e); alert("삭제 중 오류가 발생했습니다."); }
 }
@@ -1468,17 +1552,196 @@ function downloadQna(){
   const wb=XLSX.utils.book_new();
   const sorted=questions.slice().sort((a,b)=>((ordOf[a.deptId]||0)-(ordOf[b.deptId]||0)) || ((a.createdAt?.seconds||0)-(b.createdAt?.seconds||0)));
   const all=[["학과","학번","이름","질문","작성시각","수정됨"]];
-  sorted.forEach(q=>all.push([q.deptName||"", q.studentId||"", q.name||"", q.text||"", timeStr(q.createdAt), q.editedAt?"수정됨":""]));
+  sorted.forEach(q=>all.push([q.deptName||"", qAuthor(q).sid, qAuthor(q).name, q.text||"", timeStr(q.createdAt), q.editedAt?"수정됨":""]));
   XLSX.utils.book_append_sheet(wb, aoaSheet(all), "모든학과질문");
   depts.forEach(d=>{
     const list=sorted.filter(q=>q.deptId===d.id);
     const aoa=[["학번","이름","질문","작성시각","수정됨"]];
-    list.forEach(q=>aoa.push([q.studentId||"", q.name||"", q.text||"", timeStr(q.createdAt), q.editedAt?"수정됨":""]));
+    list.forEach(q=>aoa.push([qAuthor(q).sid, qAuthor(q).name, q.text||"", timeStr(q.createdAt), q.editedAt?"수정됨":""]));
     if(list.length===0) aoa.push(["(질문 없음)","","","",""]);
     XLSX.utils.book_append_sheet(wb, aoaSheet(aoa), safeName(`${d.ord}.${d.name}`));
   });
   saveWb(wb, `전공체험_학과QnA_${ymd()}.xlsx`);
 }
+
+
+/* ===== 전공체험 보고서 ===== */
+const RQ=[ ["q1","선택 이유"],["q2","활동 내용"],["q3","인상 깊었던 장면"],["q4","새롭게 알게 된 점"],["q5a","나에게 있는 역량"],["q5b","키우고 싶은 역량"],["q6","진로 연결"],["q7","한 줄 소감"] ];
+const RP_MAX=300; // 생기부 초안 권장 최대 글자수(공백 포함)
+let rpUnsub=[], rpGate={open:false}, reports={}, drafts={}, myReport=null, rpOpenV=null, rpBusy=false;
+let rpFilter={cls:"all", dept:"all", st:"all"}, rpDirty=false;
+function rpNote(t,cls){ const h=$("rpHint"); if(!h) return; h.textContent=t; h.style.color = cls==="err"?"var(--danger)":"var(--ok)"; setTimeout(()=>{ h.style.color=""; renderReport(); },3000); }
+const fnGen = ()=>httpsCallable(getFunctions(app,"asia-northeast3"),"genRecord",{timeout:70000});
+function rpTeardown(){ rpUnsub.forEach(f=>f()); rpUnsub=[]; reports={}; drafts={}; myReport=null; rpOpenV=null; }
+function openReportTab(){
+  $("rpStu").style.display = role==="student"?"block":"none";
+  $("rpTea").style.display = role==="teacher"?"block":"none";
+  if(!rpUnsub.length){
+    rpUnsub.push(onSnapshot(evDoc("config","report"), s=>{ rpGate={open: s.exists() && s.data().open===true}; renderReport(); }, e=>console.error(e)));
+    if(role==="student"){
+      rpUnsub.push(onSnapshot(evDoc("reports",me.vhash), s=>{ const first=myReport===null; myReport=s.exists()?s.data():false; if(first) fillMyReport(); renderReport(); }, e=>console.error(e)));
+    }else if(role==="teacher"){
+      rpUnsub.push(onSnapshot(evCol("reports"), s=>{ reports={}; s.docs.forEach(d=>reports[d.id]=d.data()); renderReport(); }, e=>console.error(e)));
+      rpUnsub.push(onSnapshot(evCol("drafts"), s=>{ drafts={}; s.docs.forEach(d=>drafts[d.id]=d.data()); renderReport(); }, e=>console.error(e)));
+    }
+  }
+  renderReport();
+}
+function renderReport(){ try{ if(role==="student") renderReportStu(); else if(role==="teacher") renderReportTea(); }catch(e){ console.error("report:",e); } }
+
+/* --- 학생 --- */
+const rpLocalKey=()=>`rp_draft_${EV}_${me?.vhash||""}`;
+function fillMyReport(){
+  let a = (myReport && myReport.answers) || null;
+  if(!a){ try{ a=JSON.parse(localStorage.getItem(rpLocalKey())||"null"); }catch(e){} }
+  if(a) RQ.forEach(([k])=>{ const el=$("r"+k); if(el && !el.value) el.value=a[k]||""; });
+}
+RQ.forEach(([k])=>$("r"+k)?.addEventListener("input", ()=>{
+  const o={}; RQ.forEach(([kk])=>o[kk]=$("r"+kk).value);
+  try{ localStorage.setItem(rpLocalKey(), JSON.stringify(o)); }catch(e){}
+}));
+function renderReportStu(){
+  const b=$("rpBanner"), dept=seat?.deptName||"";
+  const done = myReport && myReport.submitted;
+  if(!seat){ b.className="gatebanner closed"; b.textContent="학과 신청 내역이 없어 보고서를 쓸 수 없어요. 담임선생님께 문의하세요."; }
+  else if(!rpGate.open){ b.className="gatebanner closed"; b.textContent = done?"🔒 작성 기간이 끝났어요. 제출한 보고서를 볼 수 있어요.":"🔒 아직 보고서 작성 기간이 아니에요. (체험 당일에 열려요)"; }
+  else { b.className = done?"gatebanner open":"gatebanner wait"; b.textContent = done?"✅ 제출 완료! 마감 전까지 수정할 수 있어요.":"✍️ 보고서 작성 기간이에요. 7개 문항을 모두 작성해 제출하세요."; }
+  $("rpMeta").textContent = dept ? `${dept} · ${me.name}` : me.name;
+  const can = !!seat && rpGate.open;
+  RQ.forEach(([k])=>{ const el=$("r"+k); if(el) el.disabled=!can; });
+  const btn=$("rpSubmit"); btn.style.display = can?"block":"none"; btn.disabled=rpBusy;
+  btn.textContent = rpBusy?"저장 중…":(done?"수정 내용 저장":"제출하기");
+}
+$("rpSubmit").addEventListener("click", async ()=>{
+  clearMsg($("rpMsg"));
+  if(!seat || !rpGate.open) return;
+  const ans={}; let miss=null;
+  RQ.forEach(([k,l])=>{ ans[k]=$("r"+k).value.trim(); if(!miss && ans[k].length<2) miss=l; });
+  if(miss) return showMsg($("rpMsg"),`'${miss}' 항목을 작성해 주세요.`,"error");
+  rpBusy=true; renderReportStu();
+  try{
+    const first=!(myReport && myReport.submitted);
+    const data={ studentId:me.studentId, name:me.name, classNo:me.classNo, studentNo:me.studentNo, deptId:seat.deptId, deptName:seat.deptName, answers:ans, submitted:true, updatedAt:serverTimestamp() };
+    if(first) data.submittedAt=serverTimestamp();
+    await setDoc(evDoc("reports",me.vhash), data, {merge:true});
+    try{ localStorage.removeItem(rpLocalKey()); }catch(e){}
+    showMsg($("rpMsg"), first?"🎉 보고서가 제출되었어요!":"수정 내용이 저장되었어요.","success");
+  }catch(e){ console.error(e); showMsg($("rpMsg"),"저장 중 오류가 발생했어요. 작성 기간인지 확인하고 다시 시도해 주세요.","error"); }
+  finally{ rpBusy=false; renderReportStu(); }
+});
+
+/* --- 교사 --- */
+async function setRpGate(open){
+  try{ await setDoc(evDoc("config","report"), {open}, {merge:true}); }
+  catch(e){ console.error(e); alert("상태 변경 중 오류가 발생했습니다. 규칙을 확인해 주세요."); }
+}
+$("rpOpenBtn").addEventListener("click", ()=>{ if(confirm("보고서 작성을 열까요? 학생들이 작성·수정할 수 있게 됩니다.")) setRpGate(true); });
+$("rpCloseBtn").addEventListener("click", ()=>{ if(confirm("보고서 작성을 마감할까요? 학생들은 더 이상 수정할 수 없습니다.")) setRpGate(false); });
+function rpRecords(){
+  const byV={}; seats.forEach(x=>byV[x.vhash]=x);
+  return students.map(st=>{ const p=parseSid(st.studentId); const sv=byV[st.vhash]; const r=reports[st.vhash]; const d=drafts[st.vhash];
+    return { vhash:st.vhash, studentId:st.studentId||"", classNo:p.classNo, studentNo:p.studentNo, name:st.name||"",
+      deptId:(r&&r.deptId)||(sv&&sv.deptId)||"", deptName:(r&&r.deptName)||(sv&&sv.deptName)||"", rep:(r&&r.submitted)?r:null, draft:d||null }; })
+    .sort((a,b)=>(a.classNo-b.classNo)||(a.studentNo-b.studentNo));
+}
+function rpFiltered(){
+  return rpRecords().filter(r=>
+    (rpFilter.cls==="all" || String(r.classNo)===rpFilter.cls) &&
+    (rpFilter.dept==="all" || (rpFilter.dept==="none" ? !r.deptId : r.deptId===rpFilter.dept)) &&
+    (rpFilter.st==="all" || (rpFilter.st==="done"?!!r.rep : rpFilter.st==="none"?!r.rep : (!!r.rep && !(r.draft&&r.draft.text)))) );
+}
+function rpDraftTag(r){
+  if(!r.draft || !r.draft.text) return `<span class="tag no">—</span>`;
+  return r.draft.edited ? `<span class="tag fin">검토완료</span>` : `<span class="tag ai">AI초안</span>`;
+}
+function renderReportTea(){
+  const keep = ($("rpTxt") && rpDirty) ? $("rpTxt").value : null;
+  $("rpGateSt").innerHTML = rpGate.open ? `보고서 작성: <span style="color:var(--ok)">🟢 열림</span>` : `보고서 작성: <span style="color:var(--danger)">🔴 닫힘</span>`;
+  $("rpOpenBtn").disabled=rpGate.open; $("rpCloseBtn").disabled=!rpGate.open;
+  // 필터 옵션 (최초 1회 + 학생 수 변동 시)
+  const classNos=[...new Set(students.map(st=>parseSid(st.studentId).classNo))].sort((a,b)=>a-b);
+  const co=`<option value="all">전체 반</option>`+classNos.map(c=>`<option value="${c}">${c}반</option>`).join("");
+  if($("rpCls").dataset.k!==co){ $("rpCls").innerHTML=co; $("rpCls").dataset.k=co; $("rpCls").value=rpFilter.cls; }
+  const dop=`<option value="all">전체 학과</option>`+depts.map(d=>`<option value="${d.id}">${esc(d.name)}</option>`).join("")+`<option value="none">미신청</option>`;
+  if($("rpDept").dataset.k!==dop){ $("rpDept").innerHTML=dop; $("rpDept").dataset.k=dop; $("rpDept").value=rpFilter.dept; }
+  const all=rpRecords(), list=rpFiltered();
+  const nDone=all.filter(r=>r.rep).length, nDraft=all.filter(r=>r.draft&&r.draft.text).length;
+  $("rpKpis").innerHTML=`
+    <div class="kpi"><div class="ic">📝</div><div class="tx"><div class="v">${nDone}<span style="font-size:.9rem">/${all.length}</span></div><div class="l">보고서 제출</div></div></div>
+    <div class="kpi"><div class="ic">📈</div><div class="tx"><div class="v">${all.length?Math.round(nDone/all.length*100):0}%</div><div class="l">제출률</div></div></div>
+    <div class="kpi"><div class="ic">🤖</div><div class="tx"><div class="v">${nDraft}<span style="font-size:.9rem">/${nDone}</span></div><div class="l">생기부 초안</div></div></div>`;
+  $("rpBody").innerHTML = list.length ? list.map(r=>{
+    const open=rpOpenV===r.vhash;
+    let row=`<tr class="rrow ${open?"open":""}" data-v="${r.vhash}"><td class="no">${esc(r.studentId)}</td><td class="nm">${esc(r.name)}</td><td>${r.deptName?deptBadge(r.deptName,ordOf[r.deptId]):'<span class="tag no">미신청</span>'}</td><td class="st">${r.rep?'<span class="tag ok">제출</span>':'<span class="tag no">미제출</span>'}</td><td class="dr">${rpDraftTag(r)}</td></tr>`;
+    if(open) row+=`<tr class="rpdetail"><td colspan="5">${rpDetailHtml(r)}</td></tr>`;
+    return row;
+  }).join("") : `<tr><td colspan="5" class="empty">해당하는 학생이 없어요.</td></tr>`;
+  $("rpHint").textContent=`${list.length}명 표시 · 학번순 · 행을 누르면 보고서와 생기부 초안을 볼 수 있어요.`;
+  $("rpBody").querySelectorAll("tr.rrow").forEach(tr=>tr.addEventListener("click", ()=>{ rpOpenV = rpOpenV===tr.dataset.v?null:tr.dataset.v; rpDirty=false; renderReportTea(); }));
+  if(keep!=null && $("rpTxt")) $("rpTxt").value=keep;
+  bindDetail();
+}
+function rpDetailHtml(r){
+  if(!r.rep) return `<div class="in" style="display:block"><div class="empty">아직 보고서를 제출하지 않았어요.</div></div>`;
+  const a=r.rep.answers||{};
+  const dl=RQ.map(([k,l])=>`<dt>${l}</dt><dd>${esc(a[k]||"")}</dd>`).join("");
+  const txt=(r.draft&&r.draft.text)||"";
+  return `<div class="in"><dl>${dl}</dl>
+    <div class="rpdraft"><span class="lab">창체 진로활동 특기사항 초안</span>
+      <textarea id="rpTxt" placeholder="[AI 초안 생성]을 누르거나 직접 작성하세요.">${esc(txt)}</textarea>
+      <div class="row"><span class="cnt" id="rpCnt"></span><button class="ai" id="rpGenBtn">🤖 AI 초안 생성</button><button class="sv" id="rpSaveBtn">검토 완료·저장</button></div>
+      <div class="note">AI 초안은 보고서 내용만으로 만든 참고용이에요. 교사가 관찰한 내용을 바탕으로 검토·수정한 뒤 NEIS에 입력하세요. AI에는 이름·학번을 보내지 않아요.</div>
+    </div></div>`;
+}
+function bindDetail(){
+  const ta=$("rpTxt"); if(!ta) return;
+  const v=rpOpenV;
+  const upd=()=>{ const n=ta.value.length; const c=$("rpCnt"); c.textContent=`${n}자 / 권장 ${RP_MAX}자 이내`; c.classList.toggle("over", n>RP_MAX); };
+  upd(); ta.addEventListener("input", ()=>{ rpDirty=true; upd(); });
+  $("rpGenBtn").addEventListener("click", async ()=>{
+    if(ta.value.trim() && !confirm("현재 초안을 새 AI 초안으로 바꿀까요?")) return;
+    const b=$("rpGenBtn"); b.disabled=true; b.textContent="생성 중…";
+    try{ rpDirty=false; await genDraft(v); }catch(e){ alert(e.message||"초안 생성 중 오류가 발생했습니다."); }
+    finally{ if($("rpGenBtn")){ $("rpGenBtn").disabled=false; $("rpGenBtn").textContent="🤖 AI 초안 생성"; } }
+  });
+  $("rpSaveBtn").addEventListener("click", async ()=>{
+    try{ await setDoc(evDoc("drafts",v), { text:ta.value.trim(), edited:true, updatedAt:serverTimestamp() }, {merge:true}); rpDirty=false; rpNote("생기부 초안을 저장했습니다.","ok"); }
+    catch(e){ console.error(e); alert("저장 중 오류가 발생했습니다."); }
+  });
+}
+async function genDraft(v){
+  const r=reports[v]; if(!r || !r.submitted) throw new Error("제출된 보고서가 없어요.");
+  let res;
+  try{ res=await fnGen()({ deptName:r.deptName||"", answers:r.answers||{}, maxChars:RP_MAX }); }
+  catch(e){ console.error(e); throw new Error(e.code==="functions/not-found"||e.code==="functions/internal" ? "AI 기능(Cloud Functions)이 아직 배포되지 않았거나 오류가 났어요." : (e.message||"AI 호출 오류")); }
+  const text=String(res?.data?.text||"").trim(); if(!text) throw new Error("AI가 빈 결과를 돌려줬어요. 다시 시도해 주세요.");
+  await setDoc(evDoc("drafts",v), { text, edited:false, model:res.data.model||"", updatedAt:serverTimestamp() });
+  return text;
+}
+$("rpCls").addEventListener("change", e=>{ rpFilter.cls=e.target.value; rpOpenV=null; renderReportTea(); });
+$("rpDept").addEventListener("change", e=>{ rpFilter.dept=e.target.value; rpOpenV=null; renderReportTea(); });
+$("rpSt").addEventListener("change", e=>{ rpFilter.st=e.target.value; rpOpenV=null; renderReportTea(); });
+$("rpBatch").addEventListener("click", async ()=>{
+  if(rpBusy) return;
+  const targets=rpFiltered().filter(r=>r.rep && !(r.draft&&r.draft.text));
+  if(!targets.length) return alert("지금 목록에서 초안이 필요한 제출 학생이 없어요. (이미 초안이 있는 학생은 건너뜁니다)");
+  if(!confirm(`지금 목록의 제출 학생 중 초안이 없는 ${targets.length}명의 AI 초안을 만들까요?\n한 명씩 차례로 만들어서 시간이 조금 걸려요.`)) return;
+  rpBusy=true; const btn=$("rpBatch"); let ok=0, fail=0;
+  for(const r of targets){
+    btn.textContent=`🤖 생성 중 ${ok+fail+1}/${targets.length}`;
+    try{ await genDraft(r.vhash); ok++; }catch(e){ console.error(e); fail++; if(fail===1 && ok===0){ alert(e.message); break; } }
+  }
+  rpBusy=false; btn.textContent="🤖 초안 일괄 생성";
+  rpNote(`초안 생성 완료 ${ok}명${fail?` · 실패 ${fail}명`:""}`, fail?"err":"ok");
+});
+$("rpXls").addEventListener("click", ()=>{
+  const wb=XLSX.utils.book_new(), recs=rpRecords();
+  const head=["반","번호","학번","이름","학과","제출",...RQ.map(x=>x[1]),"생기부 초안","초안 상태"];
+  const row=r=>[r.classNo,r.studentNo,r.studentId,r.name,r.deptName,r.rep?"제출":"미제출",...RQ.map(([k])=>r.rep?(r.rep.answers?.[k]||""):""),(r.draft&&r.draft.text)||"",r.draft&&r.draft.text?(r.draft.edited?"검토완료":"AI초안"):""];
+  XLSX.utils.book_append_sheet(wb, aoaSheet([head,...recs.map(row)]), "전체");
+  [...new Set(recs.map(r=>r.classNo))].sort((a,b)=>a-b).forEach(c=>XLSX.utils.book_append_sheet(wb, aoaSheet([head,...recs.filter(r=>r.classNo===c).map(row)]), safeName(`${c}반`)));
+  saveWb(wb, `전공체험_보고서_${ymd()}.xlsx`);
+});
 
 $("csvBtn").addEventListener("click", ()=>{ if(mgTab==="dept") downloadDept(); else if(mgTab==="class") downloadClass(); else downloadAll(); });
 $("qnaCsvBtn")?.addEventListener("click", downloadQna);
