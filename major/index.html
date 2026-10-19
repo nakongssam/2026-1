@@ -98,6 +98,7 @@
   .bigbtn{ width:100%; margin-top:16px; padding:15px; border:none; border-radius:13px; font-size:1.04rem; font-weight:700; cursor:pointer; background:var(--yellow); color:#3a3320; }
   .bigbtn:hover{ background:var(--yellow-d); } .bigbtn:disabled{ background:var(--line2); color:var(--muted); box-shadow:none; cursor:not-allowed; }
   .bigbtn.danger{ background:var(--surface); color:var(--danger); border:1.5px solid var(--danger); box-shadow:none; }
+  .bigbtn.danger:disabled{ background:var(--page); color:var(--muted); border-color:var(--line2); }
   .msg{ margin-top:14px; padding:12px 14px; border-radius:12px; font-size:.92rem; font-weight:600; display:none; border:1.5px solid transparent; text-align:center; }
   .gatebanner{ margin:2px 0 10px; padding:8px 13px; border-radius:10px; font-weight:700; font-size:.88rem; text-align:center; border:1px solid transparent; }
   .gatebanner.wait{ background:var(--yellow-soft); color:#7a5c00; border-color:var(--yellow-d); }
@@ -252,8 +253,11 @@
   .dcard.clk:hover{ transform:translateY(-2px); box-shadow:0 10px 24px rgba(80,68,30,.12); }
   .dcard .head{ display:flex; justify-content:space-between; align-items:baseline; gap:8px; margin-bottom:6px; }
   .dcard .head .nm{ font-weight:700; color:var(--ink); font-size:1.04rem; }
+  .dcard .head .hr{ display:flex; align-items:center; gap:8px; flex:none; }
   .dcard .cnt{ font-size:.92rem; font-weight:700; white-space:nowrap; color:var(--body); }
   .dcard .cnt.full{ color:var(--danger); }
+  .capbtn{ border:1.5px solid var(--ink); background:var(--surface); color:var(--ink); border-radius:4px; padding:3px 9px; font-size:.78rem; font-weight:700; cursor:pointer; white-space:nowrap; }
+  .capbtn:hover{ background:var(--yellow-soft); }
   .dcard .dt{ font-size:.83rem; color:var(--muted); margin:2px 0 10px; line-height:1.5; }
   .bartrack{ height:9px; background:var(--track); border-radius:6px; overflow:hidden; }
   .barfill{ height:100%; background:var(--dc,var(--yellow-d)); border-radius:6px; transition:width .3s; }
@@ -646,6 +650,7 @@
           <div class="rpq"><label>5. 내 관심 분야나 진로와 연결해 볼 수 있는 점</label><p class="qh">희망 진로와 달라도 괜찮아요. 함께 활용할 수 있는 지식, 협업할 수 있는 분야 등</p><textarea id="rq6" maxlength="700"></textarea>
             <div class="sub" style="margin-top:10px">한 줄 소감</div><textarea id="rq7" maxlength="200" style="min-height:46px"></textarea></div>
           <button id="rpSubmit" class="bigbtn">제출하기</button>
+          <button id="rpTemp" class="bigbtn" style="margin-top:8px;background:var(--surface);color:var(--ink);border:1.5px solid var(--ink);">💾 임시 저장 (다른 기기에서 이어쓰기)</button>
           <div class="msg" id="rpMsg"></div>
         </div>
       </div>
@@ -700,10 +705,23 @@
 <div class="modal" id="rowModal">
   <div class="box">
     <h3 id="rowTitle">학생</h3>
+    <button class="full" id="rowAssign">🏫 학과 배정·변경</button>
     <button class="full" id="rowEditName">✏️ 이름 수정</button>
     <button class="full" id="rowCancelSeat">신청 취소</button>
     <button class="full" id="rowDelStu" style="background:var(--rose-soft,#fdeee4);color:var(--danger);">학생 삭제</button>
     <button class="full x" id="rowClose">닫기</button>
+  </div>
+</div>
+
+<div class="modal" id="assignModal">
+  <div class="box">
+    <h3 id="assignTitle">학과 배정</h3>
+    <div class="mmsg" id="assignCur" style="color:var(--body)"></div>
+    <label for="assignSel">배정할 학과</label>
+    <select id="assignSel" style="width:100%;padding:11px 12px;border:1.5px solid var(--ink);border-radius:4px;background:var(--surface);color:var(--ink);font:inherit;font-size:.95rem;"></select>
+    <div class="mmsg" id="assignMsg"></div>
+    <button class="full" id="assignOk">배정하기</button>
+    <button class="full x" id="assignCancel">닫기</button>
   </div>
 </div>
 
@@ -773,9 +791,10 @@ const evDoc=(...p)=>doc(db,"events",EV,...p);
 const evCol=(...p)=>collection(db,"events",EV,...p);
 setPersistence(auth, browserLocalPersistence).catch(()=>{});
 const $=(id)=>document.getElementById(id);
+const myUid=()=>auth.currentUser?.uid||"";
 
 let role=null, me=null, seat=null, selectedId=null;
-let depts=[], seats=[], students=[], roster=null, live=null, lastRosterKey="", lastLiveKey="", questions=[], qnaPick=null, qnaUserPicked=false, editId=null;
+let depts=[], seats=[], students=[], roster=null, live=null, lastRosterKey="", lastLiveKey="", questions=[], qauthors={}, qnaPick=null, qnaUserPicked=false, editId=null;
 let gate={open:false, openAt:null}, gateTimer=null;
 function openAtMs(){ const v=gate.openAt; if(!v) return null; if(typeof v?.toDate==="function") return v.toDate().getTime(); if(v instanceof Date) return v.getTime(); const n=new Date(v).getTime(); return isNaN(n)?null:n; }
 function isOpen(){ if(gate.open===true) return true; const t=openAtMs(); return t!=null && Date.now()>=t; }
@@ -793,6 +812,8 @@ const deptBadge=(name,ord)=>`<span class="dpill" style="background:${colorOf(ord
 function showMsg(el,t,type){ el.textContent=t; el.className="msg show "+type; }
 function clearMsg(el){ el.className="msg"; }
 function setStatus(t,cls=""){ const e=$("status"); if(e){ e.textContent=t; e.className=cls; } }
+// 이 기기(익명 계정)에서 만든 좌석인지
+const ownSeat=()=>!!(seat && seat.uid && seat.uid===myUid());
 
 /* ===== 게이트 ===== */
 $("segStu").addEventListener("click", ()=>{ $("segStu").classList.add("on"); $("segTea").classList.remove("on"); $("stuForm").style.display="block"; $("teaForm").style.display="none"; $("gateErr").textContent=""; });
@@ -850,7 +871,7 @@ $("outBtn").addEventListener("click", ()=>{
   $("sid").value=""; $("birth").value=""; $("email").value=""; $("pw").value="";
   $("app").style.display="none"; $("gate").style.display="flex";
 });
-function teardown(){ unsub.forEach(fn=>fn()); unsub=[]; if(unsubSeat){unsubSeat();unsubSeat=null;} if(pollTimer){clearInterval(pollTimer);pollTimer=null;} if(gateTimer){clearInterval(gateTimer);gateTimer=null;} studentStatsSubbed=false; rpTeardown(); }
+function teardown(){ unsub.forEach(fn=>fn()); unsub=[]; if(unsubSeat){unsubSeat();unsubSeat=null;} if(pollTimer){clearInterval(pollTimer);pollTimer=null;} if(gateTimer){clearInterval(gateTimer);gateTimer=null;} studentStatsSubbed=false; qauthors={}; rpTeardown(); }
 
 /* ===== 입장 ===== */
 function enterStudent(){
@@ -906,7 +927,9 @@ function subscribe(){
   }
   if(role==="teacher"){
     unsub.push(onSnapshot(evCol("seats"), s=>{ seats=s.docs.map(d=>({vhash:d.id,...d.data()})); renderDash(); renderManage(); }, e=>console.error(e)));
-    unsub.push(onSnapshot(collection(db,"students"), s=>{ students=s.docs.map(d=>({vhash:d.id,...d.data()})); buildPickers(); renderDash(); renderManage(); }, e=>console.error(e)));
+    unsub.push(onSnapshot(collection(db,"students"), s=>{ students=s.docs.map(d=>({vhash:d.id,...d.data()})); buildPickers(); renderDash(); renderManage(); if(curTab==="qna") renderQna(); }, e=>console.error(e)));
+    // 질문 작성자 정보(교사 전용)
+    unsub.push(onSnapshot(evCol("qauthors"), s=>{ qauthors={}; s.docs.forEach(d=>qauthors[d.id]=d.data()); if(curTab==="qna") renderQna(); }, e=>console.error(e)));
   }
   unsub.push(onSnapshot(query(evCol("questions"),orderBy("createdAt","desc")), s=>{
     questions=s.docs.map(d=>({id:d.id,...d.data()})); if(curTab==="qna") renderQna();
@@ -967,6 +990,8 @@ $("applyBtn").addEventListener("click", async ()=>{
   clearMsg($("mainMsg"));
   if(!isOpen()) return showMsg($("mainMsg"),"아직 신청이 열리지 않았습니다.","error");
   if(!selectedId) return showMsg($("mainMsg"),"신청할 학과를 선택해 주세요.","error");
+  const uid=myUid();
+  if(!uid) return showMsg($("mainMsg"),"접속 준비 중입니다. 잠시 후 다시 눌러 주세요.","error");
   $("applyBtn").disabled=true; $("applyBtn").textContent="신청 중…";
   try{
     const r=await runTransaction(db, async (tx)=>{
@@ -974,7 +999,8 @@ $("applyBtn").addEventListener("click", async ()=>{
       const ss=await tx.get(seatRef); if(ss.exists()) return {s:"HAS",n:ss.data().deptName};
       const ds=await tx.get(deptRef); if(!ds.exists()) return {s:"ERR"};
       const d=ds.data(); if(d.filled>=d.capacity) return {s:"FULL",n:d.name};
-      tx.set(seatRef,{ studentId:me.studentId, name:me.name, classNo:me.classNo, studentNo:me.studentNo, deptId:selectedId, deptName:d.name, createdAt:serverTimestamp() });
+      tx.set(evDoc("tickets",uid), { vhash:me.vhash, at:serverTimestamp() });
+      tx.set(seatRef,{ studentId:me.studentId, name:me.name, classNo:me.classNo, studentNo:me.studentNo, deptId:selectedId, deptName:d.name, uid, createdAt:serverTimestamp() });
       tx.update(deptRef,{ filled:d.filled+1 });
       tx.set(evDoc("stats","live"), { [String(me.classNo)]: increment(1) }, { merge:true });
       return {s:"OK",n:d.name};
@@ -987,20 +1013,23 @@ $("applyBtn").addEventListener("click", async ()=>{
   finally{ $("applyBtn").textContent="신청하기"; syncApplyLock(isOpen()); }
 });
 $("cancelBtn").addEventListener("click", async ()=>{
-  if(!confirm("신청을 취소할까요? 취소 후 다른 학과를 다시 선택할 수 있습니다.")) return;
   clearMsg($("mainMsg"));
+  if(!ownSeat()) return showMsg($("mainMsg"),"신청 변경은 담임선생님께 문의해 주세요.","info");
+  if(!confirm("신청을 취소할까요? 취소 후 다른 학과를 다시 선택할 수 있습니다.")) return;
+  const uid=myUid();
   try{
     await runTransaction(db, async (tx)=>{
       const seatRef=evDoc("seats",me.vhash); const ss=await tx.get(seatRef); if(!ss.exists()) return;
       const cNo=ss.data().classNo;
       const deptRef=evDoc("departments",ss.data().deptId); const ds=await tx.get(deptRef);
       const cur = ds.exists()?(ds.data().filled||0):0;
+      tx.set(evDoc("tickets",uid), { vhash:me.vhash, at:serverTimestamp() });
       if(cur>0) tx.update(deptRef,{ filled: cur-1 });
       tx.delete(seatRef);
       tx.set(evDoc("stats","live"), { [String(cNo)]: increment(-1) }, { merge:true });
     });
     showMsg($("mainMsg"),"신청이 취소되었습니다. 원하는 학과를 다시 선택해 주세요.","info");
-  }catch(e){ console.error(e); showMsg($("mainMsg"),"취소 중 오류가 발생했습니다.","error"); }
+  }catch(e){ console.error(e); showMsg($("mainMsg"),"취소할 수 없습니다. 담임선생님께 문의해 주세요.","error"); }
 });
 
 /* ===== 신청 오픈/마감 ===== */
@@ -1047,7 +1076,8 @@ function syncApplyLock(open){
   if(!applyB||!cancelB) return;
   if(seat){
     applyB.style.display="none"; cancelB.style.display="block";
-    cancelB.disabled=false; cancelB.textContent="신청 취소하고 다시 선택";
+    if(ownSeat()){ cancelB.disabled=false; cancelB.textContent="신청 취소하고 다시 선택"; }
+    else { cancelB.disabled=true; cancelB.textContent="🔒 신청 변경은 담임선생님께 문의하세요"; }
   }else{
     cancelB.style.display="none"; applyB.style.display="block";
     applyB.disabled = !open || !selectedId;
@@ -1204,16 +1234,32 @@ function _renderManage(){
     const items = mem.length
       ? `<div class="mlist">` + mem.map(m=>`<div class="mrow">
           <span class="mno">${esc(m.studentId||(m.classNo+"반 "+m.studentNo+"번"))}</span><span class="mnm">${esc(m.name)}</span>
+          <button class="rm" data-assign="${m.vhash}" title="학과 변경" style="color:var(--ink)">⇄</button>
           <button class="rm" data-cancel="${m.vhash}" title="신청 취소">✕</button></div>`).join("") + `</div>`
       : `<div class="mempty">아직 신청자가 없습니다.</div>`;
     $("deptView").innerHTML = `<div class="dcard" style="--dc:${colorOf(d.ord)}">
-      <div class="head"><span class="nm">${dot(d.ord)}${esc(d.name)}</span><span class="cnt ${full?"full":""}">${full?"마감 ":""}${d.filled} / ${d.capacity}</span></div>
+      <div class="head"><span class="nm">${dot(d.ord)}${esc(d.name)}</span>
+        <span class="hr"><span class="cnt ${full?"full":""}">${full?"마감 ":""}${d.filled} / ${d.capacity}</span><button class="capbtn" data-cap="${d.id}">✏️ 정원 변경</button></span></div>
       <div class="dt">${esc(d.detail||"")}</div>${items}</div>`;
     $("deptView").querySelectorAll("[data-cancel]").forEach(b=>b.addEventListener("click", ()=>cancelSeat(b.dataset.cancel)));
+    $("deptView").querySelectorAll("[data-assign]").forEach(b=>b.addEventListener("click", ()=>openAssign(b.dataset.assign)));
+    $("deptView").querySelectorAll("[data-cap]").forEach(b=>b.addEventListener("click", ()=>changeCapacity(b.dataset.cap)));
   } else $("deptView").innerHTML = `<div class="mempty">학과가 없습니다.</div>`;
 
   renderAll(seatByVhash);
   renderClass(seatByVhash);
+}
+async function changeCapacity(id){
+  const d=depts.find(x=>x.id===id); if(!d) return;
+  const v=prompt(`'${d.name}' 정원을 입력하세요.\n현재 정원 ${d.capacity}명 · 신청 ${d.filled}명`, String(d.capacity));
+  if(v===null) return;
+  const n=parseInt(String(v).trim(),10);
+  if(!Number.isInteger(n) || n<1 || n>200){ alert("1~200 사이의 숫자로 입력해 주세요."); return; }
+  if(n<d.filled){ alert(`이미 ${d.filled}명이 신청해서 그보다 작게 줄일 수 없어요.`); return; }
+  if(n===d.capacity) return;
+  if(!confirm(`'${d.name}' 정원을 ${d.capacity}명 → ${n}명으로 바꿀까요?${n>d.filled&&isOpen()?"\n신청이 열려 있어서 바로 선착순으로 신청이 들어올 수 있어요.":""}`)) return;
+  try{ await setDoc(evDoc("departments",id), { capacity:n }, { merge:true }); setStatus(`'${d.name}' 정원을 ${n}명으로 바꿨습니다.`,"ok"); }
+  catch(e){ console.error(e); alert("정원 변경 중 오류가 발생했습니다."); }
 }
 function classGroups(seatByVhash){
   const classes={};
@@ -1323,6 +1369,73 @@ function openRowMenu(vhash){
 }
 $("rowClose").addEventListener("click", ()=>$("rowModal").classList.remove("show"));
 $("rowEditName").addEventListener("click", ()=>{ $("rowModal").classList.remove("show"); if(rowVhash) editStudentName(rowVhash); });
+$("rowAssign").addEventListener("click", ()=>{ $("rowModal").classList.remove("show"); if(rowVhash) openAssign(rowVhash); });
+
+/* ===== 교사: 학생 대신 학과 배정·변경 ===== */
+let assignV=null;
+function openAssign(vhash){
+  const st=students.find(x=>x.vhash===vhash); if(!st) return;
+  assignV=vhash;
+  const p=parseSid(st.studentId); const cur=seats.find(x=>x.vhash===vhash);
+  $("assignTitle").textContent=`${st.name} (${p.classNo}반 ${p.studentNo}번)`;
+  $("assignCur").innerHTML = cur ? `현재 신청: <b>${esc(cur.deptName)}</b>` : `현재 신청: <b>없음</b> (미신청)`;
+  const sel=$("assignSel");
+  sel.innerHTML = depts.map(d=>{
+    const isCur=cur && cur.deptId===d.id, full=d.filled>=d.capacity;
+    const tagTxt = isCur ? " · 현재" : full ? " · 마감" : ` · 잔여 ${d.capacity-d.filled}석`;
+    return `<option value="${d.id}">${esc(d.name)} (${d.filled}/${d.capacity}${tagTxt})</option>`;
+  }).join("");
+  const firstOpen=depts.find(d=>d.filled<d.capacity && !(cur && cur.deptId===d.id));
+  sel.value = (firstOpen||depts[0]||{}).id || "";
+  $("assignOk").textContent = cur ? "학과 변경하기" : "배정하기";
+  $("assignMsg").textContent="";
+  $("assignModal").classList.add("show");
+}
+$("assignCancel").addEventListener("click", ()=>$("assignModal").classList.remove("show"));
+$("assignOk").addEventListener("click", async ()=>{
+  const st=students.find(x=>x.vhash===assignV); if(!st) return;
+  const targetId=$("assignSel").value; const d=depts.find(x=>x.id===targetId); if(!d) return;
+  const cur=seats.find(x=>x.vhash===assignV);
+  const msg=$("assignMsg"); msg.style.color="var(--danger)"; msg.textContent="";
+  if(cur && cur.deptId===targetId){ msg.textContent="이미 이 학과에 신청되어 있어요."; return; }
+  let bump=false;
+  if(d.filled>=d.capacity){
+    if(!confirm(`'${d.name}'은(는) 정원(${d.capacity}명)이 다 찼어요.\n정원을 ${d.capacity+1}명으로 1명 늘려서 배정할까요?`)) return;
+    bump=true;
+  }
+  const p=parseSid(st.studentId);
+  if(!bump && !confirm(cur ? `${st.name} 학생을 '${cur.deptName}' → '${d.name}'(으)로 변경할까요?` : `${st.name} 학생을 '${d.name}'에 배정할까요?`)) return;
+  $("assignOk").disabled=true;
+  try{
+    const r=await runTransaction(db, async (tx)=>{
+      const seatRef=evDoc("seats",assignV), newRef=evDoc("departments",targetId);
+      const ss=await tx.get(seatRef);
+      const nd=await tx.get(newRef); if(!nd.exists()) return "ERR";
+      const oldId = ss.exists() ? ss.data().deptId : null;
+      if(oldId===targetId) return "SAME";
+      const od = oldId ? await tx.get(evDoc("departments",oldId)) : null;
+      const n=nd.data();
+      if(!bump && n.filled>=n.capacity) return "FULL";
+      // 쓰기
+      const newPatch={ filled:(n.filled||0)+1 };
+      if(bump && n.filled+1>n.capacity) newPatch.capacity=n.filled+1;
+      tx.update(newRef, newPatch);
+      if(ss.exists()){
+        if(od && od.exists()) tx.update(od.ref, { filled:Math.max(0,(od.data().filled||0)-1) });
+        tx.update(seatRef, { deptId:targetId, deptName:n.name, assignedBy:"teacher", updatedAt:serverTimestamp() });
+      }else{
+        tx.set(seatRef, { studentId:st.studentId, name:st.name, classNo:p.classNo, studentNo:p.studentNo, deptId:targetId, deptName:n.name, assignedBy:"teacher", createdAt:serverTimestamp() });
+        tx.set(evDoc("stats","live"), { [String(p.classNo)]: increment(1) }, { merge:true });
+      }
+      return "OK";
+    });
+    if(r==="OK"){ $("assignModal").classList.remove("show"); setStatus(`${st.name} 학생을 '${d.name}'에 ${cur?"변경":"배정"}했습니다.`,"ok"); }
+    else if(r==="FULL") msg.textContent="방금 정원이 다 찼어요. 다시 시도해 주세요.";
+    else if(r==="SAME") msg.textContent="이미 이 학과에 신청되어 있어요.";
+    else msg.textContent="학과 정보를 찾을 수 없어요.";
+  }catch(e){ console.error(e); msg.textContent="배정 중 오류가 발생했습니다."; }
+  finally{ $("assignOk").disabled=false; }
+});
 $("rowCancelSeat").addEventListener("click", ()=>{ if($("rowCancelSeat").disabled) return; $("rowModal").classList.remove("show"); if(rowVhash) cancelSeat(rowVhash); });
 $("rowDelStu").addEventListener("click", ()=>{ $("rowModal").classList.remove("show"); if(rowVhash) deleteStudent(rowVhash); });
 
@@ -1389,11 +1502,13 @@ $("fileInput").addEventListener("change", async (e)=>{
 /* ===== 학과 Q&A ===== */
 function qnaTimeStr(ts){ try{ const d=ts?.toDate?ts.toDate():null; if(!d) return ""; const mm=String(d.getMonth()+1), dd=String(d.getDate()), hh=String(d.getHours()).padStart(2,"0"), mi=String(d.getMinutes()).padStart(2,"0"); return `${mm}/${dd} ${hh}:${mi}`; }catch(e){ return ""; } }
 function renderQna(){ try{ _renderQna(); }catch(e){ console.error("qna:",e); } }
-// 익명 Q&A: 질문에는 vhash만 저장. 교사 화면에서만 명부로 작성자를 찾아 보여줌
+// 익명 Q&A: 질문 문서에는 익명 uid만 저장. 작성자(vhash)는 교사 전용 qauthors에 따로 저장
 function qAuthor(q){
-  const st=students.find(x=>x.vhash===q.vhash);
-  return { sid:(st&&st.studentId)||q.studentId||"", name:(st&&st.name)||q.name||"" };
+  const a=qauthors[q.id];
+  const st=a ? students.find(x=>x.vhash===a.vhash) : null;
+  return { sid:(st&&st.studentId)||"", name:(st&&st.name)||"" };
 }
+const qOwn=(q)=>role==="student" && !!q.uid && q.uid===myUid();
 function _renderQna(){
   if(!role) return;
   $("qnaCsvBtn").style.display = role==="teacher" ? "inline-block" : "none";
@@ -1412,14 +1527,15 @@ function _renderQna(){
   const list=questions.filter(q=>q.deptId===qnaPick);
   $("qnaMeta").textContent = list.length?`질문 ${list.length}개`:"";
   $("qnaList").innerHTML = list.length ? list.map(q=>{
-    const own = me && q.vhash===me.vhash;
+    const own = qOwn(q);
     const acts=[];
     if(own) acts.push(`<button class="qedit" data-edit="${q.id}">수정</button>`);
     if(role==="teacher" || own) acts.push(`<button class="qdel" data-del="${q.id}">삭제</button>`);
     const edited = q.editedAt ? ` <span class="qedited">(수정됨)</span>` : "";
+    const au = role==="teacher" ? qAuthor(q) : null;
     return `<div class="qitem${editId===q.id?" editing":""}">
       <div class="qtop">
-        <div class="qline">${role==="teacher" ? `<span class="qsid">${esc(qAuthor(q).sid)}</span><span class="qname">${esc(qAuthor(q).name||"알 수 없음")}</span>` : `<span class="qname">${own?"익명 (나)":"익명"}</span>`}<span class="qq">${esc(q.text||"")}</span></div>
+        <div class="qline">${role==="teacher" ? `<span class="qsid">${esc(au.sid)}</span><span class="qname">${esc(au.name||"알 수 없음")}</span>` : `<span class="qname">${own?"익명 (나)":"익명"}</span>`}<span class="qq">${esc(q.text||"")}</span></div>
         <span class="qtime">${qnaTimeStr(q.createdAt)}${edited}${acts.length?" · "+acts.join(" · "):""}</span>
       </div></div>`;
   }).join("") : `<div class="qempty">아직 질문이 없어요. 첫 질문을 남겨보세요!</div>`;
@@ -1427,7 +1543,7 @@ function _renderQna(){
   $("qnaList").querySelectorAll("[data-edit]").forEach(b=>b.addEventListener("click", ()=>startEdit(b.dataset.edit)));
 }
 function startEdit(id){
-  const q=questions.find(x=>x.id===id); if(!q) return;
+  const q=questions.find(x=>x.id===id); if(!q || !qOwn(q)) return;
   editId=id; $("qnaText").value=q.text||""; $("qnaText").focus();
   $("qnaPost").textContent="수정 완료";
   const msg=$("qnaMsg"); msg.className="qnamsg"; msg.innerHTML=`수정 중… <span class="lnk" id="qnaCancelLnk">취소</span>`;
@@ -1443,6 +1559,8 @@ $("qnaPost").addEventListener("click", async ()=>{
   msg.className="qnamsg"; msg.textContent="";
   if(role!=="student"){ msg.classList.add("err"); msg.textContent="질문 작성·수정은 학생만 가능해요. (교사는 보기·삭제만)"; return; }
   if(t.length<2){ msg.classList.add("err"); msg.textContent="질문을 입력해 주세요."; return; }
+  const uid=myUid();
+  if(!uid){ msg.classList.add("err"); msg.textContent="접속 준비 중이에요. 잠시 후 다시 시도해 주세요."; return; }
   $("qnaPost").disabled=true;
   try{
     if(editId){
@@ -1451,11 +1569,11 @@ $("qnaPost").addEventListener("click", async ()=>{
     }else{
       if(!qnaPick){ msg.classList.add("err"); msg.textContent="학과를 먼저 선택해 주세요."; return; }
       const d=depts.find(x=>x.id===qnaPick);
-      await setDoc(doc(evCol("questions")), {
-        deptId:qnaPick, deptName:d?d.name:"", text:t,
-        vhash:me.vhash,
-        createdAt:serverTimestamp()
-      });
+      const qref=doc(evCol("questions"));
+      const b=writeBatch(db);
+      b.set(qref, { deptId:qnaPick, deptName:d?d.name:"", text:t, uid, createdAt:serverTimestamp() });
+      b.set(evDoc("qauthors",qref.id), { vhash:me.vhash, uid });
+      await b.commit();
       $("qnaText").value=""; msg.classList.add("ok"); msg.textContent="질문이 등록되었어요!";
     }
     setTimeout(()=>{ if(!editId){ msg.textContent=""; msg.className="qnamsg"; } }, 2500);
@@ -1465,8 +1583,13 @@ $("qnaPost").addEventListener("click", async ()=>{
 async function deleteQuestion(id){
   const q=questions.find(x=>x.id===id); if(!q) return;
   if(!confirm(role==="teacher" ? `${qAuthor(q).name||""} 학생의 질문을 삭제할까요?` : "내 질문을 삭제할까요?")) return;
-  try{ if(editId===id) cancelEdit(); await deleteDoc(evDoc("questions",id)); }
-  catch(e){ console.error(e); alert("삭제 중 오류가 발생했습니다."); }
+  try{
+    if(editId===id) cancelEdit();
+    const b=writeBatch(db);
+    b.delete(evDoc("questions",id));
+    if(role==="teacher" ? !!qauthors[id] : true) b.delete(evDoc("qauthors",id));
+    await b.commit();
+  }catch(e){ console.error(e); alert("삭제 중 오류가 발생했습니다."); }
 }
 
 function download(name,csv){ const blob=new Blob(["\uFEFF"+csv],{type:"text/csv;charset=utf-8;"});
@@ -1591,45 +1714,56 @@ function openReportTab(){
 function renderReport(){ try{ if(role==="student") renderReportStu(); else if(role==="teacher") renderReportTea(); }catch(e){ console.error("report:",e); } }
 
 /* --- 학생 --- */
+// 같은 기기 임시 저장(localStorage) + 서버 임시 저장(다른 기기에서 이어쓰기)
 const rpLocalKey=()=>`rp_draft_${EV}_${me?.vhash||""}`;
+function rpReadLocal(){ try{ const o=JSON.parse(localStorage.getItem(rpLocalKey())||"null"); if(!o) return null; return o.a ? o : {a:o, t:0}; }catch(e){ return null; } }
+function rpCollect(){ const o={}; RQ.forEach(([k])=>o[k]=$("r"+k).value); return o; }
 function fillMyReport(){
-  let a = (myReport && myReport.answers) || null;
-  if(!a){ try{ a=JSON.parse(localStorage.getItem(rpLocalKey())||"null"); }catch(e){} }
-  if(a) RQ.forEach(([k])=>{ const el=$("r"+k); if(el && !el.value) el.value=a[k]||""; });
+  // 서버 저장본과 이 기기 저장본 중 더 최근 것을 불러옴
+  const srv = (myReport && myReport.answers) ? { a:myReport.answers, t:(myReport.updatedAt?.toMillis?.()||0) } : null;
+  const loc = rpReadLocal();
+  const pick = (srv && loc) ? (loc.t>srv.t ? loc : srv) : (srv||loc);
+  if(pick) RQ.forEach(([k])=>{ const el=$("r"+k); if(el) el.value=pick.a[k]||""; });
 }
 RQ.forEach(([k])=>$("r"+k)?.addEventListener("input", ()=>{
-  const o={}; RQ.forEach(([kk])=>o[kk]=$("r"+kk).value);
-  try{ localStorage.setItem(rpLocalKey(), JSON.stringify(o)); }catch(e){}
+  try{ localStorage.setItem(rpLocalKey(), JSON.stringify({a:rpCollect(), t:Date.now()})); }catch(e){}
 }));
 function renderReportStu(){
   const b=$("rpBanner"), dept=seat?.deptName||"";
   const done = myReport && myReport.submitted;
   if(!seat){ b.className="gatebanner closed"; b.textContent="학과 신청 내역이 없어 보고서를 쓸 수 없어요. 담임선생님께 문의하세요."; }
   else if(!rpGate.open){ b.className="gatebanner closed"; b.textContent = done?"🔒 작성 기간이 끝났어요. 제출한 보고서를 볼 수 있어요.":"🔒 아직 보고서 작성 기간이 아니에요. (체험 당일에 열려요)"; }
-  else { b.className = done?"gatebanner open":"gatebanner wait"; b.textContent = done?"✅ 제출 완료! 마감 전까지 수정할 수 있어요.":"✍️ 보고서 작성 기간이에요. 희망 진로와 5개 문항을 모두 작성해 제출하세요."; }
+  else { b.className = done?"gatebanner open":"gatebanner wait"; b.textContent = done?"✅ 제출 완료! 마감 전까지 수정할 수 있어요. (폰·컴퓨터 어디서든)":"✍️ 보고서 작성 기간이에요. 중간에 기기를 바꾸려면 [임시 저장]을 먼저 누르세요."; }
   $("rpMeta").textContent = dept ? `${dept} · ${me.name}` : me.name;
   const can = !!seat && rpGate.open;
   RQ.forEach(([k])=>{ const el=$("r"+k); if(el) el.disabled=!can; });
   const btn=$("rpSubmit"); btn.style.display = can?"block":"none"; btn.disabled=rpBusy;
   btn.textContent = rpBusy?"저장 중…":(done?"수정 내용 저장":"제출하기");
+  const tb=$("rpTemp"); tb.style.display = (can && !done)?"block":"none"; tb.disabled=rpBusy;
 }
-$("rpSubmit").addEventListener("click", async ()=>{
+async function rpSave(final){
   clearMsg($("rpMsg"));
   if(!seat || !rpGate.open) return;
+  const uid=myUid();
+  if(!uid) return showMsg($("rpMsg"),"접속 준비 중이에요. 잠시 후 다시 시도해 주세요.","error");
   const ans={}; let miss=null;
   RQ.forEach(([k,l])=>{ ans[k]=$("r"+k).value.trim(); if(!miss && ans[k].length<2) miss=l; });
-  if(miss) return showMsg($("rpMsg"),`'${miss}' 항목을 작성해 주세요.`,"error");
+  if(final && miss) return showMsg($("rpMsg"),`'${miss}' 항목을 작성해 주세요.`,"error");
   rpBusy=true; renderReportStu();
   try{
-    const first=!(myReport && myReport.submitted);
-    const data={ studentId:me.studentId, name:me.name, classNo:me.classNo, studentNo:me.studentNo, deptId:seat.deptId, deptName:seat.deptName, answers:ans, submitted:true, updatedAt:serverTimestamp() };
-    if(first) data.submittedAt=serverTimestamp();
+    const already=!!(myReport && myReport.submitted);
+    const data={ studentId:me.studentId, name:me.name, classNo:me.classNo, studentNo:me.studentNo, deptId:seat.deptId, deptName:seat.deptName, answers:ans, uid, updatedAt:serverTimestamp() };
+    if(final){ data.submitted=true; if(!already) data.submittedAt=serverTimestamp(); }
+    else if(!already) data.submitted=false;
     await setDoc(evDoc("reports",me.vhash), data, {merge:true});
     try{ localStorage.removeItem(rpLocalKey()); }catch(e){}
-    showMsg($("rpMsg"), first?"🎉 보고서가 제출되었어요!":"수정 내용이 저장되었어요.","success");
+    if(final) showMsg($("rpMsg"), already?"수정 내용이 저장되었어요.":"🎉 보고서가 제출되었어요!","success");
+    else showMsg($("rpMsg"),"💾 임시 저장했어요. 다른 기기에서 로그인하면 이어서 쓸 수 있어요. (아직 제출 전이에요)","info");
   }catch(e){ console.error(e); showMsg($("rpMsg"),"저장 중 오류가 발생했어요. 작성 기간인지 확인하고 다시 시도해 주세요.","error"); }
   finally{ rpBusy=false; renderReportStu(); }
-});
+}
+$("rpSubmit").addEventListener("click", ()=>rpSave(true));
+$("rpTemp").addEventListener("click", ()=>rpSave(false));
 
 /* --- 교사 --- */
 async function setRpGate(open){
